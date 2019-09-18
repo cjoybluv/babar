@@ -3,7 +3,8 @@ import './plugins/vuetify'
 import App from './App.vue'
 import vuetify from './plugins/vuetify'
 import router from './router'
-import store from './store'
+import store from './store/store'
+import 'nprogress/nprogress.css'
 
 Vue.config.productionTip = false
 

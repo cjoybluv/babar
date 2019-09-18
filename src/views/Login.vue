@@ -5,8 +5,11 @@
 		</v-card-title>
 		<v-card-text>
 			<v-form>
-				<v-text-field label="Username" prepend-icon="mdi-account-circle" />
+				<v-text-field 
+					autofocus
+					v-model="loginData.email" label="Email" type="email" prepend-icon="mdi-account-circle" />
 				<v-text-field
+					v-model="loginData.password"
 					:type="showPassword ? 'text' : 'password'"
 					label="Password"
 					prepend-icon="mdi-lock"
@@ -19,17 +22,37 @@
 		<v-card-actions>
 			<v-btn color="success">Register</v-btn>
 			<v-spacer></v-spacer>
-			<v-btn color="info">Login</v-btn>
+			<v-btn color="info" @click="login">Login</v-btn>
 		</v-card-actions>
 	</v-card>
 </template>
 
 <script>
+import NProgress from 'nprogress'
+
 export default {
 	name: 'LoginPage',
 	data() {
 		return {
+			loginData: {
+				email: '',
+				password: ''
+			},
 			showPassword: false
+		}
+	},
+	methods: {
+		login() {
+			NProgress.start()
+			this.$store
+				.dispatch('auth/login', this.loginData)
+				.then(() => {
+					NProgress.done()
+					this.$router.push({ name: 'dashboard'})
+				})
+				.catch(() => {
+					NProgress.done()
+				})
 		}
 	}
 }
