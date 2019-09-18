@@ -8,10 +8,6 @@ export const state = {
   isAuthenticated: false
 }
 
-export const getters = {
-
-}
-
 export const mutations = {
   SET_AUTH(state, authData) {
     state.user = authData.user
@@ -22,24 +18,28 @@ export const mutations = {
   }
 }
 export const actions = {
-  login({ commit }, loginData) {
-    return AuthService.postLogin(loginData)
+  login({ commit, dispatch }, loginData) {
+    return new Promise((resolve, reject) => {
+      AuthService.postLogin(loginData)
       .then((response) => {
         commit('SET_AUTH', response.data)
-        // const notification = {
-        //   type: 'success',
-        //   message: 'Your event has been created!'
-        // }
-        // dispatch('notification/add', notification, { root: true })
+        const notification = {
+          type: 'success',
+          message: 'LOGIN SUCCESS!'
+        }
+        dispatch('notification/add', notification, { root: true })
+        resolve(response.data)
       })
       .catch(error => {
-        console.error('ACTIONS: login', error)
-        // const notification = {
-        //   type: 'error',
-        //   message: 'There was a problem creating your event: ' + error.message
-        // }
-        // dispatch('notification/add', notification, { root: true })
-        throw error
+        const notification = {
+          type: 'error',
+          message: 'LOGIN FAILURE! ' + error.message
+        }
+        dispatch('notification/add', notification, { root: true })
+        reject(error)
       })
+    })
+    
+    
   }
 }

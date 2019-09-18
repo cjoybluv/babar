@@ -12,6 +12,7 @@
       >{{ link.label }}</v-btn>
     </v-app-bar>
     <v-content>
+      <NotificationContainer />
       <router-view></router-view>
     </v-content>
     <v-footer color="primary lighten-1" padless>
@@ -35,8 +36,12 @@
 </template>
 
 <script>
+import NotificationContainer from '@/components/NotificationContainer'
 export default {
   name: "App",
+  components: {
+    NotificationContainer
+  },
   data() {
     return {
       links: [
