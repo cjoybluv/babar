@@ -7,7 +7,9 @@
 			<v-form>
 				<v-text-field 
 					autofocus
-					v-model="loginData.email" label="Email" type="email" prepend-icon="mdi-account-circle" />
+					v-model="loginData.email" 
+					label="Email" type="email" 
+					prepend-icon="mdi-account-circle" />
 				<v-text-field
 					v-model="loginData.password"
 					:type="showPassword ? 'text' : 'password'"
@@ -50,7 +52,7 @@ export default {
 					NProgress.done()
 					this.$router.push({ name: 'dashboard'})
 				})
-				.catch(() => {
+				.catch(error => {
 					NProgress.done()
 				})
 		}
