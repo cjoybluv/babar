@@ -38,7 +38,7 @@
 <script>
 import NotificationContainer from '@/components/NotificationContainer'
 export default {
-  name: "App",
+  name: 'App',
   components: {
     NotificationContainer
   },
@@ -46,19 +46,19 @@ export default {
     return {
       links: [
         {
-          label: "Home",
-          url: "/"
+          label: 'Home',
+          url: '/'
         },
         {
-          label: "Login",
-          url: "/login"
+          label: 'Login',
+          url: '/login'
         },
         {
-          label: "Dashboard",
-          url: "/dashboard"
+          label: 'Dashboard',
+          url: '/dashboard'
         }
       ]
-    };
+    }
   }
-};
+}
 </script>
