@@ -10,7 +10,7 @@ export const state = {
 
 export const getters = {
   token(state) {
-    return state.token
+    return state.token || localStorage.getItem('token')
   },
   ownerId(state) {
     return state.user.id

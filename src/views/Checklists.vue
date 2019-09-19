@@ -1,11 +1,16 @@
 <template>
   <div>
-    <h1>Checklists</h1>
-    <ul>
-      <li v-for="checklist in checklist.checklists" :key="checklist._id">
-        {{ checklist.title }}
-      </li>
-    </ul>
+    <v-row no-gutters>
+      <v-col cols="4">
+        <v-sheet tile height="580" class="primary"></v-sheet>
+      </v-col>
+      <v-col cols="4">
+        <v-sheet tile height="580" class="primary lighten-2"></v-sheet>
+      </v-col>
+      <v-col cols="4">
+        <v-sheet tile height="580" class="primary lighten-4"></v-sheet>
+      </v-col>
+    </v-row>
   </div>
 </template>
 
