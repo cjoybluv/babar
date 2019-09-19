@@ -1,462 +1,462 @@
-const express = require("express");
-const jwt = require("jsonwebtoken");
-const bcrypt = require("bcrypt");
+const express = require('express')
+const jwt = require('jsonwebtoken')
+const bcrypt = require('bcrypt')
 
-const router = express.Router();
+const router = express.Router()
 
-const User = require("../models/users");
-const Checklist = require("../models/checklists");
-const Contact = require("../models/contacts");
-const Item = require("../models/items");
-const Location = require("../models/locations");
-const AppData = require("../models/appData");
+const User = require('../models/users')
+const Checklist = require('../models/checklists')
+const Contact = require('../models/contacts')
+const Item = require('../models/items')
+const Location = require('../models/locations')
+const AppData = require('../models/appData')
 
-const JWT_SECRET_KEY = "getConnected";
+const JWT_SECRET_KEY = 'getConnected'
 
-const saltRounds = 10;
+const saltRounds = 10
 
-router.post("/auth/signup", (req, res, next) => {
-  const password = req.body.password;
+router.post('/auth/signup', (req, res, next) => {
+  const password = req.body.password
   bcrypt.hash(password, saltRounds, function(error, hash) {
-    if (error) res.status(500).json({ error });
+    if (error) res.status(500).json({ error })
     const newUser = {
       username: req.body.username,
       email: req.body.email,
       password: hash
-    };
+    }
     User.findOne({ email: newUser.email })
       .then(user => {
         if (!user) {
           User.create(newUser)
             .then(user => {
-              res.json(user);
+              res.json(user)
             })
             .catch(error => {
-              res.json({ error });
-            });
+              res.json({ error })
+            })
         } else {
-          res.status(401).send({ error: "email exists" });
+          res.status(401).send({ error: 'email exists' })
         }
       })
       .catch(error => {
-        res.json({ error });
-      });
-  });
-});
+        res.json({ error })
+      })
+  })
+})
 
-router.post("/auth/login", (req, res, next) => {
+router.post('/auth/login', (req, res, next) => {
   User.findOne({ email: req.body.email })
     .then(function(user) {
-      if (!user) res.status(401).send({ error: "Not authorized" });
+      if (!user) res.status(401).send({ error: 'Not authorized' })
       bcrypt.compare(req.body.password, user.password, function(err, result) {
-        if (err) res.status(401).send({ error: err });
-        if (!result) res.status(401).send({ error: "Not Authorized" });
+        if (err) res.status(401).send({ error: err })
+        if (!result) res.status(401).send({ error: 'Not Authorized' })
         jwt.sign(
           { user },
           JWT_SECRET_KEY,
-          { expiresIn: "1h" },
+          { expiresIn: '1h' },
           (err, token) => {
             if (err) {
-              res.sendStatus(424);
+              res.sendStatus(424)
             } else {
-              res.json({ user, token });
+              res.json({ user, token })
             }
           }
-        );
-      });
+        )
+      })
     })
     .catch(error => {
-      res.json({ error });
-    });
-});
+      res.json({ error })
+    })
+})
 
-router.get("/checklists", verifyToken, (req, res, next) => {
+router.get('/checklists', verifyToken, (req, res, next) => {
   jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
     if (err) {
-      res.sendStatus(403);
+      res.sendStatus(403)
     } else {
       Checklist.find({ ownerId: req.query.ownerId })
-        .sort("title")
+        .sort('title')
         .then(checklists => {
-          res.json(checklists);
+          res.json(checklists)
         })
         .catch(error => {
-          res.json({ error });
-        });
+          res.json({ error })
+        })
     }
-  });
-});
+  })
+})
 
-router.get("/checklists/:id", verifyToken, (req, res, next) => {
+router.get('/checklists/:id', verifyToken, (req, res, next) => {
   jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
     if (err) {
-      res.sendStatus(403);
+      res.sendStatus(403)
     } else {
       Checklist.findById(req.params.id)
         .then(checklist => {
-          res.json(checklist);
+          res.json(checklist)
         })
         .catch(error => {
-          res.json({ error });
-        });
+          res.json({ error })
+        })
     }
-  });
-});
+  })
+})
 
-router.post("/checklists", verifyToken, (req, res, next) => {
+router.post('/checklists', verifyToken, (req, res, next) => {
   jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
     if (err) {
-      res.sendStatus(403);
+      res.sendStatus(403)
     } else {
       Checklist.create(req.body)
         .then(checklist => {
-          res.json(checklist);
+          res.json(checklist)
         })
         .catch(error => {
-          res.json({ error });
-        });
+          res.json({ error })
+        })
     }
-  });
-});
+  })
+})
 
-router.put("/checklists/:id", verifyToken, (req, res, next) => {
+router.put('/checklists/:id', verifyToken, (req, res, next) => {
   jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
     if (err) {
-      res.sendStatus(403);
+      res.sendStatus(403)
     } else {
       Checklist.findByIdAndUpdate({ _id: req.params.id }, req.body)
         .then(() => {
           Checklist.findById(req.params.id)
             .then(checklist => {
-              res.json(checklist);
+              res.json(checklist)
             })
             .catch(error => {
-              res.json({ error });
-            });
+              res.json({ error })
+            })
         })
         .catch(error => {
-          res.json({ error });
-        });
+          res.json({ error })
+        })
     }
-  });
-});
+  })
+})
 
-router.delete("/checklists/:id", verifyToken, (req, res, next) => {
+router.delete('/checklists/:id', verifyToken, (req, res, next) => {
   jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
     if (err) {
-      res.sendStatus(403);
+      res.sendStatus(403)
     } else {
       Checklist.findByIdAndDelete(req.params.id)
         .then(checklist => {
-          res.json(checklist);
+          res.json(checklist)
         })
         .catch(error => {
-          res.json({ error });
-        });
+          res.json({ error })
+        })
     }
-  });
-});
+  })
+})
 
-router.get("/contacts", verifyToken, (req, res, next) => {
+router.get('/contacts', verifyToken, (req, res, next) => {
   jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
     if (err) {
-      res.sendStatus(403);
+      res.sendStatus(403)
     } else {
       Contact.find({ ownerId: req.query.ownerId })
         .then(contacts => {
-          res.json(contacts);
+          res.json(contacts)
         })
         .catch(error => {
-          res.json({ error });
-        });
+          res.json({ error })
+        })
     }
-  });
-});
+  })
+})
 
-router.get("/contacts/:id", verifyToken, (req, res, next) => {
+router.get('/contacts/:id', verifyToken, (req, res, next) => {
   jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
     if (err) {
-      res.sendStatus(403);
+      res.sendStatus(403)
     } else {
       Contact.findById(req.params.id)
         .then(contact => {
-          res.json(contact);
+          res.json(contact)
         })
         .catch(error => {
-          res.json({ error });
-        });
+          res.json({ error })
+        })
     }
-  });
-});
+  })
+})
 
-router.post("/contacts", verifyToken, (req, res, next) => {
+router.post('/contacts', verifyToken, (req, res, next) => {
   jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
     if (err) {
-      res.sendStatus(403);
+      res.sendStatus(403)
     } else {
       Contact.create(req.body)
         .then(contact => {
-          res.json(contact);
+          res.json(contact)
         })
         .catch(error => {
-          res.json({ error });
-        });
+          res.json({ error })
+        })
     }
-  });
-});
+  })
+})
 
-router.put("/contacts/:id", verifyToken, (req, res, next) => {
+router.put('/contacts/:id', verifyToken, (req, res, next) => {
   jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
     if (err) {
-      res.sendStatus(403);
+      res.sendStatus(403)
     } else {
       Contact.findByIdAndUpdate({ _id: req.params.id }, req.body)
         .then(() => {
           Contact.findById(req.params.id)
             .then(contact => {
-              res.json(contact);
+              res.json(contact)
             })
             .catch(error => {
-              res.json({ error });
-            });
+              res.json({ error })
+            })
         })
         .catch(error => {
-          res.json({ error });
-        });
+          res.json({ error })
+        })
     }
-  });
-});
+  })
+})
 
-router.delete("/contacts/:id", verifyToken, (req, res, next) => {
+router.delete('/contacts/:id', verifyToken, (req, res, next) => {
   jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
     if (err) {
-      res.sendStatus(403);
+      res.sendStatus(403)
     } else {
       Contact.findByIdAndDelete(req.params.id)
         .then(contact => {
-          res.json(contact);
+          res.json(contact)
         })
         .catch(error => {
-          res.json({ error });
-        });
+          res.json({ error })
+        })
     }
-  });
-});
+  })
+})
 
-router.get("/items", verifyToken, (req, res, next) => {
+router.get('/items', verifyToken, (req, res, next) => {
   jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
     if (err) {
-      res.sendStatus(403);
+      res.sendStatus(403)
     } else {
       Item.find({ ownerId: req.query.ownerId })
         .then(items => {
-          res.json(items);
+          res.json(items)
         })
         .catch(error => {
-          res.json({ error });
-        });
+          res.json({ error })
+        })
     }
-  });
-});
+  })
+})
 
-router.get("/items/:id", verifyToken, (req, res, next) => {
+router.get('/items/:id', verifyToken, (req, res, next) => {
   jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
     if (err) {
-      res.sendStatus(403);
+      res.sendStatus(403)
     } else {
       Item.findById(req.params.id)
         .then(item => {
-          res.json(item);
+          res.json(item)
         })
         .catch(error => {
-          res.json({ error });
-        });
+          res.json({ error })
+        })
     }
-  });
-});
+  })
+})
 
-router.post("/items", verifyToken, (req, res, next) => {
+router.post('/items', verifyToken, (req, res, next) => {
   jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
     if (err) {
-      res.sendStatus(403);
+      res.sendStatus(403)
     } else {
       Item.create(req.body)
         .then(item => {
-          res.json(item);
+          res.json(item)
         })
         .catch(error => {
-          res.json({ error });
-        });
+          res.json({ error })
+        })
     }
-  });
-});
+  })
+})
 
-router.put("/items/:id", verifyToken, (req, res, next) => {
+router.put('/items/:id', verifyToken, (req, res, next) => {
   jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
     if (err) {
-      res.sendStatus(403);
+      res.sendStatus(403)
     } else {
       Item.findByIdAndUpdate({ _id: req.params.id }, req.body)
         .then(() => {
           Item.findById(req.params.id)
             .then(item => {
-              res.json(item);
+              res.json(item)
             })
             .catch(error => {
-              res.json({ error });
-            });
+              res.json({ error })
+            })
         })
         .catch(error => {
-          res.json({ error });
-        });
+          res.json({ error })
+        })
     }
-  });
-});
+  })
+})
 
-router.delete("/items/:id", verifyToken, (req, res, next) => {
+router.delete('/items/:id', verifyToken, (req, res, next) => {
   jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
     if (err) {
-      res.sendStatus(403);
+      res.sendStatus(403)
     } else {
       Item.findByIdAndDelete(req.params.id)
         .then(item => {
-          res.json(item);
+          res.json(item)
         })
         .catch(error => {
-          res.json({ error });
-        });
+          res.json({ error })
+        })
     }
-  });
-});
+  })
+})
 
-router.get("/locations", verifyToken, (req, res, next) => {
+router.get('/locations', verifyToken, (req, res, next) => {
   jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
     if (err) {
-      res.sendStatus(403);
+      res.sendStatus(403)
     } else {
       Location.find({ ownerId: req.query.ownerId })
         .then(locations => {
-          res.json(locations);
+          res.json(locations)
         })
         .catch(error => {
-          res.json({ error });
-        });
+          res.json({ error })
+        })
     }
-  });
-});
+  })
+})
 
-router.get("/locations/:id", verifyToken, (req, res, next) => {
+router.get('/locations/:id', verifyToken, (req, res, next) => {
   jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
     if (err) {
-      res.sendStatus(403);
+      res.sendStatus(403)
     } else {
       Location.findById(req.params.id)
         .then(location => {
-          res.json(location);
+          res.json(location)
         })
         .catch(error => {
-          res.json({ error });
-        });
+          res.json({ error })
+        })
     }
-  });
-});
+  })
+})
 
-router.post("/locations", verifyToken, (req, res, next) => {
+router.post('/locations', verifyToken, (req, res, next) => {
   jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
     if (err) {
-      res.sendStatus(403);
+      res.sendStatus(403)
     } else {
       Location.create(req.body)
         .then(location => {
-          res.json(location);
+          res.json(location)
         })
         .catch(error => {
-          res.json({ error });
-        });
+          res.json({ error })
+        })
     }
-  });
-});
+  })
+})
 
-router.put("/locations/:id", verifyToken, (req, res, next) => {
+router.put('/locations/:id', verifyToken, (req, res, next) => {
   jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
     if (err) {
-      res.sendStatus(403);
+      res.sendStatus(403)
     } else {
       Location.findByIdAndUpdate({ _id: req.params.id }, req.body)
         .then(() => {
           Location.findById(req.params.id)
             .then(location => {
-              res.json(location);
+              res.json(location)
             })
             .catch(error => {
-              res.json({ error });
-            });
+              res.json({ error })
+            })
         })
         .catch(error => {
-          res.json({ error });
-        });
+          res.json({ error })
+        })
     }
-  });
-});
+  })
+})
 
-router.delete("/locations/:id", verifyToken, (req, res, next) => {
+router.delete('/locations/:id', verifyToken, (req, res, next) => {
   jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
     if (err) {
-      res.sendStatus(403);
+      res.sendStatus(403)
     } else {
       Location.findByIdAndDelete(req.params.id)
         .then(location => {
-          res.json(location);
+          res.json(location)
         })
         .catch(error => {
-          res.json({ error });
-        });
+          res.json({ error })
+        })
     }
-  });
-});
+  })
+})
 
-router.get("/users", verifyToken, (req, res, next) => {
+router.get('/users', verifyToken, (req, res, next) => {
   jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
     if (err) {
-      res.sendStatus(403);
+      res.sendStatus(403)
     } else {
       User.findOne({ email: req.query.email })
         .then(user => {
-          res.json(user);
+          res.json(user)
         })
         .catch(error => {
-          res.json({ error });
-        });
+          res.json({ error })
+        })
     }
-  });
-});
+  })
+})
 
-router.put("/users/:id", verifyToken, (req, res, next) => {
+router.put('/users/:id', verifyToken, (req, res, next) => {
   jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
     if (err) {
-      res.sendStatus(403);
+      res.sendStatus(403)
     } else {
       User.findByIdAndUpdate({ _id: req.params.id }, req.body)
         .then(function() {
           User.findById(req.params.id)
             .then(function(user) {
-              res.json(user);
+              res.json(user)
             })
             .catch(error => {
-              res.json({ error });
-            });
+              res.json({ error })
+            })
         })
         .catch(error => {
-          res.json({ error });
-        });
+          res.json({ error })
+        })
     }
-  });
-});
+  })
+})
 
-router.post("/setRelationship", verifyToken, (req, res, next) => {
+router.post('/setRelationship', verifyToken, (req, res, next) => {
   jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
     if (err) {
-      res.sendStatus(403);
+      res.sendStatus(403)
     } else {
       const {
         hostId,
@@ -465,7 +465,7 @@ router.post("/setRelationship", verifyToken, (req, res, next) => {
         targetId,
         targetLabel,
         targetType
-      } = req.body;
+      } = req.body
 
       Contact.findById(hostId)
         .then(host => {
@@ -476,11 +476,11 @@ router.post("/setRelationship", verifyToken, (req, res, next) => {
               child: []
             },
             ...host._doc
-          };
+          }
           updatedHost.node[targetType].push({
             contactId: targetId,
             nodeLabel: targetLabel
-          });
+          })
           Contact.findByIdAndUpdate({ _id: hostId }, updatedHost)
             .then(() => {
               Contact.findById(targetId)
@@ -492,122 +492,122 @@ router.post("/setRelationship", verifyToken, (req, res, next) => {
                       child: []
                     },
                     ...target._doc
-                  };
+                  }
                   updatedTarget.node[hostType].push({
                     contactId: hostId,
                     nodeLabel: hostLabel
-                  });
+                  })
                   updatedTarget.relationships.push({
                     hostLabel: targetLabel,
                     targetContactId: hostId,
                     targetLabel: hostLabel
-                  });
+                  })
                   Contact.findByIdAndUpdate({ _id: targetId }, updatedTarget)
                     .then(() => {
                       res.json({
                         message:
-                          "RELATIONSHIP SET: " +
+                          'RELATIONSHIP SET: ' +
                           updatedHost.name +
-                          " is " +
+                          ' is ' +
                           hostLabel +
-                          " of " +
+                          ' of ' +
                           updatedTarget.name +
-                          ", is " +
+                          ', is ' +
                           targetLabel +
-                          " of " +
+                          ' of ' +
                           updatedHost.name,
                         updatedHost,
                         updatedTarget
-                      });
+                      })
                     })
                     .catch(error => {
                       res
                         .status(422)
-                        .json({ error: "target not updated: " + error });
-                    });
+                        .json({ error: 'target not updated: ' + error })
+                    })
                 })
                 .catch(error => {
                   res
                     .status(422)
-                    .json({ error: "targetId not found: " + error });
-                });
+                    .json({ error: 'targetId not found: ' + error })
+                })
             })
             .catch(error => {
-              res.status(422).json({ error: "hostId not updated: " + error });
-            });
+              res.status(422).json({ error: 'hostId not updated: ' + error })
+            })
         })
         .catch(error => {
-          res.status(422).json({ error: "hostId not found: " + error });
-        });
+          res.status(422).json({ error: 'hostId not found: ' + error })
+        })
     }
-  });
-});
+  })
+})
 
-router.get("/appData/:key", verifyToken, (req, res, next) => {
+router.get('/appData/:key', verifyToken, (req, res, next) => {
   jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
     if (err) {
-      res.sendStatus(403);
+      res.sendStatus(403)
     } else {
       AppData.findOne({ key: req.params.key })
         .then(appRec => {
-          res.json(appRec);
+          res.json(appRec)
         })
         .catch(error => {
           console.log(
-            "ERROR: UNABLE TO GET AppData." + req.params.key + ": " + error
-          );
-        });
+            'ERROR: UNABLE TO GET AppData.' + req.params.key + ': ' + error
+          )
+        })
     }
-  });
-});
+  })
+})
 
-router.post("/appData", verifyToken, (req, res, next) => {
+router.post('/appData', verifyToken, (req, res, next) => {
   jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
     if (err) {
-      res.sendStatus(403);
+      res.sendStatus(403)
     } else {
       AppData.findOneAndUpdate({ key: req.body.key }, req.body)
         .then(appRec => {
-          res.json(appRec);
+          res.json(appRec)
         })
         .catch(error => {
-          res.json({ error });
-        });
+          res.json({ error })
+        })
     }
-  });
-});
+  })
+})
 
-router.put("/appData/:id", verifyToken, (req, res, next) => {
+router.put('/appData/:id', verifyToken, (req, res, next) => {
   jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
     if (err) {
-      res.sendStatus(403);
+      res.sendStatus(403)
     } else {
       AppData.findByIdAndUpdate({ _id: req.params.id }, req.body)
         .then(() => {
           AppData.findById(req.params.id)
             .then(data => {
-              res.json(data);
+              res.json(data)
             })
             .catch(error => {
-              res.json({ error });
-            });
+              res.json({ error })
+            })
         })
         .catch(error => {
-          res.json({ error });
-        });
+          res.json({ error })
+        })
     }
-  });
-});
+  })
+})
 
 function verifyToken(req, res, next) {
-  const bearerHeader = req.headers["authorization"];
-  if (typeof bearerHeader !== "undefined") {
-    const bearerToken = bearerHeader.split(" ")[1];
-    req.token = bearerToken;
-    next();
+  const bearerHeader = req.headers['authorization']
+  if (typeof bearerHeader !== 'undefined') {
+    const bearerToken = bearerHeader.split(' ')[1]
+    req.token = bearerToken
+    next()
   } else {
-    res.sendStatus("403");
+    res.sendStatus('403')
   }
 }
 
-module.exports = router;
+module.exports = router
