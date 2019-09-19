@@ -1,16 +1,6 @@
 import axios from 'axios'
 import store from '@/store/store'
 
-// const apiClient = axios.create({
-//   baseURL: `http://127.0.0.1:8881/api/v1`,
-//   withCredentials: false, // This is the default
-//   headers: {
-//     Accept: 'application/json',
-//     'Content-Type': 'application/json'
-//   },
-//   timeout: 10000
-// })
-
 /** Default config for axios instance */
 let config = {
   baseURL: `http://127.0.0.1:8881/api/v1`,
@@ -28,7 +18,6 @@ const apiClient = axios.create(config)
 /** Auth token interceptors */
 const authInterceptor = config => {
   const token = store.getters['auth/token']
-
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
   }
@@ -60,7 +49,7 @@ apiClient.interceptors.request.use(loggerInterceptor)
 export { apiClient }
 
 export default {
-  postLogin(loginData) {
-    return apiClient.post('/auth/login', loginData)
+  getChecklists(ownerId) {
+    return apiClient.get('/checklists?ownerId=' + ownerId)
   }
 }

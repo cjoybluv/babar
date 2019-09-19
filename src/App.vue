@@ -9,7 +9,8 @@
         text
         rounded
         :to="link.url"
-      >{{ link.label }}</v-btn>
+        >{{ link.label }}</v-btn
+      >
     </v-app-bar>
     <v-content>
       <NotificationContainer />
@@ -25,7 +26,8 @@
           rounded
           class="my-2"
           :to="link.url"
-        >{{ link.label }}</v-btn>
+          >{{ link.label }}</v-btn
+        >
         <v-flex primary lighten-2 py-4 text-center white--text xs12>
           {{ new Date().getFullYear() }} —
           <strong>Babar</strong>
@@ -56,6 +58,10 @@ export default {
         {
           label: 'Dashboard',
           url: '/dashboard'
+        },
+        {
+          label: 'Checklists',
+          url: '/checklists'
         }
       ]
     }
