@@ -45,12 +45,12 @@ export default {
     this.itemMap = result.itemMap
   },
   watch: {
-    userFolders(newVal, oldVal) {
+    userFolders() {
       const result = createFolderArray(this.userFolders, this.checklists)
       this.displayData = result.displayArray
       this.itemMap = result.itemMap
     },
-    checklists(newVal, oldVal) {
+    checklists() {
       const result = createFolderArray(this.userFolders, this.checklists)
       this.displayData = result.displayArray
       this.itemMap = result.itemMap
