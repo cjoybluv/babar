@@ -35,6 +35,7 @@ export function createFolderArray(folders, items, itemNameField) {
           key: key,
           id: item._id,
           name: item[itemNameField],
+          children: [],
           folder: false
         })
         itemMap.push({
@@ -60,7 +61,7 @@ export function createFolderArray(folders, items, itemNameField) {
   })
   displayArray
     .sort((a, b) => {
-      if (a.name > b.name) {
+      if (a.name.toUpperCase() > b.name.toUpperCase()) {
         return 0
       } else {
         return -1

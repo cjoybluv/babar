@@ -1,4 +1,5 @@
 import AuthService from '@/services/AuthService'
+import UserService from '@/services/UserService'
 
 export const namespaced = true
 
@@ -14,6 +15,9 @@ export const getters = {
   },
   ownerId(state) {
     return state.user._id
+  },
+  user(state) {
+    return state.user
   },
   userFolders(state) {
     return state.user.folders
@@ -34,6 +38,12 @@ export const mutations = {
     state.isAuthenticated = true
     localStorage.setItem('token', authData.token)
     localStorage.setItem('user', JSON.stringify(authData.user))
+  },
+  CLEAR_USER(state) {
+    state.user = []
+  },
+  SET_USER(state, user) {
+    state.user = user
   }
 }
 export const actions = {
@@ -71,6 +81,52 @@ export const actions = {
       } else {
         reject()
       }
+    })
+  },
+  updateUser({ commit, dispatch }, user) {
+    commit('CLEAR_USER')
+    return new Promise((resolve, reject) => {
+      UserService.putUser(user)
+        .then(response => {
+          commit('SET_USER', response.data)
+          const notification = {
+            type: 'success',
+            message: 'User Updated!'
+          }
+          dispatch('notification/add', notification, { root: true })
+          resolve(response.data)
+        })
+        .catch(error => {
+          const notification = {
+            type: 'error',
+            message: 'USER UPDATE FAILURE! ' + error.message
+          }
+          dispatch('notification/add', notification, { root: true })
+          reject(error)
+        })
+    })
+  },
+  getUser({ commit, dispatch }, email) {
+    commit('CLEAR_USER')
+    return new Promise((resolve, reject) => {
+      UserService.getUser(email)
+        .then(response => {
+          commit('SET_USER', response.data)
+          const notification = {
+            type: 'success',
+            message: 'User fetched.'
+          }
+          dispatch('notification/add', notification, { root: true })
+          resolve(response.data)
+        })
+        .catch(error => {
+          const notification = {
+            type: 'error',
+            message: 'USER FETCH FAILURE! ' + error.message
+          }
+          dispatch('notification/add', notification, { root: true })
+          reject(error)
+        })
     })
   }
 }

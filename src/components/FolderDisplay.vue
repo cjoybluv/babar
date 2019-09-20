@@ -41,23 +41,24 @@ export default {
     this.itemMap = result.itemMap
   },
   watch: {
-    items() {
-      const result = createFolderArray(
-        this.folders,
-        this.items,
-        this.itemNameField
-      )
-      this.displayData = result.displayArray
-      this.itemMap = result.itemMap
+    items(newVal) {
+      if (newVal) {
+        const result = createFolderArray(
+          this.folders,
+          this.items,
+          this.itemNameField
+        )
+        this.displayData = result.displayArray
+        this.itemMap = result.itemMap
+      }
     },
-    folders() {
-      const result = createFolderArray(
-        this.folders,
-        this.items,
-        this.itemNameField
-      )
-      this.displayData = result.displayArray
-      this.itemMap = result.itemMap
+    // eslint-disable-next-line
+    folders(newVal, oldVal) {
+      if (newVal) {
+        const result = createFolderArray(newVal, this.items, this.itemNameField)
+        this.displayData = result.displayArray
+        this.itemMap = result.itemMap
+      }
     }
   }
 }

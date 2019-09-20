@@ -96,8 +96,9 @@ const router = new Router({
 
 router.beforeEach((to, from, next) => {
   if (to.matched.some(record => record.meta.requiresAuth)) {
+    const email = JSON.parse(localStorage.getItem('user')).email
     store
-      .dispatch('auth/getFromLocal')
+      .dispatch('auth/getUser', email)
       .then(() => {
         next()
       })
