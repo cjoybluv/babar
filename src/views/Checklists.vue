@@ -3,7 +3,12 @@
     <v-row no-gutters>
       <v-col cols="3">
         <v-sheet tile height="580" class="primary">
-          <FolderDisplay />
+          <FolderDisplay
+            :folders="userFolders"
+            :items="checklists"
+            itemNameField="title"
+            :openItem="openChecklist"
+          />
         </v-sheet>
       </v-col>
       <v-col cols="6">
@@ -17,23 +22,25 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapGetters } from 'vuex'
 import FolderDisplay from '@/components/FolderDisplay.vue'
-// import store from '@/store/store'
-
-// function getChecklists(routeTo, next, ownerId) {
-//   console.log('getChecklists', ownerId)
-//   store.dispatch('checklist/fetchAll', { ownerId }).then(() => {
-//     next()
-//   })
-// }
 
 export default {
   name: 'checklists',
   components: {
     FolderDisplay
   },
-  computed: mapState(['checklist'])
+  computed: {
+    checklists() {
+      return this.$store.state.checklist.checklists
+    },
+    ...mapGetters({ userFolders: 'auth/userFolders' })
+  },
+  methods: {
+    openChecklist(checklist) {
+      console.log('openChecklist', checklist)
+    }
+  }
 
   // beforeRouteEnter(routeTo, routeFrom, next) {
   //   getChecklists(routeTo, next, this.ownerId)

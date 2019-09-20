@@ -58,7 +58,6 @@ const router = new Router({
       name: 'checklists',
       meta: { requiresAuth: true },
       component: () => import('./views/Checklists.vue'),
-      props: true,
       beforeEnter(routeTo, routeFrom, next) {
         store
           .dispatch('checklist/fetchAll', routeTo.params.ownerId)
