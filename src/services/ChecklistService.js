@@ -51,5 +51,11 @@ export { apiClient }
 export default {
   getChecklists(ownerId) {
     return apiClient.get('/checklists?ownerId=' + ownerId)
+  },
+  postChecklist(checklist) {
+    return apiClient.post('/checklists', checklist)
+  },
+  putChecklist(checklist) {
+    return apiClient.put('/checklists/' + checklist._id, checklist)
   }
 }

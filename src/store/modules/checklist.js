@@ -3,7 +3,8 @@ import ChecklistService from '@/services/ChecklistService'
 export const namespaced = true
 
 export const state = {
-  checklists: []
+  checklists: [],
+  currentChecklist: {}
 }
 
 export const getters = {
@@ -18,6 +19,21 @@ export const mutations = {
   },
   SET_CHECKLISTS(state, checklists) {
     state.checklists = checklists
+  },
+  SET_CURRENT_CHECKLIST(state, checklist) {
+    state.currentChecklist = { ...checklist }
+  },
+  CLEAR_CURRENT_CHECKLIST(state) {
+    state.currentChecklist = {}
+  },
+  UPDATE_CHECKLIST(state, updatedChecklist) {
+    const idx = state.checklists.findIndex(
+      checklist => checklist._id === updatedChecklist._id
+    )
+    state.checklists[idx] = updatedChecklist
+  },
+  SAVE_CHECKLIST(state, checklist) {
+    state.checklists.push(checklist)
   }
 }
 
@@ -43,6 +59,57 @@ export const actions = {
           dispatch('notification/add', notification, { root: true })
           reject(error)
         })
+    })
+  },
+  edit({ commit }, checklist) {
+    return new Promise(resolve => {
+      commit('SET_CURRENT_CHECKLIST', checklist)
+      resolve()
+    })
+  },
+  save({ commit, dispatch }, checklist) {
+    return new Promise((resolve, reject) => {
+      if (checklist._id) {
+        ChecklistService.putChecklist(checklist)
+          .then(response => {
+            commit('UPDATE_CHECKLIST', response.data)
+            commit('CLEAR_CURRENT_CHECKLIST')
+            const notification = {
+              type: 'success',
+              message: 'Checklist Updated!'
+            }
+            dispatch('notification/add', notification, { root: true })
+            resolve(response.data)
+          })
+          .catch(error => {
+            const notification = {
+              type: 'error',
+              message: 'CHECKLIST UPDATE FAILURE:' + error.message
+            }
+            dispatch('notification/add', notification, { root: true })
+            reject(error)
+          })
+      } else {
+        ChecklistService.postChecklist(checklist)
+          .then(response => {
+            commit('SAVE_CHECKLIST', response.data)
+            commit('CLEAR_CURRENT_CHECKLIST')
+            const notification = {
+              type: 'success',
+              message: 'Checklist saved!'
+            }
+            dispatch('notification/add', notification, { root: true })
+            resolve(response.data)
+          })
+          .catch(error => {
+            const notification = {
+              type: 'error',
+              message: 'CHECKLIST SAVE FAILURE:' + error.message
+            }
+            dispatch('notification/add', notification, { root: true })
+            reject(error)
+          })
+      }
     })
   }
 }
