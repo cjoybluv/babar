@@ -24,7 +24,7 @@
         <v-icon dark>mdi-dots-vertical</v-icon>
       </v-col>
     </v-row>
-    <v-row>
+    <v-row v-if="checklist.title">
       <v-col cols="12" class="pt-0 pb-0">
         <v-checkbox
           dark
@@ -34,18 +34,18 @@
         />
       </v-col>
     </v-row>
-    <v-row>
+    <v-row v-if="checklist.title">
       <v-col class="mt-2 pt-0 pb-0">
         <v-select
           dark
           class="pt-0"
           label="Folder"
           v-model="checklist.folderName"
-          :items="userFolders"
+          :items="folderOptions"
         />
       </v-col>
     </v-row>
-    <v-row>
+    <v-row v-if="checklist.title">
       <v-col class="pb-0">
         <v-text-field
           dark
@@ -80,6 +80,9 @@ export default {
     checklist() {
       return this.$store.state.checklist.currentChecklist
     },
+    folderOptions() {
+      return ['<ROOT>', ...this.userFolders]
+    },
     ...mapGetters({ userFolders: 'auth/userFolders', ownerId: 'auth/ownerId' })
   },
   data() {
@@ -109,6 +112,9 @@ export default {
     saveHandler() {
       if (this.checklist.title) {
         if (!this.checklist.ownerId) this.checklist.ownerId = this.ownerId
+        if (this.checklist.folderName === '<ROOT>') {
+          this.checklist.folderName = ''
+        }
         this.save(this.checklist)
         this.checklist = {}
       }
