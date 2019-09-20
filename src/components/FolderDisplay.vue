@@ -2,7 +2,7 @@
   <v-treeview
     :items="displayData"
     item-key="key"
-    @update:active="openItem"
+    @update:active="clickHandler"
     activatable
     dark
     dense
@@ -11,47 +11,51 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
 import { createFolderArray } from '@/helpers/displayHelpers'
 
 export default {
+  name: 'FolderDisplay',
+  props: ['folders', 'items', 'itemNameField', 'openItem'],
   data() {
     return {
       displayData: [],
       itemMap: []
     }
   },
-  computed: {
-    checklists() {
-      return this.$store.state.checklist.checklists
-    },
-    ...mapGetters({ userFolders: 'auth/userFolders' })
-  },
   methods: {
-    openItem(value) {
-      const item = this.itemMap.find(map => map.key === value[0])
-      if (item) {
-        const checklist = this.checklists.find(
-          checklist => checklist._id === item.id
-        )
-        // eslint-disable-next-line
-        console.log('test', value[0], item.id, checklist)
+    clickHandler(value) {
+      const map = this.itemMap.find(map => map.key === value[0])
+      if (map) {
+        const item = this.items.find(item => item._id === map.id)
+        this.openItem(item)
       }
     }
   },
   mounted() {
-    const result = createFolderArray(this.userFolders, this.checklists)
+    const result = createFolderArray(
+      this.folders,
+      this.items,
+      this.itemNameField
+    )
     this.displayData = result.displayArray
     this.itemMap = result.itemMap
   },
   watch: {
-    userFolders() {
-      const result = createFolderArray(this.userFolders, this.checklists)
+    items() {
+      const result = createFolderArray(
+        this.folders,
+        this.items,
+        this.itemNameField
+      )
       this.displayData = result.displayArray
       this.itemMap = result.itemMap
     },
-    checklists() {
-      const result = createFolderArray(this.userFolders, this.checklists)
+    folders() {
+      const result = createFolderArray(
+        this.folders,
+        this.items,
+        this.itemNameField
+      )
       this.displayData = result.displayArray
       this.itemMap = result.itemMap
     }

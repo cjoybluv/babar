@@ -1,4 +1,4 @@
-export function createFolderArray(folders, items) {
+export function createFolderArray(folders, items, itemNameField) {
   let key = 0
   let displayArray = []
   let itemMap = []
@@ -22,7 +22,7 @@ export function createFolderArray(folders, items) {
         displayArray[idx].children.push({
           key: key,
           id: item._id,
-          name: item.title,
+          name: item[itemNameField],
           folder: false
         })
         itemMap.push({
@@ -34,7 +34,7 @@ export function createFolderArray(folders, items) {
         displayArray.push({
           key: key,
           id: item._id,
-          name: item.title,
+          name: item[itemNameField],
           folder: false
         })
         itemMap.push({
@@ -47,7 +47,7 @@ export function createFolderArray(folders, items) {
       displayArray.push({
         key: key,
         id: item._id,
-        name: item.title,
+        name: item[itemNameField],
         children: [],
         folder: false
       })
