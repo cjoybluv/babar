@@ -10,10 +10,13 @@ export const state = {
 
 export const getters = {
   token(state) {
-    return state.token
+    return state.token || localStorage.getItem('token')
   },
   ownerId(state) {
-    return state.user.id
+    return state.user._id
+  },
+  userFolders(state) {
+    return state.user.folders
   }
 }
 
@@ -55,6 +58,19 @@ export const actions = {
           dispatch('notification/add', notification, { root: true })
           reject(error)
         })
+    })
+  },
+  getFromLocal({ commit }) {
+    return new Promise((resolve, reject) => {
+      const token = localStorage.getItem('token')
+      const user = JSON.parse(localStorage.getItem('user'))
+      if (token && user) {
+        const authData = { token, user }
+        commit('SET_AUTH', authData)
+        resolve()
+      } else {
+        reject()
+      }
     })
   }
 }

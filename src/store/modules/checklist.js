@@ -6,6 +6,12 @@ export const state = {
   checklists: []
 }
 
+export const getters = {
+  getChecklistById: state => id => {
+    return state.checklists.find(checklist => checklist._id === id)
+  }
+}
+
 export const mutations = {
   CLEAR_CHECKLISTS(state) {
     state.checklists = []
