@@ -21,7 +21,7 @@ export const mutations = {
     state.checklists = checklists
   },
   SET_CURRENT_CHECKLIST(state, checklist) {
-    state.currentChecklist = checklist
+    state.currentChecklist = { ...checklist }
   }
 }
 
@@ -50,7 +50,7 @@ export const actions = {
     })
   },
   edit({ commit }, checklist) {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       commit('SET_CURRENT_CHECKLIST', checklist)
       resolve()
     })

@@ -42,6 +42,7 @@
           class="pt-0"
           v-model="newItemSubject"
           label="Enter New Item"
+          @change="addItem"
         />
       </v-col>
     </v-row>
@@ -74,6 +75,26 @@ export default {
   data() {
     return {
       newItemSubject: ''
+    }
+  },
+  methods: {
+    addItem() {
+      if (this.checklist.items) {
+        this.checklist.items.push({
+          key: this.checklist.items.length + 1,
+          subject: this.newItemSubject,
+          completed: false
+        })
+      } else {
+        this.checklist.items = [
+          {
+            key: 1,
+            subject: this.newItemSubject,
+            completed: false
+          }
+        ]
+      }
+      this.newItemSubject = ''
     }
   }
 }
