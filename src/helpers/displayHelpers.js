@@ -61,6 +61,7 @@ export function createFolderArray(folders, items, itemNameField) {
   })
   displayArray
     .sort((a, b) => {
+      console.log('sort', a, b)
       if (a.name.toUpperCase() > b.name.toUpperCase()) {
         return 0
       } else {

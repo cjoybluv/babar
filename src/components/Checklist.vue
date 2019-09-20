@@ -10,7 +10,17 @@
         />
       </v-col>
       <v-col cols="1" class="pl-0 pt-5">
-        <v-icon dark>mdi-content-save</v-icon>
+        <v-btn
+          @click="saveHandler"
+          text
+          dark
+          :disabled="!checklist.title"
+          min-width="24"
+          class="pl-0 pr-0"
+        >
+          <v-icon dark>mdi-content-save</v-icon>
+        </v-btn>
+
         <v-icon dark>mdi-dots-vertical</v-icon>
       </v-col>
     </v-row>
@@ -62,7 +72,7 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapActions, mapGetters } from 'vuex'
 
 export default {
   name: 'Checklist',
@@ -70,7 +80,7 @@ export default {
     checklist() {
       return this.$store.state.checklist.currentChecklist
     },
-    ...mapGetters({ userFolders: 'auth/userFolders' })
+    ...mapGetters({ userFolders: 'auth/userFolders', ownerId: 'auth/ownerId' })
   },
   data() {
     return {
@@ -95,7 +105,15 @@ export default {
         ]
       }
       this.newItemSubject = ''
-    }
+    },
+    saveHandler() {
+      if (this.checklist.title) {
+        if (!this.checklist.ownerId) this.checklist.ownerId = this.ownerId
+        this.save(this.checklist)
+        this.checklist = {}
+      }
+    },
+    ...mapActions({ save: 'checklist/save' })
   }
 }
 </script>
