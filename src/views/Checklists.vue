@@ -2,7 +2,11 @@
   <div>
     <v-row no-gutters>
       <v-col cols="3">
-        <v-sheet tile class="primary">
+        <v-sheet
+          tile
+          :min-height="window.height - window.heightReduction"
+          class="primary"
+        >
           <v-text-field
             dark
             filled
@@ -20,10 +24,20 @@
         </v-sheet>
       </v-col>
       <v-col cols="6">
-        <v-sheet tile class="primary lighten-2"></v-sheet>
+        <v-sheet
+          tile
+          class="primary lighten-2"
+          :min-height="window.height - window.heightReduction"
+        >
+          <Checklist />
+        </v-sheet>
       </v-col>
       <v-col cols="3">
-        <v-sheet tile class="primary lighten-4"></v-sheet>
+        <v-sheet
+          tile
+          :min-height="window.height - window.heightReduction"
+          class="primary lighten-4"
+        ></v-sheet>
       </v-col>
     </v-row>
   </div>
@@ -31,16 +45,23 @@
 
 <script>
 import { mapGetters, mapActions } from 'vuex'
-import FolderDisplay from '@/components/FolderDisplay.vue'
+import FolderDisplay from '@/components/FolderDisplay'
+import Checklist from '@/components/Checklist'
 
 export default {
   name: 'checklists',
   components: {
-    FolderDisplay
+    FolderDisplay,
+    Checklist
   },
   data() {
     return {
-      newFolderName: ''
+      newFolderName: '',
+      window: {
+        width: 0,
+        height: 0,
+        heightReduction: 0
+      }
     }
   },
   computed: {
@@ -51,7 +72,7 @@ export default {
   },
   methods: {
     openChecklist(checklist) {
-      console.log('openChecklist', checklist)
+      this.editChecklist(checklist)
     },
     createFolder() {
       if (this.newFolderName) {
@@ -65,7 +86,21 @@ export default {
         this.newFolderName = ''
       }
     },
-    ...mapActions({ updatedUser: 'auth/updateUser' })
+    handleResize() {
+      this.window.width = window.innerWidth
+      this.window.height = window.innerHeight
+    },
+    ...mapActions({
+      updatedUser: 'auth/updateUser',
+      editChecklist: 'checklist/edit'
+    })
+  },
+  created() {
+    window.addEventListener('resize', this.handleResize)
+    this.handleResize()
+  },
+  destroyed() {
+    window.removeEventListener('resize', this.handleResize)
   }
 
   // beforeRouteEnter(routeTo, routeFrom, next) {

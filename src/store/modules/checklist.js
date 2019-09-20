@@ -3,7 +3,8 @@ import ChecklistService from '@/services/ChecklistService'
 export const namespaced = true
 
 export const state = {
-  checklists: []
+  checklists: [],
+  currentChecklist: {}
 }
 
 export const getters = {
@@ -18,6 +19,9 @@ export const mutations = {
   },
   SET_CHECKLISTS(state, checklists) {
     state.checklists = checklists
+  },
+  SET_CURRENT_CHECKLIST(state, checklist) {
+    state.currentChecklist = checklist
   }
 }
 
@@ -43,6 +47,12 @@ export const actions = {
           dispatch('notification/add', notification, { root: true })
           reject(error)
         })
+    })
+  },
+  edit({ commit }, checklist) {
+    return new Promise((resolve, reject) => {
+      commit('SET_CURRENT_CHECKLIST', checklist)
+      resolve()
     })
   }
 }
