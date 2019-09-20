@@ -45,10 +45,8 @@ const router = new Router({
         store
           .dispatch('auth/getFromLocal')
           .then(() => {
-            next({
-              name: 'checklists',
-              params: { ownerId: store.getters.ownerId }
-            })
+            const ownerId = store.getters['auth/ownerId']
+            next({ name: 'checklists', params: { ownerId } })
           })
           .catch(() => {
             next({ name: 'login' })

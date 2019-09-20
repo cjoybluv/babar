@@ -1,15 +1,15 @@
 <template>
   <div>
     <v-row no-gutters>
-      <v-col cols="4">
+      <v-col cols="3">
         <v-sheet tile height="580" class="primary">
           <FolderDisplay />
         </v-sheet>
       </v-col>
-      <v-col cols="4">
+      <v-col cols="6">
         <v-sheet tile height="580" class="primary lighten-2"></v-sheet>
       </v-col>
-      <v-col cols="4">
+      <v-col cols="3">
         <v-sheet tile height="580" class="primary lighten-4"></v-sheet>
       </v-col>
     </v-row>
