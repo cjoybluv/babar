@@ -1,114 +1,103 @@
 <template>
-  <div id="folderDisplay">
-    <ul id="folderList">
-      <li
-        class="rootItem"
-        :class="{ folder: !rootItem.itemId }"
-        v-for="rootItem in displayData"
-        :key="rootItem.key"
-      >
-        <div class="lineItem">
-          <font-awesome-icon
-            icon="caret-up"
-            class="fa-lg"
-            v-if="!rootItem.childrenToggle && !rootItem.itemId"
-            @click="toggleChildren(rootItem)"
-          />
-          <font-awesome-icon
-            icon="caret-down"
-            class="fa-lg"
-            v-if="rootItem.childrenToggle && !rootItem.itemId"
-            @click="toggleChildren(rootItem)"
-          />
-          <font-awesome-icon icon="caret-right" v-if="rootItem.itemId" />
-          <span @click="openItem(rootItem)">{{ rootItem.itemName }}</span>
-        </div>
-        <ul
-          class="children"
-          v-if="rootItem.children.length && rootItem.childrenToggle"
-        >
-          <li
-            class="childItem"
-            v-for="child in rootItem.children"
-            :key="child.key"
-          >
-            <div class="lineItem">
-              <font-awesome-icon icon="caret-right" />
-              <span @click="openItem(child)">{{ child.itemName }}</span>
-            </div>
-          </li>
-        </ul>
-      </li>
-    </ul>
-  </div>
+  <v-treeview
+    :items="displayData"
+    item-key="key"
+    @update:active="test"
+    activatable
+    dark
+    dense
+    color="white"
+  ></v-treeview>
 </template>
 
 <script>
-import { mapActions } from 'Vuex'
+import { mapGetters } from 'vuex'
 
 export default {
-  name: 'FolderDisplay',
   data() {
     return {
-      displayData: this.createArray(this.folders, this.items),
-      newFolderName: '',
-      retainToggles: []
+      displayData: [],
+      itemMap: []
     }
   },
-  props: ['folders', 'items', 'openItem'],
+  computed: {
+    checklists() {
+      return this.$store.state.checklist.checklists
+    },
+    ...mapGetters({ userFolders: 'auth/userFolders' })
+  },
   methods: {
-    createArray(folders, items) {
+    test(value) {
+      const itemId = this.itemMap.find(map => map.key === value[0]).id
+      const checklist = this.checklists.find(
+        checklist => checklist._id === itemId
+      )
+      // eslint-disable-next-line
+      console.log('test', value[0], itemId, checklist)
+    },
+    createDisplayArray(folders, items) {
       let key = 0
-      let folderArray = []
+      let displayArray = []
+      let itemMap = []
 
       folders.forEach(folder => {
-        folderArray.push({
-          key: key++,
-          itemName: folder,
+        displayArray.push({
+          key: key,
+          id: null,
+          name: folder,
           children: [],
-          childrenToggle: false,
-          folder: true,
-          itemId: null
+          folder: true
         })
+        key++
       })
       items.forEach(item => {
         if (item.folderName) {
-          let idx = folderArray.findIndex(folder => {
-            return folder.itemName === item.folderName
+          let idx = displayArray.findIndex(folder => {
+            return folder.name === item.folderName
           })
           if (idx !== -1) {
-            folderArray[idx].children.push({
-              key: key++,
-              itemName: item.name,
-              children: [],
-              childrenToggle: false,
-              folder: false,
-              itemId: item._id
+            displayArray[idx].children.push({
+              key: key,
+              id: item._id,
+              name: item.title,
+              folder: false
             })
+            itemMap.push({
+              key,
+              id: item._id
+            })
+            key++
           } else {
-            folderArray.push({
-              key: key++,
-              itemName: item.name,
-              children: [],
-              childrenToggle: false,
-              folder: false,
-              itemId: item._id
+            displayArray.push({
+              key: key,
+              id: item._id,
+              name: item.title,
+              folder: false
             })
+            itemMap.push({
+              key,
+              id: item._id
+            })
+            key++
           }
         } else {
-          folderArray.push({
-            key: key++,
-            itemName: item.name,
+          displayArray.push({
+            key: key,
+            id: item._id,
+            name: item.title,
             children: [],
-            childrenToggle: false,
-            folder: false,
-            itemId: item._id
+            folder: false
           })
+          itemMap.push({
+            key,
+            id: item._id
+          })
+          key++
         }
       })
-      folderArray
+      displayArray
         .sort((a, b) => {
-          if (a.itemName > b.itemName) {
+          if (a.name > b.name) {
             return 0
           } else {
             return -1
@@ -121,7 +110,7 @@ export default {
             return 0
           }
         })
-      folderArray.forEach(folder => {
+      displayArray.forEach(folder => {
         return folder.children.sort((a, b) => {
           if (a.itemName > b.itemName) {
             return 0
@@ -133,86 +122,41 @@ export default {
 
       if (this.retainToggles && this.retainToggles.length) {
         this.retainToggles.forEach(toggle => {
-          const idx = folderArray.findIndex(rootItem => {
+          const idx = displayArray.findIndex(rootItem => {
             return rootItem.itemName === toggle.itemName
           })
-          folderArray[idx].childrenToggle = toggle.childrenToggle
+          displayArray[idx].childrenToggle = toggle.childrenToggle
         })
       }
 
-      return folderArray
-    },
-    createFolder() {
-      if (this.newFolderName) {
-        this.createChecklistFolder(this.newFolderName)
-      }
-    },
-    toggleChildren(rootItem) {
-      rootItem.childrenToggle = !rootItem.childrenToggle
-      const idx = this.retainToggles.findIndex(toggle => {
-        return toggle.itemName === rootItem.itemName
-      })
-      if (idx !== -1) {
-        this.retainToggles[idx].childrenToggle = rootItem.childrenToggle
-      } else {
-        this.retainToggles.push({
-          itemName: rootItem.itemName,
-          childrenToggle: rootItem.childrenToggle
-        })
-      }
-    },
-    ...mapActions(['createChecklistFolder'])
+      return { displayArray, itemMap }
+    }
+  },
+  mounted() {
+    const result = this.createDisplayArray(this.userFolders, this.checklists)
+    this.displayData = result.displayArray
+    this.itemMap = result.itemMap
   },
   watch: {
-    folders(newVal, oldVal) {
-      this.displayData = this.createArray(this.folders, this.items)
+    userFolders(newVal, oldVal) {
+      const result = this.createDisplayArray(this.userFolders, this.checklists)
+      this.displayData = result.displayArray
+      this.itemMap = result.itemMap
     },
-    items(newVal, oldVal) {
-      this.displayData = this.createArray(this.folders, this.items)
+    checklists(newVal, oldVal) {
+      const result = this.createDisplayArray(this.userFolders, this.checklists)
+      this.displayData = result.displayArray
+      this.itemMap = result.itemMap
     }
   }
 }
 </script>
 
-<style scoped>
-#folderList {
-  padding-inline-start: 0;
-  line-height: 2em;
-  font-size: 1.12em;
-}
-.rootItem {
-  list-style-type: none;
-}
-.rootItem:not(.folder) {
-  margin-left: 0.4em;
-}
-.lineItem {
-  display: flex;
-  align-items: center;
-}
-.lineItem:hover {
-  background: #e4e4e4;
-}
-.lineItem span {
-  flex: 1;
-}
-.rootItem svg {
+<style lang="scss">
+.v-treeview-node__root {
   cursor: pointer;
-  margin: 0 5px;
-}
-.folder {
-  font-weight: bold;
-}
-.rootItem span {
-  margin-left: 5px;
-}
-.children {
-  padding-inline-start: 2em;
-}
-.childItem {
-  list-style-type: none;
-}
-.childItem span {
-  font-weight: normal;
+  &:hover {
+    background-color: #0d47a1;
+  }
 }
 </style>

@@ -2,7 +2,9 @@
   <div>
     <v-row no-gutters>
       <v-col cols="4">
-        <v-sheet tile height="580" class="primary"></v-sheet>
+        <v-sheet tile height="580" class="primary">
+          <FolderDisplay />
+        </v-sheet>
       </v-col>
       <v-col cols="4">
         <v-sheet tile height="580" class="primary lighten-2"></v-sheet>
@@ -16,6 +18,7 @@
 
 <script>
 import { mapState } from 'vuex'
+import FolderDisplay from '@/components/FolderDisplay.vue'
 // import store from '@/store/store'
 
 // function getChecklists(routeTo, next, ownerId) {
@@ -27,6 +30,9 @@ import { mapState } from 'vuex'
 
 export default {
   name: 'checklists',
+  components: {
+    FolderDisplay
+  },
   computed: mapState(['checklist'])
 
   // beforeRouteEnter(routeTo, routeFrom, next) {
