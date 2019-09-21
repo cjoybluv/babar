@@ -20,8 +20,16 @@
         >
           <v-icon dark>mdi-content-save</v-icon>
         </v-btn>
-
-        <v-icon dark>mdi-dots-vertical</v-icon>
+        <v-menu class="primray lighten-2">
+          <template v-slot:activator="{ on }">
+            <v-icon v-on="on" dark>mdi-dots-vertical</v-icon>
+          </template>
+          <v-list>
+            <v-list-item @click="clearForm">
+              <v-list-item-title dark>Clear the Form</v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-menu>
       </v-col>
     </v-row>
     <v-row v-if="checklist.title && !checklist.sourceMasterId">
@@ -124,10 +132,12 @@ export default {
           newChecklist.folderName = ''
         }
         this.save(this.checklist)
-        // this.checklist = {}
       }
     },
-    ...mapActions({ save: 'checklist/save' })
+    clearForm() {
+      this.clear()
+    },
+    ...mapActions({ save: 'checklist/save', clear: 'checklist/clear' })
   }
 }
 </script>
