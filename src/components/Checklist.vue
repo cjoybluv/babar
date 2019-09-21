@@ -47,24 +47,33 @@
     </v-row>
     <v-row v-if="checklist.title">
       <v-col class="pb-0">
-        <v-text-field
+        <v-textarea
+          rows="1"
+          auto-grow
           dark
           class="pt-0"
           v-model="newItemSubject"
           label="Enter New Item"
           @change="addItem"
+          append-outer-icon="mdi-plus"
+          @click:append-outer="addItem"
         />
       </v-col>
     </v-row>
     <v-row>
       <v-col class="pt-0">
-        <v-checkbox
+        <!-- <v-checkbox
           v-for="item in checklist.items"
           :key="item.key"
           class="mt-0 mb-0 pt-0 pb-0"
           dark
           :label="item.subject"
           v-model="item.completed"
+        />-->
+        <ChecklistItem
+          v-for="item in checklist.items"
+          :key="item.key"
+          :item="item"
         />
       </v-col>
     </v-row>
@@ -73,9 +82,13 @@
 
 <script>
 import { mapActions, mapGetters } from 'vuex'
+import ChecklistItem from '@/components/ChecklistItem'
 
 export default {
   name: 'Checklist',
+  components: {
+    ChecklistItem
+  },
   computed: {
     checklist() {
       return this.$store.state.checklist.currentChecklist
@@ -92,31 +105,34 @@ export default {
   },
   methods: {
     addItem() {
-      if (this.checklist.items) {
-        this.checklist.items.push({
-          key: this.checklist.items.length + 1,
-          subject: this.newItemSubject,
-          completed: false
-        })
-      } else {
-        this.checklist.items = [
-          {
-            key: 1,
+      if (this.newItemSubject) {
+        if (this.checklist.items) {
+          this.checklist.items.push({
+            key: this.checklist.items.length + 1,
             subject: this.newItemSubject,
             completed: false
-          }
-        ]
+          })
+        } else {
+          this.checklist.items = [
+            {
+              key: 1,
+              subject: this.newItemSubject,
+              completed: false
+            }
+          ]
+        }
+        this.newItemSubject = ''
       }
-      this.newItemSubject = ''
     },
     saveHandler() {
       if (this.checklist.title) {
-        if (!this.checklist.ownerId) this.checklist.ownerId = this.ownerId
+        const newChecklist = { ...this.checklist }
+        if (!this.checklist.ownerId) newChecklist.ownerId = this.ownerId
         if (this.checklist.folderName === '<ROOT>') {
-          this.checklist.folderName = ''
+          newChecklist.folderName = ''
         }
         this.save(this.checklist)
-        this.checklist = {}
+        // this.checklist = {}
       }
     },
     ...mapActions({ save: 'checklist/save' })
