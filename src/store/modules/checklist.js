@@ -21,7 +21,30 @@ export const mutations = {
     state.checklists = checklists
   },
   SET_CURRENT_CHECKLIST(state, checklist) {
-    state.currentChecklist = { ...checklist }
+    if (checklist.masterChecklist) {
+      let today = new Date(Date.now())
+      let titleDateTime =
+        today.getFullYear() +
+        '-' +
+        (today.getMonth() + 1) +
+        '-' +
+        today.getDate() +
+        ' ' +
+        today.getHours() +
+        ':' +
+        today.getMinutes() +
+        ':' +
+        today.getSeconds()
+      state.currentChecklist = {
+        ...checklist,
+        masterChecklist: false,
+        folderName: checklist.folderName ? checklist.folderName : 'Log',
+        sourceMasterId: checklist._id,
+        title: titleDateTime + ' / ' + checklist.title
+      }
+    } else {
+      state.currentChecklist = { ...checklist }
+    }
   },
   CLEAR_CURRENT_CHECKLIST(state) {
     state.currentChecklist = {}

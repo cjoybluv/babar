@@ -24,7 +24,7 @@
         <v-icon dark>mdi-dots-vertical</v-icon>
       </v-col>
     </v-row>
-    <v-row v-if="checklist.title">
+    <v-row v-if="checklist.title && !checklist.sourceMasterId">
       <v-col cols="12" class="pt-0 pb-0">
         <v-checkbox
           dark
