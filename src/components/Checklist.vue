@@ -62,14 +62,6 @@
     </v-row>
     <v-row>
       <v-col class="pt-0">
-        <!-- <v-checkbox
-          v-for="item in checklist.items"
-          :key="item.key"
-          class="mt-0 mb-0 pt-0 pb-0"
-          dark
-          :label="item.subject"
-          v-model="item.completed"
-        />-->
         <ChecklistItem
           v-for="item in checklist.items"
           :key="item.key"
