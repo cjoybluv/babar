@@ -1,5 +1,5 @@
 <template>
-  <v-row :class="{ rearranging: rearranging }">
+  <v-row>
     <v-col cols="1" class="pt-0">
       <v-checkbox dark class="mt-0 pt-0" v-model="item.completed"></v-checkbox>
     </v-col>
