@@ -19,15 +19,21 @@ export default {
   data() {
     return {
       displayData: [],
-      itemMap: []
+      itemMap: [],
+      lastItemOpened: {}
     }
   },
   methods: {
     clickHandler(value) {
-      const map = this.itemMap.find(map => map.key === value[0])
-      if (map) {
-        const item = this.items.find(item => item._id === map.id)
-        this.openItem(item)
+      if (value.length) {
+        const map = this.itemMap.find(map => map.key === value[0])
+        if (map) {
+          const item = this.items.find(item => item._id === map.id)
+          this.lastItemOpened = item
+          this.openItem(item)
+        }
+      } else {
+        this.openItem(this.lastItemOpened)
       }
     }
   },
