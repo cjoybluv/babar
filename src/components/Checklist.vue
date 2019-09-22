@@ -112,8 +112,7 @@ export default {
   data() {
     return {
       newItemSubject: '',
-      dragging: false,
-      dragEnabled: false
+      dragging: false
     }
   },
   methods: {
