@@ -135,7 +135,7 @@ export const actions = {
       }
     })
   },
-  clear({ commit }) {
+  clearCurrent({ commit }) {
     commit('CLEAR_CURRENT_CHECKLIST')
   }
 }

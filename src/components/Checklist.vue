@@ -71,11 +71,19 @@
     </v-row>
     <v-row>
       <v-col class="pt-0">
-        <ChecklistItem
-          v-for="item in checklist.items"
-          :key="item.key"
-          :item="item"
-        />
+        <draggable
+          :list="checklist.items"
+          ghost-class="ghost"
+          handle=".v-input__append-outer"
+          @start="dragging = true"
+          @end="dragging = false"
+        >
+          <ChecklistItem
+            v-for="item in checklist.items"
+            :key="item.key"
+            :item="item"
+          />
+        </draggable>
       </v-col>
     </v-row>
   </v-form>
@@ -83,12 +91,14 @@
 
 <script>
 import { mapActions, mapGetters } from 'vuex'
+import draggable from 'vuedraggable'
 import ChecklistItem from '@/components/ChecklistItem'
 
 export default {
   name: 'Checklist',
   components: {
-    ChecklistItem
+    ChecklistItem,
+    draggable
   },
   computed: {
     checklist() {
@@ -101,7 +111,8 @@ export default {
   },
   data() {
     return {
-      newItemSubject: ''
+      newItemSubject: '',
+      dragging: false
     }
   },
   methods: {
@@ -133,13 +144,16 @@ export default {
         if (this.checklist.folderName === '<ROOT>') {
           newChecklist.folderName = ''
         }
-        this.save(this.checklist)
+        this.save(this.checklist).then(() => this.clearForm())
       }
     },
     clearForm() {
-      this.clear()
+      this.clearCurrentChecklist()
     },
-    ...mapActions({ save: 'checklist/save', clear: 'checklist/clear' })
+    ...mapActions({
+      save: 'checklist/save',
+      clearCurrentChecklist: 'checklist/clearCurrent'
+    })
   }
 }
 </script>
