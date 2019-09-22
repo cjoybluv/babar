@@ -28,6 +28,12 @@
             <v-list-item @click="clearForm">
               <v-list-item-title dark>Clear the Form</v-list-item-title>
             </v-list-item>
+            <v-list-item @click="rearranging = true" v-if="!rearranging">
+              <v-list-item-title dark>Rearrange Items</v-list-item-title>
+            </v-list-item>
+            <v-list-item @click="rearranging = false" v-if="rearranging">
+              <v-list-item-title dark>Stop Rearranging Items</v-list-item-title>
+            </v-list-item>
           </v-list>
         </v-menu>
       </v-col>
@@ -71,11 +77,20 @@
     </v-row>
     <v-row>
       <v-col class="pt-0">
-        <ChecklistItem
-          v-for="item in checklist.items"
-          :key="item.key"
-          :item="item"
-        />
+        <draggable
+          :list="checklist.items"
+          :disabled="!rearranging"
+          ghost-class="ghost"
+          @start="dragging = true"
+          @end="dragging = false"
+        >
+          <ChecklistItem
+            v-for="item in checklist.items"
+            :key="item.key"
+            :item="item"
+            :rearranging="rearranging"
+          />
+        </draggable>
       </v-col>
     </v-row>
   </v-form>
@@ -83,12 +98,14 @@
 
 <script>
 import { mapActions, mapGetters } from 'vuex'
+import draggable from 'vuedraggable'
 import ChecklistItem from '@/components/ChecklistItem'
 
 export default {
   name: 'Checklist',
   components: {
-    ChecklistItem
+    ChecklistItem,
+    draggable
   },
   computed: {
     checklist() {
@@ -101,7 +118,9 @@ export default {
   },
   data() {
     return {
-      newItemSubject: ''
+      newItemSubject: '',
+      dragging: false,
+      rearranging: false
     }
   },
   methods: {
@@ -133,13 +152,17 @@ export default {
         if (this.checklist.folderName === '<ROOT>') {
           newChecklist.folderName = ''
         }
-        this.save(this.checklist)
+        this.save(this.checklist).then(() => this.clearForm())
       }
     },
     clearForm() {
-      this.clear()
+      this.rearranging = false
+      this.clearCurrentChecklist()
     },
-    ...mapActions({ save: 'checklist/save', clear: 'checklist/clear' })
+    ...mapActions({
+      save: 'checklist/save',
+      clearCurrentChecklist: 'checklist/clearCurrent'
+    })
   }
 }
 </script>
