@@ -4,14 +4,13 @@
       <v-checkbox dark class="mt-0 pt-0" v-model="item.completed"></v-checkbox>
     </v-col>
     <v-col
-      cols="10"
-      class="pa-0"
+      class="pa-0 pr-5"
       @mouseover="hover = true"
       @mouseleave="hover = false"
     >
       <p v-if="!hover" class="white--text">{{ item.subject }}</p>
       <v-textarea
-        v-if="hover"
+        v-else
         rows="1"
         auto-grow
         dark
