@@ -63,6 +63,7 @@
           v-model="newItemSubject"
           label="Enter New Item"
           @change="addItem"
+          @keydown.enter="addItem"
           append-outer-icon="mdi-plus"
           @click:append-outer="addItem"
         />
@@ -105,6 +106,7 @@ export default {
   },
   methods: {
     addItem() {
+      this.newItemSubject = this.newItemSubject.trimEnd()
       if (this.newItemSubject) {
         if (this.checklist.items) {
           this.checklist.items.push({
@@ -121,8 +123,8 @@ export default {
             }
           ]
         }
-        this.newItemSubject = ''
       }
+      this.newItemSubject = ''
     },
     saveHandler() {
       if (this.checklist.title) {
