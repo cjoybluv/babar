@@ -148,7 +148,6 @@ export default {
       }
     },
     clearForm() {
-      this.rearranging = false
       this.clearCurrentChecklist()
     },
     ...mapActions({
