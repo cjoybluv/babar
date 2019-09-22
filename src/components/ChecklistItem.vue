@@ -3,13 +3,19 @@
     <v-col cols="1" class="pt-0">
       <v-checkbox dark class="mt-0 pt-0" v-model="item.completed"></v-checkbox>
     </v-col>
-    <v-col class="pa-0" @mouseover="hover = true" @mouseleave="hover = false">
-      <p v-if="!hover || rearranging" class="white--text">{{ item.subject }}</p>
+    <v-col
+      cols="10"
+      class="pa-0"
+      @mouseover="hover = true"
+      @mouseleave="hover = false"
+    >
+      <p v-if="!hover" class="white--text">{{ item.subject }}</p>
       <v-textarea
-        v-if="hover && !rearranging"
+        v-if="hover"
         rows="1"
         auto-grow
         dark
+        append-outer-icon="mdi-cursor-move"
         class="pt-0"
         v-model="item.subject"
       />
@@ -20,15 +26,10 @@
 <script>
 export default {
   name: 'ChecklistItem',
-  props: ['item', 'rearranging'],
+  props: ['item'],
   data() {
     return {
       hover: false
-    }
-  },
-  watch: {
-    rearranging(newVal, oldVal) {
-      if (newVal != oldVal) this.rearranging = newVal
     }
   }
 }
@@ -38,7 +39,12 @@ export default {
 .v-textarea textarea {
   padding: 0;
 }
-.rearranging {
+.v-input__append-outer {
   cursor: move;
+}
+.sortable-chosen {
+  z-index: 10;
+  border: 1px dashed lightgray;
+  background-color: #1e88e5;
 }
 </style>

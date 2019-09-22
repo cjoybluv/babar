@@ -26,7 +26,7 @@
       <v-col cols="6">
         <v-sheet
           tile
-          class="primary lighten-2"
+          class="primary lighten-1"
           :min-height="window.height - window.heightReduction"
         >
           <Checklist />
@@ -36,7 +36,7 @@
         <v-sheet
           tile
           :min-height="window.height - window.heightReduction"
-          class="primary lighten-4"
+          class="primary lighten-2"
         ></v-sheet>
       </v-col>
     </v-row>
