@@ -11,16 +11,23 @@
 </template>
 
 <script>
-import { createFolderArray } from '@/helpers/displayHelpers'
-
 export default {
   name: 'FolderDisplay',
-  props: ['folders', 'items', 'itemNameField', 'openItem'],
+  props: ['openItem'],
   data() {
     return {
-      displayData: [],
-      itemMap: [],
       lastItemOpened: {}
+    }
+  },
+  computed: {
+    displayData() {
+      return this.$store.state.checklist.displayData
+    },
+    itemMap() {
+      return this.$store.state.checklist.itemMap
+    },
+    checklists() {
+      return this.$store.state.checklist.checklists
     }
   },
   methods: {
@@ -28,40 +35,20 @@ export default {
       if (value.length) {
         const map = this.itemMap.find(map => map.key === value[0])
         if (map) {
-          const item = this.items.find(item => item._id === map.id)
-          this.lastItemOpened = item
-          this.openItem(item)
+          const checklist = this.checklists.find(
+            checklist => checklist._id === map.id
+          )
+          this.lastItemOpened = checklist
+          this.openItem(checklist)
         }
       } else {
         this.openItem(this.lastItemOpened)
+        const checklist = this.checklists.find(
+          checklist => checklist._id === this.lastItemOpened._id
+        )
+        this.lastItemOpened = checklist
+        this.openItem(checklist)
       }
-    }
-  },
-  mounted() {
-    const result = createFolderArray(
-      this.folders,
-      this.items,
-      this.itemNameField
-    )
-    this.displayData = result.displayArray
-    this.itemMap = result.itemMap
-  },
-  watch: {
-    // eslint-disable-next-line
-    items(newVal, oldVal) {
-      const result = createFolderArray(
-        this.folders,
-        this.items,
-        this.itemNameField
-      )
-      this.displayData = result.displayArray
-      this.itemMap = result.itemMap
-    },
-    // eslint-disable-next-line
-    folders(newVal, oldVal) {
-      const result = createFolderArray(newVal, this.items, this.itemNameField)
-      this.displayData = result.displayArray
-      this.itemMap = result.itemMap
     }
   }
 }

@@ -16,7 +16,7 @@ const ChecklistSchema = new Schema({
   items: [
     {
       key: {
-        type: Number,
+        type: String,
         required: [true, 'item.key is required']
       },
       subject: {
