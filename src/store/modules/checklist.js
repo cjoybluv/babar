@@ -1,10 +1,13 @@
 import ChecklistService from '@/services/ChecklistService'
+import { createFolderArray } from '@/helpers/displayHelpers'
 
 export const namespaced = true
 
 export const state = {
   checklists: [],
-  currentChecklist: {}
+  folderDisplay: [],
+  itemMap: [],
+  selectedChecklist: {}
 }
 
 export const getters = {
@@ -20,35 +23,6 @@ export const mutations = {
   SET_CHECKLISTS(state, checklists) {
     state.checklists = checklists
   },
-  SET_CURRENT_CHECKLIST(state, checklist) {
-    if (checklist.masterChecklist) {
-      let today = new Date(Date.now())
-      let titleDateTime =
-        today.getFullYear() +
-        '-' +
-        (today.getMonth() + 1) +
-        '-' +
-        today.getDate() +
-        ' ' +
-        today.getHours() +
-        ':' +
-        today.getMinutes() +
-        ':' +
-        today.getSeconds()
-      state.currentChecklist = {
-        ...checklist,
-        masterChecklist: false,
-        folderName: checklist.folderName ? checklist.folderName : 'Log',
-        sourceMasterId: checklist._id,
-        title: titleDateTime + ' / ' + checklist.title
-      }
-    } else {
-      state.currentChecklist = { ...checklist }
-    }
-  },
-  CLEAR_CURRENT_CHECKLIST(state) {
-    state.currentChecklist = {}
-  },
   UPDATE_CHECKLIST(state, updatedChecklist) {
     const idx = state.checklists.findIndex(
       checklist => checklist._id === updatedChecklist._id
@@ -57,6 +31,16 @@ export const mutations = {
   },
   SAVE_CHECKLIST(state, checklist) {
     state.checklists.push(checklist)
+  },
+  SET_SELECTED_CHECKLIST(state, selectedChecklist) {
+    state.selectedChecklist = selectedChecklist
+  },
+  CLEAR_SELECTED_CHECKLIST(state) {
+    state.selectedChecklist = {}
+  },
+  SET_FOLDER_DISPLAY(state, result) {
+    state.displayData = result.displayArray
+    state.itemMap = result.itemMap
   }
 }
 
@@ -67,6 +51,7 @@ export const actions = {
       ChecklistService.getChecklists(ownerId)
         .then(response => {
           commit('SET_CHECKLISTS', response.data)
+          dispatch('updateFolderDisplay')
           const notification = {
             type: 'success',
             message: 'Checklists Fetched!'
@@ -86,7 +71,13 @@ export const actions = {
   },
   edit({ commit }, checklist) {
     return new Promise(resolve => {
-      commit('SET_CURRENT_CHECKLIST', checklist)
+      commit('SET_SELECTED_CHECKLIST', checklist)
+      resolve()
+    })
+  },
+  clearForm({ commit }) {
+    return new Promise(resolve => {
+      commit('CLEAR_SELECTED_CHECKLIST')
       resolve()
     })
   },
@@ -96,7 +87,8 @@ export const actions = {
         ChecklistService.putChecklist(checklist)
           .then(response => {
             commit('UPDATE_CHECKLIST', response.data)
-            commit('CLEAR_CURRENT_CHECKLIST')
+            commit('CLEAR_SELECTED_CHECKLIST')
+            dispatch('updateFolderDisplay')
             const notification = {
               type: 'success',
               message: 'Checklist Updated!'
@@ -116,7 +108,8 @@ export const actions = {
         ChecklistService.postChecklist(checklist)
           .then(response => {
             commit('SAVE_CHECKLIST', response.data)
-            commit('CLEAR_CURRENT_CHECKLIST')
+            commit('CLEAR_SELECTED_CHECKLIST')
+            dispatch('updateFolderDisplay')
             const notification = {
               type: 'success',
               message: 'Checklist saved!'
@@ -135,7 +128,10 @@ export const actions = {
       }
     })
   },
-  clearCurrent({ commit }) {
-    commit('CLEAR_CURRENT_CHECKLIST')
+  updateFolderDisplay({ state, rootState, commit }) {
+    commit(
+      'SET_FOLDER_DISPLAY',
+      createFolderArray(rootState.auth.user.folders, state.checklists, 'title')
+    )
   }
 }

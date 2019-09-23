@@ -90,6 +90,8 @@
 </template>
 
 <script>
+// const uuidv4 = require('uuid/v4');
+import uuidv4 from 'uuid/v4'
 import { mapActions, mapGetters } from 'vuex'
 import draggable from 'vuedraggable'
 import ChecklistItem from '@/components/ChecklistItem'
@@ -102,7 +104,7 @@ export default {
   },
   computed: {
     checklist() {
-      return this.$store.state.checklist.currentChecklist
+      return this.$store.state.checklist.selectedChecklist
     },
     folderOptions() {
       return ['<ROOT>', ...this.userFolders]
@@ -117,23 +119,21 @@ export default {
   },
   methods: {
     addItem() {
-      this.newItemSubject = this.newItemSubject.trimEnd()
-      if (this.newItemSubject) {
-        if (this.checklist.items) {
-          this.checklist.items.push({
-            key: this.checklist.items.length + 1,
-            subject: this.newItemSubject,
-            completed: false
-          })
-        } else {
-          this.checklist.items = [
-            {
-              key: 1,
-              subject: this.newItemSubject,
-              completed: false
-            }
-          ]
-        }
+      // this.newItemSubject = this.newItemSubject.trimEnd()
+      let subject = this.newItemSubject.trimEnd()
+      let cleanSubject
+      if (subject.charAt(subject.length - 1) === String.fromCharCode(10)) {
+        cleanSubject = subject.substring(0, subject.length - 1)
+      } else {
+        cleanSubject = subject
+      }
+      if (cleanSubject) {
+        if (!this.checklist.items) this.checklist.items = []
+        this.checklist.items.push({
+          key: uuidv4(),
+          subject: cleanSubject,
+          completed: false
+        })
       }
       this.newItemSubject = ''
     },
@@ -144,15 +144,12 @@ export default {
         if (this.checklist.folderName === '<ROOT>') {
           newChecklist.folderName = ''
         }
-        this.save(this.checklist).then(() => this.clearForm())
+        this.save(this.checklist)
       }
-    },
-    clearForm() {
-      this.clearCurrentChecklist()
     },
     ...mapActions({
       save: 'checklist/save',
-      clearCurrentChecklist: 'checklist/clearCurrent'
+      clearForm: 'checklist/clearForm'
     })
   }
 }

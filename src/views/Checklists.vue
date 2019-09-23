@@ -15,12 +15,7 @@
             append-icon="mdi-plus"
             @click:append="createFolder"
           />
-          <FolderDisplay
-            :folders="userFolders"
-            :items="checklists"
-            itemNameField="title"
-            :openItem="openChecklist"
-          />
+          <FolderDisplay :openItem="openChecklist" />
         </v-sheet>
       </v-col>
       <v-col cols="6">
@@ -29,7 +24,7 @@
           class="primary lighten-1"
           :min-height="window.height - window.heightReduction"
         >
-          <Checklist />
+          <Checklist :checklist="selectedChecklist" />
         </v-sheet>
       </v-col>
       <v-col cols="3">
@@ -44,7 +39,9 @@
 </template>
 
 <script>
+import cloneDeep from 'lodash/cloneDeep'
 import { mapGetters, mapActions } from 'vuex'
+
 import FolderDisplay from '@/components/FolderDisplay'
 import Checklist from '@/components/Checklist'
 
@@ -68,11 +65,40 @@ export default {
     checklists() {
       return this.$store.state.checklist.checklists
     },
+    selectedChecklist() {
+      return this.$store.state.checklist.selectedChecklist
+    },
     ...mapGetters({ userFolders: 'auth/userFolders', user: 'auth/user' })
   },
   methods: {
     openChecklist(checklist) {
-      this.editChecklist(checklist)
+      let selectedChecklist
+      if (checklist.masterChecklist) {
+        let today = new Date(Date.now())
+        let titleDateTime =
+          today.getFullYear() +
+          '-' +
+          (today.getMonth() + 1) +
+          '-' +
+          today.getDate() +
+          ' ' +
+          today.getHours() +
+          ':' +
+          today.getMinutes() +
+          ':' +
+          today.getSeconds()
+        selectedChecklist = cloneDeep({
+          ...checklist,
+          masterChecklist: false,
+          folderName: checklist.folderName ? checklist.folderName : 'Log',
+          sourceMasterId: checklist._id,
+          title: titleDateTime + ' / ' + checklist.title
+        })
+        delete selectedChecklist._id
+      } else {
+        selectedChecklist = cloneDeep(checklist)
+      }
+      this.editChecklist(selectedChecklist)
     },
     createFolder() {
       if (this.newFolderName) {
@@ -102,12 +128,5 @@ export default {
   destroyed() {
     window.removeEventListener('resize', this.handleResize)
   }
-
-  // beforeRouteEnter(routeTo, routeFrom, next) {
-  //   getChecklists(routeTo, next, this.ownerId)
-  // },
-  // beforeRouteUpdate(routeTo, routeFrom, next) {
-  //   getPageEvents(routeTo, next)
-  // },
 }
 </script>
