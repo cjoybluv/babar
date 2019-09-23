@@ -24,15 +24,21 @@
           <template v-slot:activator="{ on }">
             <v-icon v-on="on" dark>mdi-dots-vertical</v-icon>
           </template>
-          <v-list>
+          <v-list dark color="#1565C0">
             <v-list-item @click="clearForm">
               <v-list-item-title dark>Clear the Form</v-list-item-title>
+            </v-list-item>
+            <v-list-item @click="openOptions = true" v-if="!openOptions">
+              <v-list-item-title dark>Open Options</v-list-item-title>
+            </v-list-item>
+            <v-list-item @click="openOptions = false" v-if="openOptions">
+              <v-list-item-title dark>Close Options</v-list-item-title>
             </v-list-item>
           </v-list>
         </v-menu>
       </v-col>
     </v-row>
-    <v-row v-if="checklist.title && !checklist.sourceMasterId">
+    <v-row v-if="checklist.title && !checklist.sourceMasterId && openOptions">
       <v-col cols="12" class="pt-0 pb-0">
         <v-checkbox
           dark
@@ -42,7 +48,7 @@
         />
       </v-col>
     </v-row>
-    <v-row v-if="checklist.title">
+    <v-row v-if="checklist.title && openOptions">
       <v-col class="mt-2 pt-0 pb-0">
         <v-select
           dark
@@ -114,7 +120,8 @@ export default {
   data() {
     return {
       newItemSubject: '',
-      dragging: false
+      dragging: false,
+      openOptions: false
     }
   },
   methods: {
