@@ -1,3 +1,4 @@
+import Vue from 'vue'
 import ChecklistService from '@/services/ChecklistService'
 import { createFolderArray } from '@/helpers/displayHelpers'
 
@@ -5,7 +6,7 @@ export const namespaced = true
 
 export const state = {
   checklists: [],
-  folderDisplay: [],
+  folderArray: [],
   itemMap: [],
   selectedChecklist: {}
 }
@@ -27,7 +28,8 @@ export const mutations = {
     const idx = state.checklists.findIndex(
       checklist => checklist._id === updatedChecklist._id
     )
-    state.checklists[idx] = updatedChecklist
+    // state.checklists[idx] = updatedChecklist
+    Vue.set(state.checklists, idx, updatedChecklist)
   },
   SAVE_CHECKLIST(state, checklist) {
     state.checklists.push(checklist)
@@ -39,7 +41,7 @@ export const mutations = {
     state.selectedChecklist = {}
   },
   SET_FOLDER_DISPLAY(state, result) {
-    state.displayData = result.displayArray
+    state.folderArray = result.displayArray
     state.itemMap = result.itemMap
   }
 }
