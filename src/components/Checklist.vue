@@ -53,7 +53,7 @@
         />
       </v-col>
     </v-row>
-    <v-row v-if="checklist.title">
+    <v-row v-if="checklist.title && !checklist.sourceMasterId">
       <v-col class="pb-0">
         <v-textarea
           rows="1"
