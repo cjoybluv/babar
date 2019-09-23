@@ -1,6 +1,6 @@
 <template>
   <v-treeview
-    :items="displayData"
+    :items="folderArray"
     item-key="key"
     @update:active="clickHandler"
     activatable
@@ -20,8 +20,8 @@ export default {
     }
   },
   computed: {
-    displayData() {
-      return this.$store.state.checklist.displayData
+    folderArray() {
+      return this.$store.state.checklist.folderArray
     },
     itemMap() {
       return this.$store.state.checklist.itemMap
