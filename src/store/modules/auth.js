@@ -89,6 +89,7 @@ export const actions = {
       UserService.putUser(user)
         .then(response => {
           commit('SET_USER', response.data)
+          dispatch('checklist/updateFolderDisplay', null, { root: true })
           const notification = {
             type: 'success',
             message: 'User Updated!'
