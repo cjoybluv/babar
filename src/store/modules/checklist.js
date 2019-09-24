@@ -83,8 +83,9 @@ export const actions = {
       resolve()
     })
   },
-  save({ commit, dispatch }, checklist) {
+  save({ commit, dispatch, rootState }, checklist) {
     return new Promise((resolve, reject) => {
+      checklist.ownerId = rootState.auth.user._id
       if (checklist._id) {
         ChecklistService.putChecklist(checklist)
           .then(response => {
