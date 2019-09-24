@@ -1,13 +1,10 @@
 const express = require('express')
-const cors = require('cors')
 const bodyParser = require('body-parser')
 const mongoose = require('mongoose')
 
 const PATHNAME = '/api/' + process.env.VUE_APP_API_VERSION
 
 const app = express()
-
-app.use(cors())
 
 // mongodb://<dbuser>:<dbpassword>@ds011238.mlab.com:11238/heroku_b5fktx4w
 // mongodb://heroku_b5fktx4w:2k2ll66asfs09k2ba3o43itc9t@ds011238.mlab.com:11238/heroku_b5fktx4w
