@@ -1,28 +1,25 @@
 <template>
   <v-form class="pl-3">
     <v-row>
-      <v-col cols="11" class="pb-0">
+      <v-col class="pb-0">
         <v-text-field
           dark
-          class="mt-0"
+          class="mt-0 mr-auto"
           placeholder="Enter New Checklist Title"
           v-model="checklist.title"
         />
       </v-col>
-      <v-col cols="1" class="pl-0 pt-5">
-        <v-btn
-          @click="saveHandler"
-          text
-          dark
-          :disabled="!checklist.title"
-          min-width="24"
-          class="pl-0 pr-0"
-        >
-          <v-icon dark>mdi-content-save</v-icon>
-        </v-btn>
+      <v-col cols="2" class="pl-0 pt-5">
         <v-menu class="primray lighten-2">
           <template v-slot:activator="{ on }">
-            <v-icon v-on="on" dark>mdi-dots-vertical</v-icon>
+            <v-icon
+              dense
+              v-on="on"
+              dark
+              :disabled="!checklist.title"
+              class="pt-2 float-right"
+              >mdi-dots-vertical</v-icon
+            >
           </template>
           <v-list dark color="#1565C0">
             <v-list-item @click="clearForm">
@@ -36,6 +33,16 @@
             </v-list-item>
           </v-list>
         </v-menu>
+        <v-btn
+          @click="saveHandler"
+          text
+          dark
+          :disabled="!checklist.title"
+          min-width="24"
+          class="pl-0 pr-0 float-right"
+        >
+          <v-icon dense dark>mdi-content-save</v-icon>
+        </v-btn>
       </v-col>
     </v-row>
     <v-row v-if="checklist.title && !checklist.sourceMasterId && openOptions">
@@ -49,7 +56,7 @@
       </v-col>
     </v-row>
     <v-row v-if="checklist.title && openOptions">
-      <v-col class="mt-2 pt-0 pb-0">
+      <v-col cols="11" class="mt-2 py-0">
         <v-select
           dark
           class="pt-0"
@@ -165,5 +172,8 @@ export default {
 <style>
 .v-input__slot {
   margin-bottom: 0 !important;
+}
+.v-select-list .v-list-item:hover {
+  background-color: #eee;
 }
 </style>
