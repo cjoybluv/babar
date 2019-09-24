@@ -7,7 +7,8 @@ const PATHNAME = '/api/v1'
 const app = express()
 
 mongoose.connect(
-  'mongodb://ljunda:G0atsHeadS0up@ds011238.mlab.com:11238/heroku_b5fktx4w',
+  process.env.MONGODB_URI ||
+    'mongodb://ljunda:G0atsHeadS0up@ds011238.mlab.com:11238/heroku_b5fktx4w',
   {
     useNewUrlParser: true,
     useUnifiedTopology: true,
@@ -33,12 +34,12 @@ app.use(function(req, res, next) {
 // Serve up static assets (usually on heroku)
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(__dirname + '/dist/'))
-  app.get(/.*/, function(req, res) {
-    res.sendfile(__dirname + '/dist/index.html')
-  })
+  // app.get(/.*/, function(req, res) {
+  //   res.sendfile(__dirname + '/dist/index.html')
+  // })
 }
 
-app.use(PATHNAME, require('./api/routes/api'))
+app.use(PATHNAME, require(__dirname + '/api/routes/api'))
 
 app.use(function(err, req, res, next) {
   // 422 = unprocessable entity

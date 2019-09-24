@@ -13,7 +13,7 @@ import store from '@/store/store'
 
 /** Default config for axios instance */
 let config = {
-  baseURL: `http://127.0.0.1:8881/api/v1`,
+  baseURL: process.env.API_URL,
   withCredentials: false, // This is the default
   headers: {
     Accept: 'application/json',
