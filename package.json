@@ -6,7 +6,7 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "api": "node -r dotenv/config ./api/server.js dotenv_config_path=.env.development",
+    "api": "node -r dotenv/config server.js dotenv_config_path=.env.development.local",
     "start": "node server.js"
   },
   "dependencies": {
