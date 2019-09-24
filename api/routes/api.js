@@ -1,4 +1,5 @@
 const express = require('express')
+const cors = require('cors')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 
@@ -14,6 +15,8 @@ const AppData = require('../models/appData')
 const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY
 
 const saltRounds = 10
+
+router.options('*', cors())
 
 router.post('/auth/signup', (req, res, next) => {
   const password = req.body.password
