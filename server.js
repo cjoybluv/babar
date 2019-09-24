@@ -2,9 +2,11 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const mongoose = require('mongoose')
 
-const PATHNAME = '/api/v1'
+const PATHNAME = '/api/' + process.env.VUE_APP_API_VERSION
 
 const app = express()
+
+// mongodb://<dbuser>:<dbpassword>@ds011238.mlab.com:11238/heroku_b5fktx4w
 
 mongoose.connect(
   process.env.MONGODB_URI ||
@@ -44,7 +46,7 @@ if (process.env.NODE_ENV === 'production') {
   })
 }
 
-app.use(PATHNAME, require('./routes/api'))
+app.use(PATHNAME, require('./api/routes/api'))
 
 app.use(function(err, req, res, next) {
   // 422 = unprocessable entity

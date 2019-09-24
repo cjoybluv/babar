@@ -11,7 +11,7 @@ const Item = require('../models/items')
 const Location = require('../models/locations')
 const AppData = require('../models/appData')
 
-const JWT_SECRET_KEY = 'getConnected'
+const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY
 
 const saltRounds = 10
 

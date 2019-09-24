@@ -1,19 +1,15 @@
 import axios from 'axios'
 import store from '@/store/store'
 
-// const apiClient = axios.create({
-//   baseURL: `http://127.0.0.1:8881/api/v1`,
-//   withCredentials: false, // This is the default
-//   headers: {
-//     Accept: 'application/json',
-//     'Content-Type': 'application/json'
-//   },
-//   timeout: 10000
-// })
+/* eslint-disable */
+const VUE_APP_API_URL =
+  process.env.VUE_APP_API_URL ||
+  __dirname + '/api/' + process.env.VUE_APP_API_VERSION
+/* eslint-enable */
 
 /** Default config for axios instance */
 let config = {
-  baseURL: `http://127.0.0.1:8881/api/v1`,
+  baseURL: VUE_APP_API_URL,
   withCredentials: false, // This is the default
   headers: {
     Accept: 'application/json',
