@@ -24,6 +24,8 @@ const corsOptions = {
 
 router.options('*', cors(corsOptions))
 
+console.log('api-CORS_ORIGIN', process.env.CORS_ORIGIN)
+console.log('api-router.options', router.options)
 router.post('/auth/signup', cors(corsOptions), (req, res, next) => {
   const password = req.body.password
   bcrypt.hash(password, saltRounds, function(error, hash) {
