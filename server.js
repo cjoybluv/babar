@@ -7,8 +7,7 @@ const PATHNAME = '/api/v1'
 const app = express()
 
 mongoose.connect(
-  process.env.MONGODB_URI ||
-    'mongodb://ljunda:G0atsHeadS0up@ds011238.mlab.com:11238/heroku_b5fktx4w',
+  'mongodb://ljunda:G0atsHeadS0up@ds011238.mlab.com:11238/heroku_b5fktx4w',
   {
     useNewUrlParser: true,
     useUnifiedTopology: true,
