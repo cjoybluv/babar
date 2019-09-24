@@ -6,6 +6,9 @@ const PATHNAME = '/api/v1'
 
 const app = express()
 
+console.log('server', process.env)
+// mongodb://<dbuser>:<dbpassword>@ds011238.mlab.com:11238/heroku_b5fktx4w
+
 mongoose.connect(
   process.env.MONGODB_URI ||
     'mongodb://' +
