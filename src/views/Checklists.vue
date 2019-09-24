@@ -1,7 +1,7 @@
 <template>
   <div>
     <v-row no-gutters>
-      <v-col cols="3">
+      <v-col cols="12" sm="5" md="3">
         <v-sheet
           tile
           :min-height="window.height - window.heightReduction"
@@ -18,7 +18,7 @@
           <FolderDisplay :openItem="openChecklist" />
         </v-sheet>
       </v-col>
-      <v-col cols="6">
+      <v-col cols="12" sm="7" md="5">
         <v-sheet
           tile
           class="primary lighten-1"
@@ -27,7 +27,7 @@
           <Checklist :checklist="selectedChecklist" />
         </v-sheet>
       </v-col>
-      <v-col cols="3">
+      <v-col cols="12" md="4">
         <v-sheet
           tile
           :min-height="window.height - window.heightReduction"
