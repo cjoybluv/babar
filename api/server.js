@@ -39,7 +39,7 @@ if (process.env.NODE_ENV === 'production') {
   })
 }
 
-app.use(PATHNAME, require('./routes/api'))
+app.use(PATHNAME, require('./api/routes/api'))
 
 app.use(function(err, req, res, next) {
   // 422 = unprocessable entity
