@@ -7,15 +7,17 @@ const PATHNAME = '/api/' + process.env.VUE_APP_API_VERSION
 const app = express()
 
 // mongodb://<dbuser>:<dbpassword>@ds011238.mlab.com:11238/heroku_b5fktx4w
+// mongodb://heroku_b5fktx4w:2k2ll66asfs09k2ba3o43itc9t@ds011238.mlab.com:11238/heroku_b5fktx4w
 
 mongoose.connect(
-  process.env.MONGODB_URI ||
-    'mongodb://' +
-      process.env.DB_USER +
-      ':' +
-      process.env.DB_PASSWORD +
-      '@' +
-      process.env.DB_URI,
+  process.env.NODE_ENV === 'development'
+    ? process.env.MONGODB_URI
+    : 'mongodb://' +
+        process.env.DB_USER +
+        ':' +
+        process.env.DB_PASSWORD +
+        '@' +
+        process.env.DB_URI,
   {
     useNewUrlParser: true,
     useUnifiedTopology: true,

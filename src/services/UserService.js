@@ -1,11 +1,8 @@
 import axios from 'axios'
 import store from '@/store/store'
 
-/* eslint-disable */
-const VUE_APP_API_URL =
-  process.env.VUE_APP_API_URL ||
-  __dirname + '/api/' + process.env.VUE_APP_API_VERSION
-/* eslint-enable */
+/* eslint-disable-next-line */
+const VUE_APP_API_URL = process.env.VUE_APP_API_URL
 
 /** Default config for axios instance */
 let config = {
