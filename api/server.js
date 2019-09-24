@@ -8,7 +8,12 @@ const app = express()
 
 mongoose.connect(
   process.env.MONGODB_URI ||
-    'mongodb://ljunda:G0atsHeadS0up@ds011238.mlab.com:11238/heroku_b5fktx4w',
+    'mongodb://' +
+      process.env.DB_USER +
+      ':' +
+      process.env.DB_PASSWORD +
+      '@' +
+      process.env.DB_URI,
   {
     useNewUrlParser: true,
     useUnifiedTopology: true,
