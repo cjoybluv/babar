@@ -22,6 +22,8 @@ const corsOptions = {
   optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
 }
 
+router.options('*', cors())
+
 router.post('/auth/signup', cors(corsOptions), (req, res, next) => {
   const password = req.body.password
   bcrypt.hash(password, saltRounds, function(error, hash) {
@@ -51,7 +53,6 @@ router.post('/auth/signup', cors(corsOptions), (req, res, next) => {
   })
 })
 
-router.options('/auth/login', cors())
 router.post('/auth/login', cors(corsOptions), (req, res, next) => {
   User.findOne({ email: req.body.email })
     .then(function(user) {
