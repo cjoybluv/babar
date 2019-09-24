@@ -51,6 +51,7 @@ router.post('/auth/signup', cors(corsOptions), (req, res, next) => {
   })
 })
 
+router.options('/auth/login', cors())
 router.post('/auth/login', cors(corsOptions), (req, res, next) => {
   User.findOne({ email: req.body.email })
     .then(function(user) {
