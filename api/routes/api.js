@@ -1,5 +1,4 @@
 const express = require('express')
-const cors = require('cors')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 
@@ -16,15 +15,7 @@ const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY
 
 const saltRounds = 10
 
-router.options('*', cors())
-const corsOptions = {
-  origin: process.env.CORS_ORIGIN,
-  optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
-}
-
-router.options('*', cors(corsOptions))
-
-router.post('/auth/signup', cors(corsOptions), (req, res, next) => {
+router.post('/auth/signup', (req, res, next) => {
   const password = req.body.password
   bcrypt.hash(password, saltRounds, function(error, hash) {
     if (error) res.status(500).json({ error })
@@ -53,7 +44,7 @@ router.post('/auth/signup', cors(corsOptions), (req, res, next) => {
   })
 })
 
-router.post('/auth/login', cors(corsOptions), (req, res, next) => {
+router.post('/auth/login', (req, res, next) => {
   User.findOne({ email: req.body.email })
     .then(function(user) {
       if (!user) res.status(401).send({ error: 'Not authorized' })
@@ -79,7 +70,7 @@ router.post('/auth/login', cors(corsOptions), (req, res, next) => {
     })
 })
 
-router.get('/checklists', cors(corsOptions), verifyToken, (req, res, next) => {
+router.get('/checklists', verifyToken, (req, res, next) => {
   jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
     if (err) {
       res.sendStatus(403)
@@ -96,28 +87,23 @@ router.get('/checklists', cors(corsOptions), verifyToken, (req, res, next) => {
   })
 })
 
-router.get(
-  '/checklists/:id',
-  cors(corsOptions),
-  verifyToken,
-  (req, res, next) => {
-    jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
-      if (err) {
-        res.sendStatus(403)
-      } else {
-        Checklist.findById(req.params.id)
-          .then(checklist => {
-            res.json(checklist)
-          })
-          .catch(error => {
-            res.json({ error })
-          })
-      }
-    })
-  }
-)
+router.get('/checklists/:id', verifyToken, (req, res, next) => {
+  jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
+    if (err) {
+      res.sendStatus(403)
+    } else {
+      Checklist.findById(req.params.id)
+        .then(checklist => {
+          res.json(checklist)
+        })
+        .catch(error => {
+          res.json({ error })
+        })
+    }
+  })
+})
 
-router.post('/checklists', cors(corsOptions), verifyToken, (req, res, next) => {
+router.post('/checklists', verifyToken, (req, res, next) => {
   jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
     if (err) {
       res.sendStatus(403)
@@ -133,55 +119,45 @@ router.post('/checklists', cors(corsOptions), verifyToken, (req, res, next) => {
   })
 })
 
-router.put(
-  '/checklists/:id',
-  cors(corsOptions),
-  verifyToken,
-  (req, res, next) => {
-    jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
-      if (err) {
-        res.sendStatus(403)
-      } else {
-        Checklist.findByIdAndUpdate({ _id: req.params.id }, req.body)
-          .then(() => {
-            Checklist.findById(req.params.id)
-              .then(checklist => {
-                res.json(checklist)
-              })
-              .catch(error => {
-                res.json({ error })
-              })
-          })
-          .catch(error => {
-            res.json({ error })
-          })
-      }
-    })
-  }
-)
+router.put('/checklists/:id', verifyToken, (req, res, next) => {
+  jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
+    if (err) {
+      res.sendStatus(403)
+    } else {
+      Checklist.findByIdAndUpdate({ _id: req.params.id }, req.body)
+        .then(() => {
+          Checklist.findById(req.params.id)
+            .then(checklist => {
+              res.json(checklist)
+            })
+            .catch(error => {
+              res.json({ error })
+            })
+        })
+        .catch(error => {
+          res.json({ error })
+        })
+    }
+  })
+})
 
-router.delete(
-  '/checklists/:id',
-  cors(corsOptions),
-  verifyToken,
-  (req, res, next) => {
-    jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
-      if (err) {
-        res.sendStatus(403)
-      } else {
-        Checklist.findByIdAndDelete(req.params.id)
-          .then(checklist => {
-            res.json(checklist)
-          })
-          .catch(error => {
-            res.json({ error })
-          })
-      }
-    })
-  }
-)
+router.delete('/checklists/:id', verifyToken, (req, res, next) => {
+  jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
+    if (err) {
+      res.sendStatus(403)
+    } else {
+      Checklist.findByIdAndDelete(req.params.id)
+        .then(checklist => {
+          res.json(checklist)
+        })
+        .catch(error => {
+          res.json({ error })
+        })
+    }
+  })
+})
 
-router.get('/contacts', cors(corsOptions), verifyToken, (req, res, next) => {
+router.get('/contacts', verifyToken, (req, res, next) => {
   jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
     if (err) {
       res.sendStatus(403)
@@ -197,28 +173,23 @@ router.get('/contacts', cors(corsOptions), verifyToken, (req, res, next) => {
   })
 })
 
-router.get(
-  '/contacts/:id',
-  cors(corsOptions),
-  verifyToken,
-  (req, res, next) => {
-    jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
-      if (err) {
-        res.sendStatus(403)
-      } else {
-        Contact.findById(req.params.id)
-          .then(contact => {
-            res.json(contact)
-          })
-          .catch(error => {
-            res.json({ error })
-          })
-      }
-    })
-  }
-)
+router.get('/contacts/:id', verifyToken, (req, res, next) => {
+  jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
+    if (err) {
+      res.sendStatus(403)
+    } else {
+      Contact.findById(req.params.id)
+        .then(contact => {
+          res.json(contact)
+        })
+        .catch(error => {
+          res.json({ error })
+        })
+    }
+  })
+})
 
-router.post('/contacts', cors(corsOptions), verifyToken, (req, res, next) => {
+router.post('/contacts', verifyToken, (req, res, next) => {
   jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
     if (err) {
       res.sendStatus(403)
@@ -234,55 +205,45 @@ router.post('/contacts', cors(corsOptions), verifyToken, (req, res, next) => {
   })
 })
 
-router.put(
-  '/contacts/:id',
-  cors(corsOptions),
-  verifyToken,
-  (req, res, next) => {
-    jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
-      if (err) {
-        res.sendStatus(403)
-      } else {
-        Contact.findByIdAndUpdate({ _id: req.params.id }, req.body)
-          .then(() => {
-            Contact.findById(req.params.id)
-              .then(contact => {
-                res.json(contact)
-              })
-              .catch(error => {
-                res.json({ error })
-              })
-          })
-          .catch(error => {
-            res.json({ error })
-          })
-      }
-    })
-  }
-)
+router.put('/contacts/:id', verifyToken, (req, res, next) => {
+  jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
+    if (err) {
+      res.sendStatus(403)
+    } else {
+      Contact.findByIdAndUpdate({ _id: req.params.id }, req.body)
+        .then(() => {
+          Contact.findById(req.params.id)
+            .then(contact => {
+              res.json(contact)
+            })
+            .catch(error => {
+              res.json({ error })
+            })
+        })
+        .catch(error => {
+          res.json({ error })
+        })
+    }
+  })
+})
 
-router.delete(
-  '/contacts/:id',
-  cors(corsOptions),
-  verifyToken,
-  (req, res, next) => {
-    jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
-      if (err) {
-        res.sendStatus(403)
-      } else {
-        Contact.findByIdAndDelete(req.params.id)
-          .then(contact => {
-            res.json(contact)
-          })
-          .catch(error => {
-            res.json({ error })
-          })
-      }
-    })
-  }
-)
+router.delete('/contacts/:id', verifyToken, (req, res, next) => {
+  jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
+    if (err) {
+      res.sendStatus(403)
+    } else {
+      Contact.findByIdAndDelete(req.params.id)
+        .then(contact => {
+          res.json(contact)
+        })
+        .catch(error => {
+          res.json({ error })
+        })
+    }
+  })
+})
 
-router.get('/items', cors(corsOptions), verifyToken, (req, res, next) => {
+router.get('/items', verifyToken, (req, res, next) => {
   jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
     if (err) {
       res.sendStatus(403)
@@ -298,7 +259,7 @@ router.get('/items', cors(corsOptions), verifyToken, (req, res, next) => {
   })
 })
 
-router.get('/items/:id', cors(corsOptions), verifyToken, (req, res, next) => {
+router.get('/items/:id', verifyToken, (req, res, next) => {
   jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
     if (err) {
       res.sendStatus(403)
@@ -314,7 +275,7 @@ router.get('/items/:id', cors(corsOptions), verifyToken, (req, res, next) => {
   })
 })
 
-router.post('/items', cors(corsOptions), verifyToken, (req, res, next) => {
+router.post('/items', verifyToken, (req, res, next) => {
   jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
     if (err) {
       res.sendStatus(403)
@@ -330,7 +291,7 @@ router.post('/items', cors(corsOptions), verifyToken, (req, res, next) => {
   })
 })
 
-router.put('/items/:id', cors(corsOptions), verifyToken, (req, res, next) => {
+router.put('/items/:id', verifyToken, (req, res, next) => {
   jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
     if (err) {
       res.sendStatus(403)
@@ -352,28 +313,23 @@ router.put('/items/:id', cors(corsOptions), verifyToken, (req, res, next) => {
   })
 })
 
-router.delete(
-  '/items/:id',
-  cors(corsOptions),
-  verifyToken,
-  (req, res, next) => {
-    jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
-      if (err) {
-        res.sendStatus(403)
-      } else {
-        Item.findByIdAndDelete(req.params.id)
-          .then(item => {
-            res.json(item)
-          })
-          .catch(error => {
-            res.json({ error })
-          })
-      }
-    })
-  }
-)
+router.delete('/items/:id', verifyToken, (req, res, next) => {
+  jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
+    if (err) {
+      res.sendStatus(403)
+    } else {
+      Item.findByIdAndDelete(req.params.id)
+        .then(item => {
+          res.json(item)
+        })
+        .catch(error => {
+          res.json({ error })
+        })
+    }
+  })
+})
 
-router.get('/locations', cors(corsOptions), verifyToken, (req, res, next) => {
+router.get('/locations', verifyToken, (req, res, next) => {
   jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
     if (err) {
       res.sendStatus(403)
@@ -389,28 +345,23 @@ router.get('/locations', cors(corsOptions), verifyToken, (req, res, next) => {
   })
 })
 
-router.get(
-  '/locations/:id',
-  cors(corsOptions),
-  verifyToken,
-  (req, res, next) => {
-    jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
-      if (err) {
-        res.sendStatus(403)
-      } else {
-        Location.findById(req.params.id)
-          .then(location => {
-            res.json(location)
-          })
-          .catch(error => {
-            res.json({ error })
-          })
-      }
-    })
-  }
-)
+router.get('/locations/:id', verifyToken, (req, res, next) => {
+  jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
+    if (err) {
+      res.sendStatus(403)
+    } else {
+      Location.findById(req.params.id)
+        .then(location => {
+          res.json(location)
+        })
+        .catch(error => {
+          res.json({ error })
+        })
+    }
+  })
+})
 
-router.post('/locations', cors(corsOptions), verifyToken, (req, res, next) => {
+router.post('/locations', verifyToken, (req, res, next) => {
   jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
     if (err) {
       res.sendStatus(403)
@@ -426,55 +377,45 @@ router.post('/locations', cors(corsOptions), verifyToken, (req, res, next) => {
   })
 })
 
-router.put(
-  '/locations/:id',
-  cors(corsOptions),
-  verifyToken,
-  (req, res, next) => {
-    jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
-      if (err) {
-        res.sendStatus(403)
-      } else {
-        Location.findByIdAndUpdate({ _id: req.params.id }, req.body)
-          .then(() => {
-            Location.findById(req.params.id)
-              .then(location => {
-                res.json(location)
-              })
-              .catch(error => {
-                res.json({ error })
-              })
-          })
-          .catch(error => {
-            res.json({ error })
-          })
-      }
-    })
-  }
-)
+router.put('/locations/:id', verifyToken, (req, res, next) => {
+  jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
+    if (err) {
+      res.sendStatus(403)
+    } else {
+      Location.findByIdAndUpdate({ _id: req.params.id }, req.body)
+        .then(() => {
+          Location.findById(req.params.id)
+            .then(location => {
+              res.json(location)
+            })
+            .catch(error => {
+              res.json({ error })
+            })
+        })
+        .catch(error => {
+          res.json({ error })
+        })
+    }
+  })
+})
 
-router.delete(
-  '/locations/:id',
-  cors(corsOptions),
-  verifyToken,
-  (req, res, next) => {
-    jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
-      if (err) {
-        res.sendStatus(403)
-      } else {
-        Location.findByIdAndDelete(req.params.id)
-          .then(location => {
-            res.json(location)
-          })
-          .catch(error => {
-            res.json({ error })
-          })
-      }
-    })
-  }
-)
+router.delete('/locations/:id', verifyToken, (req, res, next) => {
+  jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
+    if (err) {
+      res.sendStatus(403)
+    } else {
+      Location.findByIdAndDelete(req.params.id)
+        .then(location => {
+          res.json(location)
+        })
+        .catch(error => {
+          res.json({ error })
+        })
+    }
+  })
+})
 
-router.get('/users', cors(corsOptions), verifyToken, (req, res, next) => {
+router.get('/users', verifyToken, (req, res, next) => {
   jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
     if (err) {
       res.sendStatus(403)
@@ -490,7 +431,7 @@ router.get('/users', cors(corsOptions), verifyToken, (req, res, next) => {
   })
 })
 
-router.put('/users/:id', cors(corsOptions), verifyToken, (req, res, next) => {
+router.put('/users/:id', verifyToken, (req, res, next) => {
   jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
     if (err) {
       res.sendStatus(403)
@@ -512,125 +453,115 @@ router.put('/users/:id', cors(corsOptions), verifyToken, (req, res, next) => {
   })
 })
 
-router.post(
-  '/setRelationship',
-  cors(corsOptions),
-  verifyToken,
-  (req, res, next) => {
-    jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
-      if (err) {
-        res.sendStatus(403)
-      } else {
-        const {
-          hostId,
-          hostLabel,
-          hostType,
-          targetId,
-          targetLabel,
-          targetType
-        } = req.body
+router.post('/setRelationship', verifyToken, (req, res, next) => {
+  jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
+    if (err) {
+      res.sendStatus(403)
+    } else {
+      const {
+        hostId,
+        hostLabel,
+        hostType,
+        targetId,
+        targetLabel,
+        targetType
+      } = req.body
 
-        Contact.findById(hostId)
-          .then(host => {
-            const updatedHost = {
-              node: {
-                parent: [],
-                sibling: [],
-                child: []
-              },
-              ...host._doc
-            }
-            updatedHost.node[targetType].push({
-              contactId: targetId,
-              nodeLabel: targetLabel
+      Contact.findById(hostId)
+        .then(host => {
+          const updatedHost = {
+            node: {
+              parent: [],
+              sibling: [],
+              child: []
+            },
+            ...host._doc
+          }
+          updatedHost.node[targetType].push({
+            contactId: targetId,
+            nodeLabel: targetLabel
+          })
+          Contact.findByIdAndUpdate({ _id: hostId }, updatedHost)
+            .then(() => {
+              Contact.findById(targetId)
+                .then(target => {
+                  const updatedTarget = {
+                    node: {
+                      parent: [],
+                      sibling: [],
+                      child: []
+                    },
+                    ...target._doc
+                  }
+                  updatedTarget.node[hostType].push({
+                    contactId: hostId,
+                    nodeLabel: hostLabel
+                  })
+                  updatedTarget.relationships.push({
+                    hostLabel: targetLabel,
+                    targetContactId: hostId,
+                    targetLabel: hostLabel
+                  })
+                  Contact.findByIdAndUpdate({ _id: targetId }, updatedTarget)
+                    .then(() => {
+                      res.json({
+                        message:
+                          'RELATIONSHIP SET: ' +
+                          updatedHost.name +
+                          ' is ' +
+                          hostLabel +
+                          ' of ' +
+                          updatedTarget.name +
+                          ', is ' +
+                          targetLabel +
+                          ' of ' +
+                          updatedHost.name,
+                        updatedHost,
+                        updatedTarget
+                      })
+                    })
+                    .catch(error => {
+                      res
+                        .status(422)
+                        .json({ error: 'target not updated: ' + error })
+                    })
+                })
+                .catch(error => {
+                  res
+                    .status(422)
+                    .json({ error: 'targetId not found: ' + error })
+                })
             })
-            Contact.findByIdAndUpdate({ _id: hostId }, updatedHost)
-              .then(() => {
-                Contact.findById(targetId)
-                  .then(target => {
-                    const updatedTarget = {
-                      node: {
-                        parent: [],
-                        sibling: [],
-                        child: []
-                      },
-                      ...target._doc
-                    }
-                    updatedTarget.node[hostType].push({
-                      contactId: hostId,
-                      nodeLabel: hostLabel
-                    })
-                    updatedTarget.relationships.push({
-                      hostLabel: targetLabel,
-                      targetContactId: hostId,
-                      targetLabel: hostLabel
-                    })
-                    Contact.findByIdAndUpdate({ _id: targetId }, updatedTarget)
-                      .then(() => {
-                        res.json({
-                          message:
-                            'RELATIONSHIP SET: ' +
-                            updatedHost.name +
-                            ' is ' +
-                            hostLabel +
-                            ' of ' +
-                            updatedTarget.name +
-                            ', is ' +
-                            targetLabel +
-                            ' of ' +
-                            updatedHost.name,
-                          updatedHost,
-                          updatedTarget
-                        })
-                      })
-                      .catch(error => {
-                        res
-                          .status(422)
-                          .json({ error: 'target not updated: ' + error })
-                      })
-                  })
-                  .catch(error => {
-                    res
-                      .status(422)
-                      .json({ error: 'targetId not found: ' + error })
-                  })
-              })
-              .catch(error => {
-                res.status(422).json({ error: 'hostId not updated: ' + error })
-              })
-          })
-          .catch(error => {
-            res.status(422).json({ error: 'hostId not found: ' + error })
-          })
-      }
-    })
-  }
-)
+            .catch(error => {
+              res.status(422).json({ error: 'hostId not updated: ' + error })
+            })
+        })
+        .catch(error => {
+          res.status(422).json({ error: 'hostId not found: ' + error })
+        })
+    }
+  })
+})
 
-router.get(
-  '/appData/:key',
-  cors(corsOptions),
-  verifyToken,
-  (req, res, next) => {
-    jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
-      if (err) {
-        res.sendStatus(403)
-      } else {
-        AppData.findOne({ key: req.params.key })
-          .then(appRec => {
-            res.json(appRec)
-          })
-          .catch(error => {
-            console.log(
-              'ERROR: UNABLE TO GET AppData.' + req.params.key + ': ' + error
-            )
-          })
-      }
-    })
-  }
-)
+router.get('/appData/:key', verifyToken, (req, res, next) => {
+  jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
+    if (err) {
+      res.sendStatus(403)
+    } else {
+      AppData.findOne({ key: req.params.key })
+        .then(appRec => {
+          res.json(appRec)
+        })
+        .catch(error => {
+          console.log(
+            'ERROR: UNABLE TO GET AppData.' + req.params.key + ': ' + error
+          )
+        })
+    }
+  })
+})
 
-router.post('/appData', cors(corsOptions), verifyToken, (req, res, next) => {
+router.post('/appData', verifyToken, (req, res, next) => {
   jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
     if (err) {
       res.sendStatus(403)
@@ -646,7 +577,7 @@ router.post('/appData', cors(corsOptions), verifyToken, (req, res, next) => {
   })
 })
 
-router.put('/appData/:id', cors(corsOptions), verifyToken, (req, res, next) => {
+router.put('/appData/:id', verifyToken, (req, res, next) => {
   jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
     if (err) {
       res.sendStatus(403)
