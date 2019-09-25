@@ -17,8 +17,12 @@ const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY
 const saltRounds = 10
 
 // router.options('*', cors())
+// const corsOptions = {
+//   origin: process.env.CORS_ORIGIN,
+//   optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+// }
 const corsOptions = {
-  origin: process.env.CORS_ORIGIN,
+  origin: 'http://ljunda.herokuapp.com',
   optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
 }
 
