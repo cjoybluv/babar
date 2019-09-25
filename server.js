@@ -1,5 +1,5 @@
 const express = require('express')
-// const cors = require('cors')
+const cors = require('cors')
 const bodyParser = require('body-parser')
 const mongoose = require('mongoose')
 
@@ -50,7 +50,7 @@ if (process.env.NODE_ENV === 'production') {
   })
 }
 
-// app.options('*', cors())
+app.options('*', cors())
 // app.use(cors())
 
 app.use(PATHNAME, require('./api/routes/api'))
