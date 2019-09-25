@@ -40,7 +40,7 @@ export const mutations = {
     localStorage.setItem('user', JSON.stringify(authData.user))
   },
   CLEAR_USER(state) {
-    state.user = []
+    state.user = {}
   },
   SET_USER(state, user) {
     state.user = user
@@ -49,6 +49,7 @@ export const mutations = {
 export const actions = {
   login({ commit, dispatch }, loginData) {
     commit('CLEAR_AUTH')
+    commit('checklist/CLEAR_CHECKLISTS', null, { root: true })
     return new Promise((resolve, reject) => {
       AuthService.postLogin(loginData)
         .then(response => {
