@@ -1,5 +1,5 @@
 const express = require('express')
-const cors = require('cors')
+// const cors = require('cors')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 
@@ -17,10 +17,10 @@ const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY
 const saltRounds = 10
 
 // router.options('*', cors())
-const corsOptions = {
-  origin: process.env.CORS_ORIGIN,
-  optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
-}
+// const corsOptions = {
+//   origin: process.env.CORS_ORIGIN,
+//   optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+// }
 // const corsOptions = {
 //   origin: 'http://ljunda.herokuapp.com',
 //   optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
@@ -28,7 +28,7 @@ const corsOptions = {
 
 // router.options('*', cors(corsOptions))
 
-router.all('*', cors(corsOptions))
+// router.all('*', cors(corsOptions))
 
 router.post('/auth/signup', (req, res, next) => {
   const password = req.body.password
