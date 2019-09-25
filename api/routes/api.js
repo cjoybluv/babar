@@ -75,13 +75,21 @@ router.get('/checklists', verifyToken, (req, res, next) => {
     if (err) {
       res.sendStatus(403)
     } else {
-      Checklist.find({ ownerId: req.query.ownerId })
-        .then(checklists => {
-          res.json(checklists)
-        })
-        .catch(error => {
-          res.json({ error })
-        })
+      // Checklist.find({ ownerId: req.query.ownerId })
+      //   .sort('title')
+      //   .then(checklists => {
+      //     res.json(checklists)
+      //   })
+      //   .catch(error => {
+      //     res.json({ error })
+      //   })
+      Checklist.find({ ownerId: req.query.ownerId }, function(err, docs) {
+        if (!err) {
+          res.json(docs)
+        } else {
+          res.json(err)
+        }
+      })
     }
   })
 })
