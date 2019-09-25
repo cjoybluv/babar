@@ -70,28 +70,31 @@ router.post('/auth/login', (req, res, next) => {
     })
 })
 
+// router.get('/checklists', verifyToken, (req, res, next) => {
+//   jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
+//     if (err) {
+//       res.sendStatus(403)
+//     } else {
+//       Checklist.find({ ownerId: req.query.ownerId })
+//         .sort('title')
+//         .then(checklists => {
+//           res.json(checklists)
+//         })
+//         .catch(error => {
+//           res.json({ error })
+//         })
+//     }
+//   })
+// })
 router.get('/checklists', verifyToken, (req, res, next) => {
-  jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
-    if (err) {
-      res.sendStatus(403)
-    } else {
-      // Checklist.find({ ownerId: req.query.ownerId })
-      //   .sort('title')
-      //   .then(checklists => {
-      //     res.json(checklists)
-      //   })
-      //   .catch(error => {
-      //     res.json({ error })
-      //   })
-      Checklist.find({ ownerId: req.query.ownerId }, function(err, docs) {
-        if (docs) {
-          res.status(201).send(docs)
-        } else {
-          res.status(303).send(err)
-        }
-      })
-    }
-  })
+  Checklist.find({ ownerId: req.query.ownerId })
+    .sort('title')
+    .then(checklists => {
+      res.json(checklists)
+    })
+    .catch(error => {
+      res.json({ error })
+    })
 })
 
 router.get('/checklists/:id', verifyToken, (req, res, next) => {
