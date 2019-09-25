@@ -17,16 +17,16 @@ const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY
 const saltRounds = 10
 
 // router.options('*', cors())
-// const corsOptions = {
-//   origin: process.env.CORS_ORIGIN,
-//   optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
-// }
 const corsOptions = {
-  origin: 'http://ljunda.herokuapp.com',
+  origin: process.env.CORS_ORIGIN,
   optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
 }
+// const corsOptions = {
+//   origin: 'http://ljunda.herokuapp.com',
+//   optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+// }
 
-router.options('*', cors(corsOptions))
+// router.options('*', cors(corsOptions))
 
 router.post('/auth/signup', cors(corsOptions), (req, res, next) => {
   const password = req.body.password
@@ -57,6 +57,7 @@ router.post('/auth/signup', cors(corsOptions), (req, res, next) => {
   })
 })
 
+router.options('/auth/login', cors(corsOptions))
 router.post('/auth/login', cors(corsOptions), (req, res, next) => {
   User.findOne({ email: req.body.email })
     .then(function(user) {
