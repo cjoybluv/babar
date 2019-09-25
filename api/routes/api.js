@@ -84,10 +84,10 @@ router.get('/checklists', verifyToken, (req, res, next) => {
       //     res.json({ error })
       //   })
       Checklist.find({ ownerId: req.query.ownerId }, function(err, docs) {
-        if (!err) {
-          res.json(docs).sendStatus(204)
+        if (docs) {
+          res.status(201).send(docs)
         } else {
-          res.json(err).sendStatus(303)
+          res.status(303).send(err)
         }
       })
     }
