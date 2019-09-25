@@ -20,6 +20,9 @@ export const getters = {
 export const mutations = {
   CLEAR_CHECKLISTS(state) {
     state.checklists = []
+    state.folderArray = []
+    state.itemMap = []
+    state.selectedChecklist = {}
   },
   SET_CHECKLISTS(state, checklists) {
     state.checklists = checklists
@@ -55,8 +58,10 @@ export const actions = {
           commit('SET_CHECKLISTS', response.data)
           dispatch('updateFolderDisplay')
           const notification = {
-            type: 'success',
-            message: 'Checklists Fetched!'
+            type: response.data.length ? 'success' : 'info',
+            message: response.data.length
+              ? 'Checklists Fetched!'
+              : 'No Checklists Found!'
           }
           dispatch('notification/add', notification, { root: true })
           resolve(response.data)
