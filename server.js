@@ -24,17 +24,6 @@ mongoose.connect(
 
 app.use(bodyParser.json())
 
-// Serve up static assets (usually on heroku)
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(__dirname + '/dist/'))
-  app.get(/^api/, function(req, res, next) {
-    next()
-  })
-  app.get(/.*/, function(req, res) {
-    res.sendfile(__dirname + '/dist/index.html')
-  })
-}
-
 // pre-flight CORS allow
 app.options(function(req, res, next) {
   res.header('Access-Control-Allow-Origin', process.env.CORS_ORIGIN)
@@ -56,6 +45,14 @@ app.use(function(req, res, next) {
 })
 
 app.use(PATHNAME, require('./api/routes/api'))
+
+// Serve up static assets (usually on heroku)
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(__dirname + '/dist/'))
+  app.get(/.*/, function(req, res) {
+    res.sendfile(__dirname + '/dist/index.html')
+  })
+}
 
 app.use(function(err, req, res, next) {
   // 422 = unprocessable entity
