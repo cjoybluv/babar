@@ -57,6 +57,15 @@ if (process.env.NODE_ENV === 'production') {
 // app.options('*', cors(corsOptions))
 // app.use(cors())
 
+app.options(function(req, res, next) {
+  res.header('Access-Control-Allow-Origin', process.env.CORS_ORIGIN)
+  res.header(
+    'Access-Control-Allow-Headers',
+    'Origin, X-Requested-With, Content-Type, Accept, Authorization'
+  )
+  next()
+})
+
 app.use(function(req, res, next) {
   res.header('Access-Control-Allow-Origin', process.env.CORS_ORIGIN) // update to match the domain you will make the request from
   res.header(
