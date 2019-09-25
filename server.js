@@ -48,9 +48,9 @@ app.use(bodyParser.json())
 // Serve up static assets (usually on heroku)
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(__dirname + '/dist/'))
-  app.get(/.*/, function(req, res) {
-    res.sendfile(__dirname + '/dist/index.html')
-  })
+  // app.get(/.*/, function(req, res) {
+  //   res.sendfile(__dirname + '/dist/index.html')
+  // })
 }
 
 app.use(PATHNAME, require('./api/routes/api'))
