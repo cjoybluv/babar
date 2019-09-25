@@ -70,31 +70,21 @@ router.post('/auth/login', (req, res, next) => {
     })
 })
 
-// router.get('/checklists', verifyToken, (req, res, next) => {
-//   jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
-//     if (err) {
-//       res.sendStatus(403)
-//     } else {
-//       Checklist.find({ ownerId: req.query.ownerId })
-//         .sort('title')
-//         .then(checklists => {
-//           res.json(checklists)
-//         })
-//         .catch(error => {
-//           res.json({ error })
-//         })
-//     }
-//   })
-// })
 router.get('/checklists', verifyToken, (req, res, next) => {
-  Checklist.find({ ownerId: req.query.ownerId })
-    .sort('title')
-    .then(checklists => {
-      res.json(checklists)
-    })
-    .catch(error => {
-      res.json({ error })
-    })
+  jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
+    if (err) {
+      res.sendStatus(403)
+    } else {
+      Checklist.find({ ownerId: req.query.ownerId })
+        .sort('title')
+        .then(checklists => {
+          res.json(checklists)
+        })
+        .catch(error => {
+          res.json({ error })
+        })
+    }
+  })
 })
 
 router.get('/checklists/:id', verifyToken, (req, res, next) => {
