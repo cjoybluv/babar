@@ -1,5 +1,5 @@
 const express = require('express')
-// const cors = require('cors')
+const cors = require('cors')
 const bodyParser = require('body-parser')
 const mongoose = require('mongoose')
 
@@ -42,9 +42,6 @@ app.use(bodyParser.json())
 //   next()
 // })
 
-// app.options('*', cors())
-// app.use(cors())
-
 // Serve up static assets (usually on heroku)
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(__dirname + '/dist/'))
@@ -53,6 +50,8 @@ if (process.env.NODE_ENV === 'production') {
   })
 }
 
+app.options('*', cors())
+app.use(cors())
 app.use(PATHNAME, require('./api/routes/api'))
 
 app.use(function(err, req, res, next) {

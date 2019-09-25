@@ -28,7 +28,7 @@ const saltRounds = 10
 
 // router.options('*', cors(corsOptions))
 
-router.post('/auth/signup', (req, res, next) => {
+router.post('/auth/signup', cors(corsOptions), (req, res, next) => {
   const password = req.body.password
   bcrypt.hash(password, saltRounds, function(error, hash) {
     if (error) res.status(500).json({ error })
@@ -83,7 +83,7 @@ router.post('/auth/login', (req, res, next) => {
     })
 })
 
-router.get('/checklists', verifyToken, (req, res, next) => {
+router.get('/checklists', cors(corsOptions), verifyToken, (req, res, next) => {
   jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
     if (err) {
       res.sendStatus(403)
@@ -102,7 +102,7 @@ router.get('/checklists', verifyToken, (req, res, next) => {
 
 router.get(
   '/checklists/:id',
-
+  cors(corsOptions),
   verifyToken,
   (req, res, next) => {
     jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
@@ -121,7 +121,7 @@ router.get(
   }
 )
 
-router.post('/checklists', verifyToken, (req, res, next) => {
+router.post('/checklists', cors(corsOptions), verifyToken, (req, res, next) => {
   jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
     if (err) {
       res.sendStatus(403)
@@ -139,7 +139,7 @@ router.post('/checklists', verifyToken, (req, res, next) => {
 
 router.put(
   '/checklists/:id',
-
+  cors(corsOptions),
   verifyToken,
   (req, res, next) => {
     jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
@@ -166,7 +166,7 @@ router.put(
 
 router.delete(
   '/checklists/:id',
-
+  cors(corsOptions),
   verifyToken,
   (req, res, next) => {
     jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
@@ -185,7 +185,7 @@ router.delete(
   }
 )
 
-router.get('/contacts', verifyToken, (req, res, next) => {
+router.get('/contacts', cors(corsOptions), verifyToken, (req, res, next) => {
   jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
     if (err) {
       res.sendStatus(403)
@@ -203,7 +203,7 @@ router.get('/contacts', verifyToken, (req, res, next) => {
 
 router.get(
   '/contacts/:id',
-
+  cors(corsOptions),
   verifyToken,
   (req, res, next) => {
     jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
@@ -222,7 +222,7 @@ router.get(
   }
 )
 
-router.post('/contacts', verifyToken, (req, res, next) => {
+router.post('/contacts', cors(corsOptions), verifyToken, (req, res, next) => {
   jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
     if (err) {
       res.sendStatus(403)
@@ -240,7 +240,7 @@ router.post('/contacts', verifyToken, (req, res, next) => {
 
 router.put(
   '/contacts/:id',
-
+  cors(corsOptions),
   verifyToken,
   (req, res, next) => {
     jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
@@ -267,7 +267,7 @@ router.put(
 
 router.delete(
   '/contacts/:id',
-
+  cors(corsOptions),
   verifyToken,
   (req, res, next) => {
     jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
@@ -286,7 +286,7 @@ router.delete(
   }
 )
 
-router.get('/items', verifyToken, (req, res, next) => {
+router.get('/items', cors(corsOptions), verifyToken, (req, res, next) => {
   jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
     if (err) {
       res.sendStatus(403)
@@ -302,7 +302,7 @@ router.get('/items', verifyToken, (req, res, next) => {
   })
 })
 
-router.get('/items/:id', verifyToken, (req, res, next) => {
+router.get('/items/:id', cors(corsOptions), verifyToken, (req, res, next) => {
   jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
     if (err) {
       res.sendStatus(403)
@@ -318,7 +318,7 @@ router.get('/items/:id', verifyToken, (req, res, next) => {
   })
 })
 
-router.post('/items', verifyToken, (req, res, next) => {
+router.post('/items', cors(corsOptions), verifyToken, (req, res, next) => {
   jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
     if (err) {
       res.sendStatus(403)
@@ -334,7 +334,7 @@ router.post('/items', verifyToken, (req, res, next) => {
   })
 })
 
-router.put('/items/:id', verifyToken, (req, res, next) => {
+router.put('/items/:id', cors(corsOptions), verifyToken, (req, res, next) => {
   jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
     if (err) {
       res.sendStatus(403)
@@ -358,7 +358,7 @@ router.put('/items/:id', verifyToken, (req, res, next) => {
 
 router.delete(
   '/items/:id',
-
+  cors(corsOptions),
   verifyToken,
   (req, res, next) => {
     jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
@@ -377,7 +377,7 @@ router.delete(
   }
 )
 
-router.get('/locations', verifyToken, (req, res, next) => {
+router.get('/locations', cors(corsOptions), verifyToken, (req, res, next) => {
   jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
     if (err) {
       res.sendStatus(403)
@@ -395,7 +395,7 @@ router.get('/locations', verifyToken, (req, res, next) => {
 
 router.get(
   '/locations/:id',
-
+  cors(corsOptions),
   verifyToken,
   (req, res, next) => {
     jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
@@ -414,7 +414,7 @@ router.get(
   }
 )
 
-router.post('/locations', verifyToken, (req, res, next) => {
+router.post('/locations', cors(corsOptions), verifyToken, (req, res, next) => {
   jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
     if (err) {
       res.sendStatus(403)
@@ -432,7 +432,7 @@ router.post('/locations', verifyToken, (req, res, next) => {
 
 router.put(
   '/locations/:id',
-
+  cors(corsOptions),
   verifyToken,
   (req, res, next) => {
     jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
@@ -459,7 +459,7 @@ router.put(
 
 router.delete(
   '/locations/:id',
-
+  cors(corsOptions),
   verifyToken,
   (req, res, next) => {
     jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
@@ -478,7 +478,7 @@ router.delete(
   }
 )
 
-router.get('/users', verifyToken, (req, res, next) => {
+router.get('/users', cors(corsOptions), verifyToken, (req, res, next) => {
   jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
     if (err) {
       res.sendStatus(403)
@@ -494,7 +494,7 @@ router.get('/users', verifyToken, (req, res, next) => {
   })
 })
 
-router.put('/users/:id', verifyToken, (req, res, next) => {
+router.put('/users/:id', cors(corsOptions), verifyToken, (req, res, next) => {
   jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
     if (err) {
       res.sendStatus(403)
@@ -518,7 +518,7 @@ router.put('/users/:id', verifyToken, (req, res, next) => {
 
 router.post(
   '/setRelationship',
-
+  cors(corsOptions),
   verifyToken,
   (req, res, next) => {
     jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
@@ -613,7 +613,7 @@ router.post(
 
 router.get(
   '/appData/:key',
-
+  cors(corsOptions),
   verifyToken,
   (req, res, next) => {
     jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
@@ -634,7 +634,7 @@ router.get(
   }
 )
 
-router.post('/appData', verifyToken, (req, res, next) => {
+router.post('/appData', cors(corsOptions), verifyToken, (req, res, next) => {
   jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
     if (err) {
       res.sendStatus(403)
@@ -650,7 +650,7 @@ router.post('/appData', verifyToken, (req, res, next) => {
   })
 })
 
-router.put('/appData/:id', verifyToken, (req, res, next) => {
+router.put('/appData/:id', cors(corsOptions), verifyToken, (req, res, next) => {
   jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
     if (err) {
       res.sendStatus(403)
