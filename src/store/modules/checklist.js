@@ -139,7 +139,11 @@ export const actions = {
   updateFolderDisplay({ state, rootState, commit }) {
     commit(
       'SET_FOLDER_DISPLAY',
-      createFolderArray(rootState.auth.user.folders, state.checklists, 'title')
+      createFolderArray(
+        rootState.auth.user.folders || [],
+        state.checklists || [],
+        'title'
+      )
     )
   }
 }
