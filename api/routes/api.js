@@ -1,5 +1,5 @@
 const express = require('express')
-// const cors = require('cors')
+const cors = require('cors')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 
@@ -27,6 +27,8 @@ const saltRounds = 10
 // }
 
 // router.options('*', cors(corsOptions))
+
+router.all('*', cors())
 
 router.post('/auth/signup', (req, res, next) => {
   const password = req.body.password
