@@ -56,7 +56,7 @@ export const actions = {
       ChecklistService.getChecklists(ownerId)
         .then(response => {
           commit('SET_CHECKLISTS', response.data)
-          // dispatch('updateFolderDisplay')
+          dispatch('updateFolderDisplay')
           const notification = {
             type: response.data.length ? 'success' : 'info',
             message: response.data.length
