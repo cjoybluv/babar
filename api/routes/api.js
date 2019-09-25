@@ -16,11 +16,12 @@ const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY
 
 const saltRounds = 10
 
-// router.options('*', cors())
+router.options('*', cors())
 const corsOptions = {
-  origin: true,
+  origin: process.env.CORS_ORIGIN,
   optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
 }
+
 router.options('*', cors(corsOptions))
 
 router.post('/auth/signup', cors(corsOptions), (req, res, next) => {
