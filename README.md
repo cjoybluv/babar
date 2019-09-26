@@ -1,6 +1,5 @@
 # Babar
 
-
 ## Setup
 
 ```
@@ -16,8 +15,7 @@ yarn serve
 ### Run API server
 
 ```
-cd api
-node server.js
+yarn api
 ```
 
 ### Compiles and minifies for production
