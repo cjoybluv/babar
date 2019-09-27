@@ -7,12 +7,14 @@ const ChecklistSchema = new Schema({
     type: Schema.Types.ObjectId,
     required: [true, 'ownerId required']
   },
-  title: {
+  name: {
     type: String,
-    required: [true, 'Checklist.title is required']
+    required: [true, 'Checklist.name is required']
   },
   masterChecklist: Boolean,
+  masterLocked: Boolean,
   sourceMasterId: Schema.Types.ObjectId,
+  tags: [String],
   items: [
     {
       key: {
@@ -25,8 +27,7 @@ const ChecklistSchema = new Schema({
       },
       completed: Boolean
     }
-  ],
-  folderName: String
+  ]
 })
 
 const Checklist = mongoose.model('Checklist', ChecklistSchema)

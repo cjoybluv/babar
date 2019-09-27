@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import ChecklistService from '@/services/ChecklistService'
-import { createFolderArray } from '@/helpers/displayHelpers'
+import { createTreeViewArray } from '@/helpers/displayHelpers'
 
 export const namespaced = true
 
@@ -20,8 +20,6 @@ export const getters = {
 export const mutations = {
   CLEAR_CHECKLISTS(state) {
     state.checklists = []
-    state.folderArray = []
-    state.itemMap = []
     state.selectedChecklist = {}
   },
   SET_CHECKLISTS(state, checklists) {
@@ -42,10 +40,6 @@ export const mutations = {
   },
   CLEAR_SELECTED_CHECKLIST(state) {
     state.selectedChecklist = {}
-  },
-  SET_FOLDER_DISPLAY(state, result) {
-    state.folderArray = result.displayArray
-    state.itemMap = result.itemMap
   }
 }
 
@@ -56,7 +50,7 @@ export const actions = {
       ChecklistService.getChecklists(ownerId)
         .then(response => {
           commit('SET_CHECKLISTS', response.data)
-          dispatch('updateFolderDisplay')
+          dispatch('updateTreeViewDisplay')
           const notification = {
             type: response.data.length ? 'success' : 'info',
             message: response.data.length
@@ -96,7 +90,7 @@ export const actions = {
           .then(response => {
             commit('UPDATE_CHECKLIST', response.data)
             commit('CLEAR_SELECTED_CHECKLIST')
-            dispatch('updateFolderDisplay')
+            dispatch('updateTreeViewDisplay')
             const notification = {
               type: 'success',
               message: 'Checklist Updated!'
@@ -117,7 +111,7 @@ export const actions = {
           .then(response => {
             commit('SAVE_CHECKLIST', response.data)
             commit('CLEAR_SELECTED_CHECKLIST')
-            dispatch('updateFolderDisplay')
+            dispatch('updateTreeViewDisplay')
             const notification = {
               type: 'success',
               message: 'Checklist saved!'
@@ -136,14 +130,22 @@ export const actions = {
       }
     })
   },
-  updateFolderDisplay({ state, rootState, commit }) {
-    commit(
-      'SET_FOLDER_DISPLAY',
-      createFolderArray(
-        rootState.auth.user.folders || [],
-        state.checklists || [],
-        'title'
+  updateTreeViewDisplay({ state, rootState, commit }) {
+    if (
+      !rootState.treeView.itemType ||
+      rootState.treeView.itemType === 'checklist'
+    ) {
+      let items = []
+      if (state.checklists) {
+        items = state.checklists.map(checklist => {
+          return { ...checklist, primaryTag: checklist.tags[0] }
+        })
+      }
+      commit(
+        'treeView/SET_TREE_VIEW',
+        { itemType: 'checklist', ...createTreeViewArray(items, 'primaryTag') },
+        { root: true }
       )
-    )
+    }
   }
 }

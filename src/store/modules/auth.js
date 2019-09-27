@@ -19,8 +19,8 @@ export const getters = {
   user(state) {
     return state.user
   },
-  userFolders(state) {
-    return state.user.folders
+  userTags(state) {
+    return state.user.tags
   }
 }
 
@@ -49,7 +49,7 @@ export const mutations = {
 export const actions = {
   login({ commit, dispatch }, loginData) {
     commit('CLEAR_AUTH')
-    commit('checklist/CLEAR_CHECKLISTS', null, { root: true })
+    dispatch('clearUserData')
     return new Promise((resolve, reject) => {
       AuthService.postLogin(loginData)
         .then(response => {
@@ -73,7 +73,7 @@ export const actions = {
   },
   register({ commit, dispatch }, registerData) {
     commit('CLEAR_AUTH')
-    commit('checklist/CLEAR_CHECKLISTS', null, { root: true })
+    dispatch('clearUserData')
     return new Promise((resolve, reject) => {
       AuthService.postRegister(registerData)
         .then(response => {
@@ -114,7 +114,6 @@ export const actions = {
       UserService.putUser(user)
         .then(response => {
           commit('SET_USER', response.data)
-          dispatch('checklist/updateFolderDisplay', null, { root: true })
           const notification = {
             type: 'success',
             message: 'User Updated!'
@@ -154,5 +153,8 @@ export const actions = {
           reject(error)
         })
     })
+  },
+  clearUserData({ commit }) {
+    commit('checklist/CLEAR_CHECKLISTS', null, { root: true })
   }
 }
