@@ -6,8 +6,6 @@ export const namespaced = true
 
 export const state = {
   checklists: [],
-  folderArray: [],
-  itemMap: [],
   selectedChecklist: {}
 }
 
@@ -57,13 +55,16 @@ export const mutations = {
 }
 
 export const actions = {
-  fetchAll({ commit, dispatch }, ownerId) {
+  fetchAll({ commit, dispatch, rootState }, ownerId) {
     commit('CLEAR_CHECKLISTS')
     return new Promise((resolve, reject) => {
       ChecklistService.getChecklists(ownerId)
         .then(response => {
           commit('SET_CHECKLISTS', response.data)
-          dispatch('updateTreeViewDisplay', 'status')
+          dispatch(
+            'updateTreeViewDisplay',
+            rootState.treeView.selectedHeaderField
+          )
           const notification = {
             type: response.data.length ? 'success' : 'info',
             message: response.data.length
@@ -103,7 +104,10 @@ export const actions = {
           .then(response => {
             commit('UPDATE_CHECKLIST', response.data)
             commit('CLEAR_SELECTED_CHECKLIST')
-            dispatch('updateTreeViewDisplay', 'primaryTag')
+            dispatch(
+              'updateTreeViewDisplay',
+              rootState.treeView.selectedHeaderField
+            )
             const notification = {
               type: 'success',
               message: 'Checklist Updated!'
@@ -124,7 +128,10 @@ export const actions = {
           .then(response => {
             commit('SAVE_CHECKLIST', response.data)
             commit('CLEAR_SELECTED_CHECKLIST')
-            dispatch('updateTreeViewDisplay', 'primaryTag')
+            dispatch(
+              'updateTreeViewDisplay',
+              rootState.treeView.selectedHeaderField
+            )
             const notification = {
               type: 'success',
               message: 'Checklist saved!'
@@ -159,7 +166,11 @@ export const actions = {
       }
       commit(
         'treeView/SET_TREE_VIEW',
-        { itemType: 'checklist', ...createTreeViewArray(items, headerField) },
+        {
+          itemType: 'checklist',
+          headerField: headerField,
+          ...createTreeViewArray(items, headerField)
+        },
         { root: true }
       )
     }
