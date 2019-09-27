@@ -8,6 +8,13 @@
           class="primary"
         >
           <v-spacer></v-spacer>
+          <v-select
+            :items="treeView.selectOptions"
+            label="Select Header Field"
+            v-model="treeView.headerField"
+            @input="sortTreeView"
+            dark
+          />
           <v-treeview
             :items="treeViewItems"
             item-key="key"
@@ -53,6 +60,13 @@ export default {
   },
   data() {
     return {
+      treeView: {
+        selectOptions: [
+          { value: 'status', text: 'By Status' },
+          { value: 'primaryTag', text: 'By Primary Tag' }
+        ],
+        headerField: ''
+      },
       lastItemOpened: {},
       window: {
         width: 0,
@@ -68,6 +82,9 @@ export default {
     selectedChecklist() {
       return this.$store.state.checklist.selectedChecklist
     },
+    selectedHeaderField() {
+      return this.$store.state.treeView.selectedHeaderField
+    },
     treeViewItems() {
       return this.$store.state.treeView.items
     },
@@ -77,6 +94,9 @@ export default {
     ...mapGetters({ user: 'auth/user' })
   },
   methods: {
+    sortTreeView() {
+      this.updateTreeView(this.treeView.headerField)
+    },
     clickHandler(value) {
       if (value.length) {
         const map = this.treeViewItemMap.find(map => map.key === value[0])
@@ -132,12 +152,16 @@ export default {
     },
     ...mapActions({
       updatedUser: 'auth/updateUser',
+      updateTreeView: 'checklist/updateTreeViewDisplay',
       editChecklist: 'checklist/edit'
     })
   },
   created() {
     window.addEventListener('resize', this.handleResize)
     this.handleResize()
+  },
+  mounted() {
+    this.treeView.headerField = this.selectedHeaderField
   },
   destroyed() {
     window.removeEventListener('resize', this.handleResize)
@@ -147,7 +171,11 @@ export default {
 
 <style lang="scss">
 .v-sheet > .spacer {
-  height: 1rem;
+  height: 0.75rem;
+}
+.v-sheet > .v-select {
+  margin-top: 2px;
+  padding-left: 3px;
 }
 .v-treeview-node__root {
   cursor: pointer;

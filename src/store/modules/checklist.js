@@ -6,14 +6,25 @@ export const namespaced = true
 
 export const state = {
   checklists: [],
-  folderArray: [],
-  itemMap: [],
   selectedChecklist: {}
 }
 
 export const getters = {
   getChecklistById: state => id => {
     return state.checklists.find(checklist => checklist._id === id)
+  },
+  // eslint-disable-next-line
+  primaryTag: state => checklist => {
+    return checklist.tags[0]
+  },
+  // eslint-disable-next-line
+  status: state => checklist => {
+    if (checklist.masterChecklist) return 'master'
+    const unChecked = checklist.items.filter(item => !item.completed)
+    if (unChecked.length) return 'active'
+    const log = checklist.tags.filter(tag => tag === 'Log')
+    if (log.length) return 'log'
+    return 'complete'
   }
 }
 
@@ -44,13 +55,16 @@ export const mutations = {
 }
 
 export const actions = {
-  fetchAll({ commit, dispatch }, ownerId) {
+  fetchAll({ commit, dispatch, rootState }, ownerId) {
     commit('CLEAR_CHECKLISTS')
     return new Promise((resolve, reject) => {
       ChecklistService.getChecklists(ownerId)
         .then(response => {
           commit('SET_CHECKLISTS', response.data)
-          dispatch('updateTreeViewDisplay')
+          dispatch(
+            'updateTreeViewDisplay',
+            rootState.treeView.selectedHeaderField
+          )
           const notification = {
             type: response.data.length ? 'success' : 'info',
             message: response.data.length
@@ -90,7 +104,10 @@ export const actions = {
           .then(response => {
             commit('UPDATE_CHECKLIST', response.data)
             commit('CLEAR_SELECTED_CHECKLIST')
-            dispatch('updateTreeViewDisplay')
+            dispatch(
+              'updateTreeViewDisplay',
+              rootState.treeView.selectedHeaderField
+            )
             const notification = {
               type: 'success',
               message: 'Checklist Updated!'
@@ -111,7 +128,10 @@ export const actions = {
           .then(response => {
             commit('SAVE_CHECKLIST', response.data)
             commit('CLEAR_SELECTED_CHECKLIST')
-            dispatch('updateTreeViewDisplay')
+            dispatch(
+              'updateTreeViewDisplay',
+              rootState.treeView.selectedHeaderField
+            )
             const notification = {
               type: 'success',
               message: 'Checklist saved!'
@@ -130,7 +150,7 @@ export const actions = {
       }
     })
   },
-  updateTreeViewDisplay({ state, rootState, commit }) {
+  updateTreeViewDisplay({ state, rootState, commit, getters }, headerField) {
     if (
       !rootState.treeView.itemType ||
       rootState.treeView.itemType === 'checklist'
@@ -138,12 +158,19 @@ export const actions = {
       let items = []
       if (state.checklists) {
         items = state.checklists.map(checklist => {
-          return { ...checklist, primaryTag: checklist.tags[0] }
+          return {
+            ...checklist,
+            [headerField]: getters[headerField](checklist)
+          }
         })
       }
       commit(
         'treeView/SET_TREE_VIEW',
-        { itemType: 'checklist', ...createTreeViewArray(items, 'primaryTag') },
+        {
+          itemType: 'checklist',
+          headerField: headerField,
+          ...createTreeViewArray(items, headerField)
+        },
         { root: true }
       )
     }
