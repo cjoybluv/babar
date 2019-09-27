@@ -1,8 +1,9 @@
 <template>
-  <v-form class="pl-3">
+  <div class="pl-3">
     <v-row>
       <v-col class="pb-0">
         <v-text-field
+          rows="1"
           dark
           class="mt-0 mr-auto"
           placeholder="Enter New Checklist Name"
@@ -22,7 +23,7 @@
             >
           </template>
           <v-list dark color="#1565C0">
-            <v-list-item @click="clearForm">
+            <v-list-item @click="clearHandler">
               <v-list-item-title dark>Clear the Form</v-list-item-title>
             </v-list-item>
             <v-list-item @click="openOptions = true" v-if="!openOptions">
@@ -110,7 +111,7 @@
         </draggable>
       </v-col>
     </v-row>
-  </v-form>
+  </div>
 </template>
 
 <script>
@@ -159,11 +160,16 @@ export default {
       this.newItemSubject = ''
     },
     saveHandler() {
+      this.openOptions = false
       if (this.checklist.name) {
         const newChecklist = { ...this.checklist }
         if (!this.checklist.ownerId) newChecklist.ownerId = this.ownerId
         this.save(this.checklist)
       }
+    },
+    clearHandler() {
+      this.openOptions = false
+      this.clearForm()
     },
     ...mapActions({
       save: 'checklist/save',
