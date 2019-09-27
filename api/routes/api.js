@@ -15,12 +15,11 @@ const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY
 
 const saltRounds = process.env.JWT_SALT_ROUNDS
 
-router.post('/auth/signup', (req, res, next) => {
-  const password = req.body.password
-  bcrypt.hash(password, saltRounds, function(error, hash) {
-    if (error) res.status(500).json({ error })
+router.post('/auth/register', (req, res, next) => {
+  bcrypt.hash(req.body.password, 10, function(err, hash) {
+    if (err) res.status(500).json({ err })
     const newUser = {
-      username: req.body.username,
+      fullName: req.body.fullName,
       email: req.body.email,
       password: hash
     }
@@ -29,10 +28,21 @@ router.post('/auth/signup', (req, res, next) => {
         if (!user) {
           User.create(newUser)
             .then(user => {
-              res.json(user)
+              jwt.sign(
+                { user },
+                JWT_SECRET_KEY,
+                { expiresIn: '1h' },
+                (err, token) => {
+                  if (err) {
+                    res.sendStatus(424)
+                  } else {
+                    res.json({ user, token })
+                  }
+                }
+              )
             })
             .catch(error => {
-              res.json({ error })
+              res.status(500).json({ error })
             })
         } else {
           res.status(401).send({ error: 'email exists' })

@@ -55,5 +55,8 @@ export { apiClient }
 export default {
   postLogin(loginData) {
     return apiClient.post('/auth/login', loginData)
+  },
+  postRegister(registerData) {
+    return apiClient.post('/auth/register', registerData)
   }
 }

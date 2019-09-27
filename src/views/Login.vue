@@ -24,7 +24,7 @@
     </v-card-text>
     <v-divider></v-divider>
     <v-card-actions>
-      <v-btn color="success">Register</v-btn>
+      <v-btn color="success" @click="gotoRegister">Register</v-btn>
       <v-spacer></v-spacer>
       <v-btn color="info" @click="login">Login</v-btn>
     </v-card-actions>
@@ -61,6 +61,15 @@ export default {
         .catch(() => {
           NProgress.done()
         })
+    },
+    gotoRegister() {
+      this.$router.push({
+        name: 'register',
+        params: {
+          email: this.loginData.email,
+          password: this.loginData.password
+        }
+      })
     }
   }
 }

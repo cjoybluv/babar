@@ -34,6 +34,13 @@ const router = new Router({
       component: () => import('./views/Login.vue')
     },
     {
+      path: '/register',
+      name: 'register',
+      props: true,
+      meta: { requiresAuth: false },
+      component: () => import('./views/Register.vue')
+    },
+    {
       path: '/dashboard',
       name: 'dashboard',
       meta: { requiresAuth: true },
