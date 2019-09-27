@@ -12,7 +12,6 @@
           type="text"
         />
         <v-text-field
-          autofocus
           v-model="registerData.email"
           label="Email"
           type="email"
@@ -41,6 +40,7 @@
     </v-card-text>
     <v-divider></v-divider>
     <v-card-actions>
+      <v-spacer></v-spacer>
       <v-btn color="info" @click="register">Register</v-btn>
     </v-card-actions>
   </v-card>

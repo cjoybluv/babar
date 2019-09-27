@@ -13,7 +13,6 @@ const AppData = require('../models/appData')
 
 const AUTH_SECRET_KEY = process.env.AUTH_SECRET_KEY
 const AUTH_SALT_ROUNDS = parseInt(process.env.AUTH_SALT_ROUNDS, 10)
-console.log('API-AUTH', AUTH_SECRET_KEY, AUTH_SALT_ROUNDS)
 
 router.post('/auth/register', (req, res, next) => {
   bcrypt.hash(req.body.password, AUTH_SALT_ROUNDS, function(err, hash) {
