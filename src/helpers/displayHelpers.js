@@ -60,6 +60,8 @@ export function createTreeViewArray(items, itemHeaderField) {
   if (displayArray.length) {
     displayArray
       .sort((a, b) => {
+        if (!a.name) a.name = ''
+        if (!b.name) b.name = ''
         if (a.name.toUpperCase() > b.name.toUpperCase()) {
           return 0
         } else {
@@ -67,7 +69,7 @@ export function createTreeViewArray(items, itemHeaderField) {
         }
       })
       .sort((a, b) => {
-        if (a.folder > b.folder) {
+        if (a.header > b.header) {
           return -1
         } else {
           return 0
@@ -75,7 +77,9 @@ export function createTreeViewArray(items, itemHeaderField) {
       })
     displayArray.forEach(header => {
       return header.children.sort((a, b) => {
-        if (a.name > b.name) {
+        if (!a.name) a.name = ''
+        if (!b.name) b.name = ''
+        if (a.name.toUpperCase() > b.name.toUpperCase()) {
           return 0
         } else {
           return -1
