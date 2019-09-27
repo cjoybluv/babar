@@ -7,6 +7,7 @@
           :min-height="window.height - window.heightReduction"
           class="primary"
         >
+          <v-spacer></v-spacer>
           <v-select
             :items="treeView.selectOptions"
             label="Select Header Field"
@@ -170,10 +171,10 @@ export default {
 
 <style lang="scss">
 .v-sheet > .spacer {
-  height: 1rem;
+  height: 0.75rem;
 }
 .v-sheet > .v-select {
-  margin-top: 0;
+  margin-top: 2px;
   padding-left: 3px;
 }
 .v-treeview-node__root {
