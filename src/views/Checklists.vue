@@ -115,6 +115,7 @@ export default {
         selectedChecklist = cloneDeep({
           ...checklist,
           masterChecklist: false,
+          masterLocked: false,
           tags: checklist.tags[0] ? checklist.tags[0] : 'Log',
           sourceMasterId: checklist._id,
           name: nameDateTime + ' / ' + checklist.name

@@ -56,6 +56,7 @@
       </v-col>
       <v-col cols="12" md="6" class="pt-0 pb-0">
         <v-checkbox
+          :disabled="!checklist.masterChecklist"
           dark
           class="mt-0"
           v-model="checklist.masterLocked"
