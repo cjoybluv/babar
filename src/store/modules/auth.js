@@ -71,6 +71,30 @@ export const actions = {
         })
     })
   },
+  register({ commit, dispatch }, registerData) {
+    commit('CLEAR_AUTH')
+    commit('checklist/CLEAR_CHECKLISTS', null, { root: true })
+    return new Promise((resolve, reject) => {
+      AuthService.postRegister(registerData)
+        .then(response => {
+          commit('SET_AUTH', response.data)
+          const notification = {
+            type: 'success',
+            message: 'REGISTER SUCCESS!'
+          }
+          dispatch('notification/add', notification, { root: true })
+          resolve(response.data)
+        })
+        .catch(error => {
+          const notification = {
+            type: 'error',
+            message: 'REGISTER FAILURE! ' + error.message
+          }
+          dispatch('notification/add', notification, { root: true })
+          reject(error)
+        })
+    })
+  },
   getFromLocal({ commit }) {
     return new Promise((resolve, reject) => {
       const token = localStorage.getItem('token')

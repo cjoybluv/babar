@@ -11,16 +11,14 @@ const Item = require('../models/items')
 const Location = require('../models/locations')
 const AppData = require('../models/appData')
 
-const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY
+const AUTH_SECRET_KEY = process.env.AUTH_SECRET_KEY
+const AUTH_SALT_ROUNDS = parseInt(process.env.AUTH_SALT_ROUNDS, 10)
 
-const saltRounds = process.env.JWT_SALT_ROUNDS
-
-router.post('/auth/signup', (req, res, next) => {
-  const password = req.body.password
-  bcrypt.hash(password, saltRounds, function(error, hash) {
-    if (error) res.status(500).json({ error })
+router.post('/auth/register', (req, res, next) => {
+  bcrypt.hash(req.body.password, AUTH_SALT_ROUNDS, function(err, hash) {
+    if (err) res.status(500).json({ err })
     const newUser = {
-      username: req.body.username,
+      fullName: req.body.fullName,
       email: req.body.email,
       password: hash
     }
@@ -29,10 +27,21 @@ router.post('/auth/signup', (req, res, next) => {
         if (!user) {
           User.create(newUser)
             .then(user => {
-              res.json(user)
+              jwt.sign(
+                { user },
+                AUTH_SECRET_KEY,
+                { expiresIn: '1h' },
+                (err, token) => {
+                  if (err) {
+                    res.sendStatus(424)
+                  } else {
+                    res.json({ user, token })
+                  }
+                }
+              )
             })
             .catch(error => {
-              res.json({ error })
+              res.status(500).json({ error })
             })
         } else {
           res.status(401).send({ error: 'email exists' })
@@ -53,7 +62,7 @@ router.post('/auth/login', (req, res, next) => {
         if (!result) res.status(401).send({ error: 'Not Authorized' })
         jwt.sign(
           { user },
-          JWT_SECRET_KEY,
+          AUTH_SECRET_KEY,
           { expiresIn: '1h' },
           (err, token) => {
             if (err) {
@@ -71,7 +80,7 @@ router.post('/auth/login', (req, res, next) => {
 })
 
 router.get('/checklists', verifyToken, (req, res, next) => {
-  jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
+  jwt.verify(req.token, AUTH_SECRET_KEY, (err, _authData) => {
     if (err) {
       res.sendStatus(403)
     } else {
@@ -88,7 +97,7 @@ router.get('/checklists', verifyToken, (req, res, next) => {
 })
 
 router.get('/checklists/:id', verifyToken, (req, res, next) => {
-  jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
+  jwt.verify(req.token, AUTH_SECRET_KEY, (err, _authData) => {
     if (err) {
       res.sendStatus(403)
     } else {
@@ -104,7 +113,7 @@ router.get('/checklists/:id', verifyToken, (req, res, next) => {
 })
 
 router.post('/checklists', verifyToken, (req, res, next) => {
-  jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
+  jwt.verify(req.token, AUTH_SECRET_KEY, (err, _authData) => {
     if (err) {
       res.sendStatus(403)
     } else {
@@ -120,7 +129,7 @@ router.post('/checklists', verifyToken, (req, res, next) => {
 })
 
 router.put('/checklists/:id', verifyToken, (req, res, next) => {
-  jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
+  jwt.verify(req.token, AUTH_SECRET_KEY, (err, _authData) => {
     if (err) {
       res.sendStatus(403)
     } else {
@@ -142,7 +151,7 @@ router.put('/checklists/:id', verifyToken, (req, res, next) => {
 })
 
 router.delete('/checklists/:id', verifyToken, (req, res, next) => {
-  jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
+  jwt.verify(req.token, AUTH_SECRET_KEY, (err, _authData) => {
     if (err) {
       res.sendStatus(403)
     } else {
@@ -158,7 +167,7 @@ router.delete('/checklists/:id', verifyToken, (req, res, next) => {
 })
 
 router.get('/contacts', verifyToken, (req, res, next) => {
-  jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
+  jwt.verify(req.token, AUTH_SECRET_KEY, (err, _authData) => {
     if (err) {
       res.sendStatus(403)
     } else {
@@ -174,7 +183,7 @@ router.get('/contacts', verifyToken, (req, res, next) => {
 })
 
 router.get('/contacts/:id', verifyToken, (req, res, next) => {
-  jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
+  jwt.verify(req.token, AUTH_SECRET_KEY, (err, _authData) => {
     if (err) {
       res.sendStatus(403)
     } else {
@@ -190,7 +199,7 @@ router.get('/contacts/:id', verifyToken, (req, res, next) => {
 })
 
 router.post('/contacts', verifyToken, (req, res, next) => {
-  jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
+  jwt.verify(req.token, AUTH_SECRET_KEY, (err, _authData) => {
     if (err) {
       res.sendStatus(403)
     } else {
@@ -206,7 +215,7 @@ router.post('/contacts', verifyToken, (req, res, next) => {
 })
 
 router.put('/contacts/:id', verifyToken, (req, res, next) => {
-  jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
+  jwt.verify(req.token, AUTH_SECRET_KEY, (err, _authData) => {
     if (err) {
       res.sendStatus(403)
     } else {
@@ -228,7 +237,7 @@ router.put('/contacts/:id', verifyToken, (req, res, next) => {
 })
 
 router.delete('/contacts/:id', verifyToken, (req, res, next) => {
-  jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
+  jwt.verify(req.token, AUTH_SECRET_KEY, (err, _authData) => {
     if (err) {
       res.sendStatus(403)
     } else {
@@ -244,7 +253,7 @@ router.delete('/contacts/:id', verifyToken, (req, res, next) => {
 })
 
 router.get('/items', verifyToken, (req, res, next) => {
-  jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
+  jwt.verify(req.token, AUTH_SECRET_KEY, (err, _authData) => {
     if (err) {
       res.sendStatus(403)
     } else {
@@ -260,7 +269,7 @@ router.get('/items', verifyToken, (req, res, next) => {
 })
 
 router.get('/items/:id', verifyToken, (req, res, next) => {
-  jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
+  jwt.verify(req.token, AUTH_SECRET_KEY, (err, _authData) => {
     if (err) {
       res.sendStatus(403)
     } else {
@@ -276,7 +285,7 @@ router.get('/items/:id', verifyToken, (req, res, next) => {
 })
 
 router.post('/items', verifyToken, (req, res, next) => {
-  jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
+  jwt.verify(req.token, AUTH_SECRET_KEY, (err, _authData) => {
     if (err) {
       res.sendStatus(403)
     } else {
@@ -292,7 +301,7 @@ router.post('/items', verifyToken, (req, res, next) => {
 })
 
 router.put('/items/:id', verifyToken, (req, res, next) => {
-  jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
+  jwt.verify(req.token, AUTH_SECRET_KEY, (err, _authData) => {
     if (err) {
       res.sendStatus(403)
     } else {
@@ -314,7 +323,7 @@ router.put('/items/:id', verifyToken, (req, res, next) => {
 })
 
 router.delete('/items/:id', verifyToken, (req, res, next) => {
-  jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
+  jwt.verify(req.token, AUTH_SECRET_KEY, (err, _authData) => {
     if (err) {
       res.sendStatus(403)
     } else {
@@ -330,7 +339,7 @@ router.delete('/items/:id', verifyToken, (req, res, next) => {
 })
 
 router.get('/locations', verifyToken, (req, res, next) => {
-  jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
+  jwt.verify(req.token, AUTH_SECRET_KEY, (err, _authData) => {
     if (err) {
       res.sendStatus(403)
     } else {
@@ -346,7 +355,7 @@ router.get('/locations', verifyToken, (req, res, next) => {
 })
 
 router.get('/locations/:id', verifyToken, (req, res, next) => {
-  jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
+  jwt.verify(req.token, AUTH_SECRET_KEY, (err, _authData) => {
     if (err) {
       res.sendStatus(403)
     } else {
@@ -362,7 +371,7 @@ router.get('/locations/:id', verifyToken, (req, res, next) => {
 })
 
 router.post('/locations', verifyToken, (req, res, next) => {
-  jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
+  jwt.verify(req.token, AUTH_SECRET_KEY, (err, _authData) => {
     if (err) {
       res.sendStatus(403)
     } else {
@@ -378,7 +387,7 @@ router.post('/locations', verifyToken, (req, res, next) => {
 })
 
 router.put('/locations/:id', verifyToken, (req, res, next) => {
-  jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
+  jwt.verify(req.token, AUTH_SECRET_KEY, (err, _authData) => {
     if (err) {
       res.sendStatus(403)
     } else {
@@ -400,7 +409,7 @@ router.put('/locations/:id', verifyToken, (req, res, next) => {
 })
 
 router.delete('/locations/:id', verifyToken, (req, res, next) => {
-  jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
+  jwt.verify(req.token, AUTH_SECRET_KEY, (err, _authData) => {
     if (err) {
       res.sendStatus(403)
     } else {
@@ -416,7 +425,7 @@ router.delete('/locations/:id', verifyToken, (req, res, next) => {
 })
 
 router.get('/users', verifyToken, (req, res, next) => {
-  jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
+  jwt.verify(req.token, AUTH_SECRET_KEY, (err, _authData) => {
     if (err) {
       res.sendStatus(403)
     } else {
@@ -432,7 +441,7 @@ router.get('/users', verifyToken, (req, res, next) => {
 })
 
 router.put('/users/:id', verifyToken, (req, res, next) => {
-  jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
+  jwt.verify(req.token, AUTH_SECRET_KEY, (err, _authData) => {
     if (err) {
       res.sendStatus(403)
     } else {
@@ -454,7 +463,7 @@ router.put('/users/:id', verifyToken, (req, res, next) => {
 })
 
 router.post('/setRelationship', verifyToken, (req, res, next) => {
-  jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
+  jwt.verify(req.token, AUTH_SECRET_KEY, (err, _authData) => {
     if (err) {
       res.sendStatus(403)
     } else {
@@ -544,7 +553,7 @@ router.post('/setRelationship', verifyToken, (req, res, next) => {
 })
 
 router.get('/appData/:key', verifyToken, (req, res, next) => {
-  jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
+  jwt.verify(req.token, AUTH_SECRET_KEY, (err, _authData) => {
     if (err) {
       res.sendStatus(403)
     } else {
@@ -562,7 +571,7 @@ router.get('/appData/:key', verifyToken, (req, res, next) => {
 })
 
 router.post('/appData', verifyToken, (req, res, next) => {
-  jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
+  jwt.verify(req.token, AUTH_SECRET_KEY, (err, _authData) => {
     if (err) {
       res.sendStatus(403)
     } else {
@@ -578,7 +587,7 @@ router.post('/appData', verifyToken, (req, res, next) => {
 })
 
 router.put('/appData/:id', verifyToken, (req, res, next) => {
-  jwt.verify(req.token, JWT_SECRET_KEY, (err, _authData) => {
+  jwt.verify(req.token, AUTH_SECRET_KEY, (err, _authData) => {
     if (err) {
       res.sendStatus(403)
     } else {
