@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <v-app-bar app color="primary" dark>
-      <v-toolbar-title>Babar</v-toolbar-title>
+      <v-toolbar-title class="display-3" dark>ljunda</v-toolbar-title>
       <v-spacer></v-spacer>
       <v-btn
         v-for="link in links"
@@ -68,3 +68,10 @@ export default {
   }
 }
 </script>
+
+<style lang="scss">
+.display-3 {
+  height: 72px;
+  line-height: 4rem !important;
+}
+</style>
