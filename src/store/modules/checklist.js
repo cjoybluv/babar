@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import ChecklistService from '@/services/ChecklistService'
-import { createFolderArray } from '@/helpers/displayHelpers'
+import { createTreeViewArray } from '@/helpers/displayHelpers'
 
 export const namespaced = true
 
@@ -56,7 +56,7 @@ export const actions = {
       ChecklistService.getChecklists(ownerId)
         .then(response => {
           commit('SET_CHECKLISTS', response.data)
-          dispatch('updateFolderDisplay')
+          dispatch('updateTreeViewDisplay')
           const notification = {
             type: response.data.length ? 'success' : 'info',
             message: response.data.length
@@ -96,7 +96,7 @@ export const actions = {
           .then(response => {
             commit('UPDATE_CHECKLIST', response.data)
             commit('CLEAR_SELECTED_CHECKLIST')
-            dispatch('updateFolderDisplay')
+            dispatch('updateTreeViewDisplay')
             const notification = {
               type: 'success',
               message: 'Checklist Updated!'
@@ -117,7 +117,7 @@ export const actions = {
           .then(response => {
             commit('SAVE_CHECKLIST', response.data)
             commit('CLEAR_SELECTED_CHECKLIST')
-            dispatch('updateFolderDisplay')
+            dispatch('updateTreeViewDisplay')
             const notification = {
               type: 'success',
               message: 'Checklist saved!'
@@ -136,14 +136,16 @@ export const actions = {
       }
     })
   },
-  updateFolderDisplay({ state, rootState, commit }) {
+  updateTreeViewDisplay({ state, rootState, commit }) {
+    let items = []
+    if (state.checklists) {
+      items = state.checklists.map(checklist => {
+        return { ...checklist, primaryTag: checklist.tags[0] }
+      })
+    }
     commit(
       'SET_FOLDER_DISPLAY',
-      createFolderArray(
-        rootState.auth.user.folders || [],
-        state.checklists || [],
-        'title'
-      )
+      createTreeViewArray(rootState.auth.user.tags || [], items, 'primaryTag')
     )
   }
 }

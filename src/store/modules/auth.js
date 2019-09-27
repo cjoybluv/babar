@@ -19,8 +19,8 @@ export const getters = {
   user(state) {
     return state.user
   },
-  userFolders(state) {
-    return state.user.folders
+  userTags(state) {
+    return state.user.tags
   }
 }
 
@@ -114,7 +114,7 @@ export const actions = {
       UserService.putUser(user)
         .then(response => {
           commit('SET_USER', response.data)
-          dispatch('checklist/updateFolderDisplay', null, { root: true })
+          dispatch('checklist/updateTreeViewDisplay', null, { root: true })
           const notification = {
             type: 'success',
             message: 'User Updated!'

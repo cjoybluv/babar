@@ -5,8 +5,8 @@
         <v-text-field
           dark
           class="mt-0 mr-auto"
-          placeholder="Enter New Checklist Title"
-          v-model="checklist.title"
+          placeholder="Enter New Checklist Name"
+          v-model="checklist.name"
         />
       </v-col>
       <v-col cols="2" class="pl-0 pt-5">
@@ -16,7 +16,7 @@
               dense
               v-on="on"
               dark
-              :disabled="!checklist.title"
+              :disabled="!checklist.name"
               class="pt-2 float-right"
               >mdi-dots-vertical</v-icon
             >
@@ -37,7 +37,7 @@
           @click="saveHandler"
           text
           dark
-          :disabled="!checklist.title"
+          :disabled="!checklist.name"
           min-width="24"
           class="pl-0 pr-0 float-right"
         >
@@ -45,8 +45,8 @@
         </v-btn>
       </v-col>
     </v-row>
-    <v-row v-if="checklist.title && !checklist.sourceMasterId && openOptions">
-      <v-col cols="12" class="pt-0 pb-0">
+    <v-row v-if="checklist.name && !checklist.sourceMasterId && openOptions">
+      <v-col cols="12" md="6" class="pt-0 pb-0">
         <v-checkbox
           dark
           class="mt-0"
@@ -54,19 +54,26 @@
           label="Master Checklist"
         />
       </v-col>
-    </v-row>
-    <v-row v-if="checklist.title && openOptions">
-      <v-col cols="11" class="mt-2 py-0">
-        <v-select
+      <v-col cols="12" md="6" class="pt-0 pb-0">
+        <v-checkbox
           dark
-          class="pt-0"
-          label="Folder"
-          v-model="checklist.folderName"
-          :items="folderOptions"
+          class="mt-0"
+          v-model="checklist.masterLocked"
+          label="Locked"
         />
       </v-col>
     </v-row>
-    <v-row v-if="checklist.title && !checklist.sourceMasterId">
+    <v-row v-if="checklist.name && openOptions">
+      <v-col cols="11" class="mt-2 py-0">
+        <v-combobox
+          v-model="checklist.tags"
+          :items="userTags"
+          chips
+          multiple
+        ></v-combobox>
+      </v-col>
+    </v-row>
+    <v-row v-if="checklist.name && !checklist.sourceMasterId">
       <v-col class="pb-0">
         <v-textarea
           rows="1"
@@ -119,10 +126,7 @@ export default {
     checklist() {
       return this.$store.state.checklist.selectedChecklist
     },
-    folderOptions() {
-      return ['<ROOT>', ...this.userFolders]
-    },
-    ...mapGetters({ userFolders: 'auth/userFolders', ownerId: 'auth/ownerId' })
+    ...mapGetters({ userTags: 'auth/userTags', ownerId: 'auth/ownerId' })
   },
   data() {
     return {
@@ -152,12 +156,9 @@ export default {
       this.newItemSubject = ''
     },
     saveHandler() {
-      if (this.checklist.title) {
+      if (this.checklist.name) {
         const newChecklist = { ...this.checklist }
         if (!this.checklist.ownerId) newChecklist.ownerId = this.ownerId
-        if (this.checklist.folderName === '<ROOT>') {
-          newChecklist.folderName = ''
-        }
         this.save(this.checklist)
       }
     },

@@ -7,14 +7,6 @@
           :min-height="window.height - window.heightReduction"
           class="primary"
         >
-          <v-text-field
-            dark
-            filled
-            label="Create a New Folder"
-            v-model="newFolderName"
-            append-icon="mdi-plus"
-            @click:append="createFolder"
-          />
           <FolderDisplay :openItem="openChecklist" />
         </v-sheet>
       </v-col>
