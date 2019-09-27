@@ -7,7 +7,17 @@
           :min-height="window.height - window.heightReduction"
           class="primary"
         >
-          <FolderDisplay :openItem="openChecklist" />
+          <v-spacer></v-spacer>
+          <v-treeview
+            :items="treeViewItems"
+            item-key="key"
+            @update:active="clickHandler"
+            activatable
+            dark
+            dense
+            color="white"
+          ></v-treeview>
+          <!-- <TreeViewDisplay itemType="checklist" :items="checklists" :openItem="openChecklist" /> -->
         </v-sheet>
       </v-col>
       <v-col cols="12" sm="7" md="5">
@@ -34,18 +44,16 @@
 import cloneDeep from 'lodash/cloneDeep'
 import { mapGetters, mapActions } from 'vuex'
 
-import FolderDisplay from '@/components/FolderDisplay'
 import Checklist from '@/components/Checklist'
 
 export default {
   name: 'checklists',
   components: {
-    FolderDisplay,
     Checklist
   },
   data() {
     return {
-      newFolderName: '',
+      lastItemOpened: {},
       window: {
         width: 0,
         height: 0,
@@ -60,14 +68,39 @@ export default {
     selectedChecklist() {
       return this.$store.state.checklist.selectedChecklist
     },
-    ...mapGetters({ userFolders: 'auth/userFolders', user: 'auth/user' })
+    treeViewItems() {
+      return this.$store.state.treeView.items
+    },
+    treeViewItemMap() {
+      return this.$store.state.treeView.itemMap
+    },
+    ...mapGetters({ user: 'auth/user' })
   },
   methods: {
+    clickHandler(value) {
+      if (value.length) {
+        const map = this.treeViewItemMap.find(map => map.key === value[0])
+        if (map) {
+          const checklist = this.checklists.find(
+            checklist => checklist._id === map.id
+          )
+          this.lastItemOpened = checklist
+          this.openChecklist(checklist)
+        }
+      } else {
+        this.openChecklist(this.lastItemOpened)
+        const checklist = this.checklists.find(
+          checklist => checklist._id === this.lastItemOpened._id
+        )
+        this.lastItemOpened = checklist
+        this.openChecklist(checklist)
+      }
+    },
     openChecklist(checklist) {
       let selectedChecklist
       if (checklist.masterChecklist) {
         let today = new Date(Date.now())
-        let titleDateTime =
+        let nameDateTime =
           today.getFullYear() +
           '-' +
           (today.getMonth() + 1) +
@@ -82,27 +115,15 @@ export default {
         selectedChecklist = cloneDeep({
           ...checklist,
           masterChecklist: false,
-          folderName: checklist.folderName ? checklist.folderName : 'Log',
+          tags: checklist.tags[0] ? checklist.tags[0] : 'Log',
           sourceMasterId: checklist._id,
-          title: titleDateTime + ' / ' + checklist.title
+          name: nameDateTime + ' / ' + checklist.name
         })
         delete selectedChecklist._id
       } else {
         selectedChecklist = cloneDeep(checklist)
       }
       this.editChecklist(selectedChecklist)
-    },
-    createFolder() {
-      if (this.newFolderName) {
-        let updatedUser = { ...this.user }
-        if (this.user.folders) {
-          updatedUser.folders.push(this.newFolderName)
-        } else {
-          updatedUser.folders = [this.newFolderName]
-        }
-        this.updatedUser(updatedUser)
-        this.newFolderName = ''
-      }
     },
     handleResize() {
       this.window.width = window.innerWidth
@@ -122,3 +143,15 @@ export default {
   }
 }
 </script>
+
+<style lang="scss">
+.v-sheet > .spacer {
+  height: 1rem;
+}
+.v-treeview-node__root {
+  cursor: pointer;
+  &:hover {
+    background-color: #0d47a1;
+  }
+}
+</style>

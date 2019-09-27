@@ -1,18 +1,7 @@
-export function createTreeViewArray(headers, items, itemHeaderField) {
+export function createTreeViewArray(items, itemHeaderField) {
   let key = 0
   let displayArray = []
   let itemMap = []
-
-  headers.forEach(header => {
-    displayArray.push({
-      key: key,
-      id: null,
-      name: header,
-      children: [],
-      header: true
-    })
-    key++
-  })
 
   items.forEach(item => {
     if (item[itemHeaderField]) {
@@ -33,6 +22,14 @@ export function createTreeViewArray(headers, items, itemHeaderField) {
         key++
       } else {
         displayArray.push({
+          key,
+          id: null,
+          name: item[itemHeaderField],
+          children: [],
+          header: true
+        })
+        key++
+        displayArray[displayArray.length - 1].children.push({
           key: key,
           id: item._id,
           name: item.name,
@@ -87,5 +84,5 @@ export function createTreeViewArray(headers, items, itemHeaderField) {
     })
   }
 
-  return { displayArray, itemMap }
+  return { items: displayArray, itemMap }
 }

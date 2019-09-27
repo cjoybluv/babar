@@ -20,8 +20,6 @@ export const getters = {
 export const mutations = {
   CLEAR_CHECKLISTS(state) {
     state.checklists = []
-    state.folderArray = []
-    state.itemMap = []
     state.selectedChecklist = {}
   },
   SET_CHECKLISTS(state, checklists) {
@@ -42,10 +40,6 @@ export const mutations = {
   },
   CLEAR_SELECTED_CHECKLIST(state) {
     state.selectedChecklist = {}
-  },
-  SET_FOLDER_DISPLAY(state, result) {
-    state.folderArray = result.displayArray
-    state.itemMap = result.itemMap
   }
 }
 
@@ -137,15 +131,21 @@ export const actions = {
     })
   },
   updateTreeViewDisplay({ state, rootState, commit }) {
-    let items = []
-    if (state.checklists) {
-      items = state.checklists.map(checklist => {
-        return { ...checklist, primaryTag: checklist.tags[0] }
-      })
+    if (
+      !rootState.treeView.itemType ||
+      rootState.treeView.itemType === 'checklist'
+    ) {
+      let items = []
+      if (state.checklists) {
+        items = state.checklists.map(checklist => {
+          return { ...checklist, primaryTag: checklist.tags[0] }
+        })
+      }
+      commit(
+        'treeView/SET_TREE_VIEW',
+        { itemType: 'checklist', ...createTreeViewArray(items, 'primaryTag') },
+        { root: true }
+      )
     }
-    commit(
-      'SET_FOLDER_DISPLAY',
-      createTreeViewArray(rootState.auth.user.tags || [], items, 'primaryTag')
-    )
   }
 }

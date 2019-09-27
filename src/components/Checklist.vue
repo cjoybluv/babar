@@ -66,10 +66,13 @@
     <v-row v-if="checklist.name && openOptions">
       <v-col cols="11" class="mt-2 py-0">
         <v-combobox
+          placeholder="Enter/Select Tag(s)"
           v-model="checklist.tags"
           :items="userTags"
           chips
           multiple
+          clearable
+          dark
         ></v-combobox>
       </v-col>
     </v-row>
@@ -137,8 +140,7 @@ export default {
   },
   methods: {
     addItem() {
-      // this.newItemSubject = this.newItemSubject.trimEnd()
-      let subject = this.newItemSubject.trimEnd()
+      let subject = this.newItemSubject.trim()
       let cleanSubject
       if (subject.charAt(subject.length - 1) === String.fromCharCode(10)) {
         cleanSubject = subject.substring(0, subject.length - 1)
