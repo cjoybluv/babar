@@ -13,6 +13,7 @@ const AppData = require('../models/appData')
 
 const AUTH_SECRET_KEY = process.env.AUTH_SECRET_KEY
 const AUTH_SALT_ROUNDS = parseInt(process.env.AUTH_SALT_ROUNDS, 10)
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD
 
 router.post('/auth/register', (req, res, next) => {
   bcrypt.hash(req.body.password, AUTH_SALT_ROUNDS, function(err, hash) {
@@ -436,6 +437,24 @@ router.get('/users', verifyToken, (req, res, next) => {
         .catch(error => {
           res.json({ error })
         })
+    }
+  })
+})
+
+router.get('/usersAll', verifyToken, (req, res, next) => {
+  jwt.verify(req.token, AUTH_SECRET_KEY, (err, _authData) => {
+    if (err) {
+      res.sendStatus(403)
+    } else {
+      if (req.query.password === ADMIN_PASSWORD) {
+        User.find({})
+          .then(users => {
+            res.json(users)
+          })
+          .catch(error => {
+            res.json({ error })
+          })
+      }
     }
   })
 })
