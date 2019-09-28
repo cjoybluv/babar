@@ -129,6 +129,7 @@
             :key="item.key"
             :item="item"
             :locked="locked"
+            @delete-item="deleteItem"
           />
         </draggable>
       </v-col>
@@ -201,6 +202,12 @@ export default {
         })
       }
       this.newItemSubject = null
+    },
+    deleteItem(itemToDelete) {
+      const idx = this.checklist.items.findIndex(
+        item => item.key === itemToDelete.key
+      )
+      this.checklist.items.splice(idx, 1)
     },
     tagIConv(v) {
       if (!v.length || !this.userTags.length) return false
