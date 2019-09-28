@@ -441,12 +441,12 @@ router.get('/users', verifyToken, (req, res, next) => {
   })
 })
 
-router.get('/usersAll', verifyToken, (req, res, next) => {
+router.post('/usersAll', verifyToken, (req, res, next) => {
   jwt.verify(req.token, AUTH_SECRET_KEY, (err, _authData) => {
     if (err) {
       res.sendStatus(403)
     } else {
-      if (req.query.password === ADMIN_PASSWORD) {
+      if (req.body.password === ADMIN_PASSWORD) {
         User.find({})
           .then(users => {
             res.json(users)
