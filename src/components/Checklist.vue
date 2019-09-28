@@ -33,11 +33,20 @@
             <v-list-item @click="clearHandler">
               <v-list-item-title dark>Clear the Form</v-list-item-title>
             </v-list-item>
-            <v-list-item @click="openOptions = true" v-show="!openOptions">
+            <v-list-item
+              @click="openOptions = true"
+              v-show="!openOptions && !locked"
+            >
               <v-list-item-title dark>Open Options</v-list-item-title>
             </v-list-item>
-            <v-list-item @click="openOptions = false" v-show="openOptions">
+            <v-list-item
+              @click="openOptions = false"
+              v-show="openOptions && !locked"
+            >
               <v-list-item-title dark>Close Options</v-list-item-title>
+            </v-list-item>
+            <v-list-item @click="editMaster" v-show="checklist.sourceMasterId">
+              <v-list-item-title>Edit Master Checklist</v-list-item-title>
             </v-list-item>
           </v-list>
         </v-menu>
@@ -86,7 +95,7 @@
         ></v-combobox>
       </v-col>
     </v-row>
-    <v-row v-show="checklist.name && !checklist.sourceMasterId">
+    <v-row v-show="checklist.name && !locked">
       <v-col class="pb-0">
         <v-textarea
           rows="1"
@@ -112,6 +121,7 @@
       <v-col class="pt-0">
         <draggable
           :list="checklist.items"
+          :sort="!locked"
           ghost-class="ghost"
           handle=".v-input__append-outer"
           @start="dragging = true"
@@ -121,6 +131,8 @@
             v-for="item in checklist.items"
             :key="item.key"
             :item="item"
+            :locked="locked"
+            @delete-item="deleteItem"
           />
         </draggable>
       </v-col>
@@ -145,7 +157,14 @@ export default {
     checklist() {
       return this.$store.state.checklist.selectedChecklist
     },
-    ...mapGetters({ userTags: 'auth/userTags', ownerId: 'auth/ownerId' })
+    locked() {
+      return this.checklist.masterLocked && this.checklist.sourceMasterId
+    },
+    ...mapGetters({
+      userTags: 'auth/userTags',
+      ownerId: 'auth/ownerId',
+      getChecklistById: 'checklist/getChecklistById'
+    })
   },
   data() {
     return {
@@ -191,6 +210,12 @@ export default {
       }
       this.newItemSubject = null
     },
+    deleteItem(itemToDelete) {
+      const idx = this.checklist.items.findIndex(
+        item => item.key === itemToDelete.key
+      )
+      this.checklist.items.splice(idx, 1)
+    },
     tagIConv(v) {
       if (!v.length || !this.userTags.length) return false
       v.forEach((value, idx) => {
@@ -223,9 +248,13 @@ export default {
       this.openOptions = false
       this.clearForm()
     },
+    editMaster() {
+      this.edit(this.getChecklistById(this.checklist.sourceMasterId))
+    },
     ...mapActions({
       save: 'checklist/save',
       clearForm: 'checklist/clearForm',
+      edit: 'checklist/edit',
       notify: 'notification/add'
     })
   }

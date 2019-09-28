@@ -1,5 +1,5 @@
 <template>
-  <v-row>
+  <v-row class="checklistItem">
     <v-col cols="1" class="pt-0">
       <v-checkbox dark class="mt-0 pt-0" v-model="item.completed"></v-checkbox>
     </v-col>
@@ -11,24 +11,45 @@
       "
       @mouseleave="hover = false"
     >
-      <p v-show="!hover && !$v.item.subject.$error" class="white--text">
-        {{ item.subject }}
-      </p>
-      <v-textarea
-        v-show="hover || $v.item.subject.$error"
-        rows="1"
-        auto-grow
-        dark
-        append-outer-icon="mdi-cursor-move"
-        class="pt-0"
-        v-model="item.subject"
-        :class="{ inputError: $v.item.subject.$error }"
-        :error-messages="
-          $v.item.subject.$error
-            ? 'Subject is Required, and must be between 4 and 244 characters.'
-            : ''
-        "
-      />
+      <v-row>
+        <v-col cols="11" class="pa-0">
+          <p
+            v-show="locked || (!hover && !$v.item.subject.$error)"
+            class="white--text"
+          >
+            {{ item.subject }}
+          </p>
+          <v-textarea
+            v-show="!locked && (hover || $v.item.subject.$error)"
+            rows="1"
+            auto-grow
+            dark
+            append-outer-icon="mdi-cursor-move"
+            class="pt-0"
+            v-model="item.subject"
+            :class="{ inputError: $v.item.subject.$error }"
+            :error-messages="
+              $v.item.subject.$error
+                ? 'Subject is Required, and must be between 4 and 244 characters.'
+                : ''
+            "
+          />
+        </v-col>
+        <v-col class="pa-0">
+          <v-menu class="primray lighten-2">
+            <template v-slot:activator="{ on }">
+              <v-icon dense v-on="on" dark :disabled="locked" class="pt-2"
+                >mdi-dots-vertical</v-icon
+              >
+            </template>
+            <v-list dark color="#1565C0">
+              <v-list-item @click="deleteItem">
+                <v-list-item-title dark>Delete Item</v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </v-menu>
+        </v-col>
+      </v-row>
     </v-col>
   </v-row>
 </template>
@@ -38,30 +59,41 @@ import { maxLength, minLength, required } from 'vuelidate/lib/validators'
 
 export default {
   name: 'ChecklistItem',
-  props: ['item'],
+  props: ['item', 'locked'],
   data() {
     return {
-      hover: false
+      hover: true
     }
   },
   validations: {
     item: {
       subject: { maxLength: maxLength(244), minLength: minLength(4), required }
     }
+  },
+  methods: {
+    deleteItem() {
+      this.$emit('delete-item', this.item)
+    }
   }
 }
 </script>
 
 <style lang="scss">
-.v-textarea textarea {
-  padding: 0;
-}
-.v-input__append-outer {
-  cursor: move;
-}
-.sortable-chosen {
-  z-index: 10;
-  border: 1px dashed lightgray;
-  background-color: #1e88e5;
+.checklistItem {
+  & .v-textarea textarea {
+    padding: 0;
+  }
+  & .v-input__append-outer {
+    cursor: move;
+  }
+  & .sortable-chosen {
+    z-index: 10;
+    border: 1px dashed lightgray;
+    background-color: #1e88e5;
+  }
+  & .mdi-cursor-move,
+  .mdi-dots-vertical {
+    font-size: 1rem !important;
+  }
 }
 </style>
