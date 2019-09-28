@@ -45,6 +45,9 @@
             >
               <v-list-item-title dark>Close Options</v-list-item-title>
             </v-list-item>
+            <v-list-item @click="editMaster" v-show="checklist.sourceMasterId">
+              <v-list-item-title>Edit Master Checklist</v-list-item-title>
+            </v-list-item>
           </v-list>
         </v-menu>
         <v-btn
@@ -157,7 +160,11 @@ export default {
     locked() {
       return this.checklist.masterLocked && this.checklist.sourceMasterId
     },
-    ...mapGetters({ userTags: 'auth/userTags', ownerId: 'auth/ownerId' })
+    ...mapGetters({
+      userTags: 'auth/userTags',
+      ownerId: 'auth/ownerId',
+      getChecklistById: 'checklist/getChecklistById'
+    })
   },
   data() {
     return {
@@ -241,9 +248,13 @@ export default {
       this.openOptions = false
       this.clearForm()
     },
+    editMaster() {
+      this.edit(this.getChecklistById(this.checklist.sourceMasterId))
+    },
     ...mapActions({
       save: 'checklist/save',
       clearForm: 'checklist/clearForm',
+      edit: 'checklist/edit',
       notify: 'notification/add'
     })
   }
