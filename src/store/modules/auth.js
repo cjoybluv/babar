@@ -108,10 +108,10 @@ export const actions = {
       }
     })
   },
-  updateUser({ commit, dispatch }, user) {
+  updateUser({ commit, dispatch }, userUpdate) {
     commit('CLEAR_USER')
     return new Promise((resolve, reject) => {
-      UserService.putUser(user)
+      UserService.putUser(userUpdate)
         .then(response => {
           commit('SET_USER', response.data)
           const notification = {
