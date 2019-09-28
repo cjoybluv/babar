@@ -156,7 +156,16 @@ export default {
   },
   validations: {
     checklist: {
-      name: { required, minLength: minLength(4) }
+      name: { required, minLength: minLength(4) },
+      items: {
+        $each: {
+          subject: {
+            required,
+            minLength: minLength(4),
+            maxLength: maxLength(244)
+          }
+        }
+      }
     },
     newItemSubject: { minLength: minLength(4), maxLength: maxLength(244) }
   },
@@ -197,22 +206,12 @@ export default {
     },
     saveHandler() {
       this.openOptions = false
-      let invalidForm = false
       if (!this.$v.$invalid) {
-        this.checklist.items.forEach(item => {
-          if (item.subject.length < 4 || item.subject.length > 244)
-            invalidForm = true
-        })
-        if (!invalidForm) {
-          const newChecklist = { ...this.checklist }
-          if (!this.checklist.ownerId) newChecklist.ownerId = this.ownerId
-          this.save(this.checklist)
-          this.$v.$reset()
-        }
+        const newChecklist = { ...this.checklist }
+        if (!this.checklist.ownerId) newChecklist.ownerId = this.ownerId
+        this.save(this.checklist)
+        this.$v.$reset()
       } else {
-        invalidForm = true
-      }
-      if (invalidForm) {
         const notification = {
           type: 'error',
           message: 'ERROR: The Form is invalid.'
