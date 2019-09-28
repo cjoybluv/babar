@@ -8,7 +8,12 @@
           class="mt-0 mr-auto"
           placeholder="Enter New Checklist Name"
           v-model.trim="checklist.name"
-          :rules="[rules.minLength(4)]"
+          :error-messages="
+            $v.checklist.name.$error
+              ? 'Name is Required, and must be at least 4 characters.'
+              : ''
+          "
+          @keydown="$v.checklist.name.$touch()"
         />
       </v-col>
       <v-col cols="2" class="pl-0 pt-5">
@@ -88,11 +93,16 @@
           dark
           class="pt-0"
           v-model.trim="newItemSubject"
-          :rules="[rules.minLength(4), rules.maxLength(244)]"
           label="Enter New Item"
           @keydown.enter="addItem"
           append-outer-icon="mdi-plus"
           @click:append-outer="addItem"
+          :error-messages="
+            $v.newItemSubject.$error
+              ? 'Subject must be between 4 and 244 characters.'
+              : ''
+          "
+          @keydown="$v.newItemSubject.$touch()"
         />
       </v-col>
     </v-row>
@@ -120,6 +130,7 @@
 import uuidv4 from 'uuid/v4'
 import { mapActions, mapGetters } from 'vuex'
 import draggable from 'vuedraggable'
+import { maxLength, minLength, required } from 'vuelidate/lib/validators'
 import ChecklistItem from '@/components/ChecklistItem'
 
 export default {
@@ -138,29 +149,20 @@ export default {
     return {
       newItemSubject: '',
       dragging: false,
-      openOptions: false,
-      rules: {
-        minLength: len => v => {
-          return (
-            !v ||
-            (v || '').length >= len ||
-            `Invalid character length, required minimum ${len}`
-          )
-        },
-        maxLength: len => v => {
-          return (
-            (v || '').length <= len ||
-            `Invalid character length, required maximum ${len}`
-          )
-        }
-      }
+      openOptions: false
     }
+  },
+  validations: {
+    checklist: {
+      name: { required, minLength: minLength(4) }
+    },
+    newItemSubject: { minLength: minLength(4), maxLength: maxLength(244) }
   },
   methods: {
     addItem() {
       if (!this.newItemSubject) return false
       let subject = this.newItemSubject.trim()
-      if (subject.length < 4 || subject.length > 244) return false
+      if (this.$v.newItemSubject.$error) return false
 
       let cleanSubject
       if (subject.charAt(subject.length - 1) === String.fromCharCode(10)) {
