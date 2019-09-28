@@ -1,5 +1,5 @@
 <template>
-  <v-form @submit.prevent class="pl-3">
+  <v-form @submit.prevent="saveHandler" class="pl-3">
     <v-row>
       <v-col class="pb-0">
         <v-text-field
@@ -41,7 +41,7 @@
           </v-list>
         </v-menu>
         <v-btn
-          @click="saveHandler"
+          type="submit"
           text
           dark
           :disabled="!checklist.name"
@@ -195,10 +195,17 @@ export default {
     },
     saveHandler() {
       this.openOptions = false
-      if (this.checklist.name) {
+      if (!this.$v.$invalid) {
         const newChecklist = { ...this.checklist }
         if (!this.checklist.ownerId) newChecklist.ownerId = this.ownerId
         this.save(this.checklist)
+        this.$v.$reset()
+      } else {
+        const notification = {
+          type: 'error',
+          message: 'ERROR: The Form is invalid.'
+        }
+        this.notify(notification)
       }
     },
     clearHandler() {
@@ -207,7 +214,8 @@ export default {
     },
     ...mapActions({
       save: 'checklist/save',
-      clearForm: 'checklist/clearForm'
+      clearForm: 'checklist/clearForm',
+      notify: 'notification/add'
     })
   }
 }
