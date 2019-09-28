@@ -104,6 +104,24 @@ export const actions = {
           .then(response => {
             commit('UPDATE_CHECKLIST', response.data)
             commit('CLEAR_SELECTED_CHECKLIST')
+            let updateUser = false
+            let userTags = rootState.auth.user.tags
+            checklist.tags.forEach(tag => {
+              if (
+                !userTags.find(
+                  userTag => userTag.toUpperCase() === tag.toUpperCase()
+                )
+              ) {
+                updateUser = true
+                userTags.push(tag)
+              }
+            })
+            if (updateUser)
+              dispatch(
+                'auth/updateUser',
+                { _id: checklist.ownerId, tags: userTags },
+                { root: true }
+              )
             dispatch(
               'updateTreeViewDisplay',
               rootState.treeView.selectedHeaderField
