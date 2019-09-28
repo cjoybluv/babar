@@ -33,10 +33,16 @@
             <v-list-item @click="clearHandler">
               <v-list-item-title dark>Clear the Form</v-list-item-title>
             </v-list-item>
-            <v-list-item @click="openOptions = true" v-show="!openOptions">
+            <v-list-item
+              @click="openOptions = true"
+              v-show="!openOptions && !locked"
+            >
               <v-list-item-title dark>Open Options</v-list-item-title>
             </v-list-item>
-            <v-list-item @click="openOptions = false" v-show="openOptions">
+            <v-list-item
+              @click="openOptions = false"
+              v-show="openOptions && !locked"
+            >
               <v-list-item-title dark>Close Options</v-list-item-title>
             </v-list-item>
           </v-list>
@@ -86,7 +92,7 @@
         ></v-combobox>
       </v-col>
     </v-row>
-    <v-row v-show="checklist.name && !checklist.sourceMasterId">
+    <v-row v-show="checklist.name && !locked">
       <v-col class="pb-0">
         <v-textarea
           rows="1"
@@ -112,6 +118,7 @@
       <v-col class="pt-0">
         <draggable
           :list="checklist.items"
+          :sort="!locked"
           ghost-class="ghost"
           handle=".v-input__append-outer"
           @start="dragging = true"
@@ -121,6 +128,7 @@
             v-for="item in checklist.items"
             :key="item.key"
             :item="item"
+            :locked="locked"
           />
         </draggable>
       </v-col>
@@ -144,6 +152,9 @@ export default {
   computed: {
     checklist() {
       return this.$store.state.checklist.selectedChecklist
+    },
+    locked() {
+      return this.checklist.masterLocked && this.checklist.sourceMasterId
     },
     ...mapGetters({ userTags: 'auth/userTags', ownerId: 'auth/ownerId' })
   },

@@ -11,11 +11,14 @@
       "
       @mouseleave="hover = false"
     >
-      <p v-show="!hover && !$v.item.subject.$error" class="white--text">
+      <p
+        v-show="locked || (!hover && !$v.item.subject.$error)"
+        class="white--text"
+      >
         {{ item.subject }}
       </p>
       <v-textarea
-        v-show="hover || $v.item.subject.$error"
+        v-show="!locked && (hover || $v.item.subject.$error)"
         rows="1"
         auto-grow
         dark
@@ -38,7 +41,7 @@ import { maxLength, minLength, required } from 'vuelidate/lib/validators'
 
 export default {
   name: 'ChecklistItem',
-  props: ['item'],
+  props: ['item', 'locked'],
   data() {
     return {
       hover: false
