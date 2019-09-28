@@ -17,6 +17,8 @@
         append-outer-icon="mdi-cursor-move"
         class="pt-0"
         v-model="item.subject"
+        @input="subjectRules"
+        :rules="[rules.minLength(4), rules.maxLength(244)]"
       />
     </v-col>
   </v-row>
@@ -28,7 +30,30 @@ export default {
   props: ['item'],
   data() {
     return {
-      hover: false
+      hover: false,
+      rules: {
+        minLength: len => v => {
+          return (
+            !v ||
+            (v || '').length >= len ||
+            `Invalid character length, required minimum ${len}`
+          )
+        },
+        maxLength: len => v => {
+          return (
+            (v || '').length <= len ||
+            `Invalid character length, required maximum ${len}`
+          )
+        }
+      }
+    }
+  },
+  methods: {
+    subjectRules(v) {
+      if (v.length <= 4 || v.length >= 244) {
+        console.log('subjectRules', v)
+        return false
+      }
     }
   }
 }

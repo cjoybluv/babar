@@ -1,5 +1,5 @@
 <template>
-  <div class="pl-3">
+  <v-form @submit.prevent class="pl-3">
     <v-row>
       <v-col class="pb-0">
         <v-text-field
@@ -7,7 +7,8 @@
           dark
           class="mt-0 mr-auto"
           placeholder="Enter New Checklist Name"
-          v-model="checklist.name"
+          v-model.trim="checklist.name"
+          :rules="[rules.minLength(4)]"
         />
       </v-col>
       <v-col cols="2" class="pl-0 pt-5">
@@ -26,10 +27,10 @@
             <v-list-item @click="clearHandler">
               <v-list-item-title dark>Clear the Form</v-list-item-title>
             </v-list-item>
-            <v-list-item @click="openOptions = true" v-if="!openOptions">
+            <v-list-item @click="openOptions = true" v-show="!openOptions">
               <v-list-item-title dark>Open Options</v-list-item-title>
             </v-list-item>
-            <v-list-item @click="openOptions = false" v-if="openOptions">
+            <v-list-item @click="openOptions = false" v-show="openOptions">
               <v-list-item-title dark>Close Options</v-list-item-title>
             </v-list-item>
           </v-list>
@@ -46,7 +47,7 @@
         </v-btn>
       </v-col>
     </v-row>
-    <v-row v-if="checklist.name && !checklist.sourceMasterId && openOptions">
+    <v-row v-show="checklist.name && !checklist.sourceMasterId && openOptions">
       <v-col cols="12" md="6" class="pt-0 pb-0">
         <v-checkbox
           dark
@@ -65,11 +66,12 @@
         />
       </v-col>
     </v-row>
-    <v-row v-if="checklist.name && openOptions">
+    <v-row v-show="checklist.name && openOptions">
       <v-col cols="11" class="mt-2 py-0">
         <v-combobox
           placeholder="Enter/Select Tag(s)"
           v-model="checklist.tags"
+          @input="tagIConv"
           :items="userTags"
           chips
           multiple
@@ -78,16 +80,16 @@
         ></v-combobox>
       </v-col>
     </v-row>
-    <v-row v-if="checklist.name && !checklist.sourceMasterId">
+    <v-row v-show="checklist.name && !checklist.sourceMasterId">
       <v-col class="pb-0">
         <v-textarea
           rows="1"
           auto-grow
           dark
           class="pt-0"
-          v-model="newItemSubject"
+          v-model.trim="newItemSubject"
+          :rules="[rules.minLength(4), rules.maxLength(244)]"
           label="Enter New Item"
-          @change="addItem"
           @keydown.enter="addItem"
           append-outer-icon="mdi-plus"
           @click:append-outer="addItem"
@@ -111,11 +113,10 @@
         </draggable>
       </v-col>
     </v-row>
-  </div>
+  </v-form>
 </template>
 
 <script>
-// const uuidv4 = require('uuid/v4');
 import uuidv4 from 'uuid/v4'
 import { mapActions, mapGetters } from 'vuex'
 import draggable from 'vuedraggable'
@@ -137,12 +138,30 @@ export default {
     return {
       newItemSubject: '',
       dragging: false,
-      openOptions: false
+      openOptions: false,
+      rules: {
+        minLength: len => v => {
+          return (
+            !v ||
+            (v || '').length >= len ||
+            `Invalid character length, required minimum ${len}`
+          )
+        },
+        maxLength: len => v => {
+          return (
+            (v || '').length <= len ||
+            `Invalid character length, required maximum ${len}`
+          )
+        }
+      }
     }
   },
   methods: {
     addItem() {
+      if (!this.newItemSubject) return false
       let subject = this.newItemSubject.trim()
+      if (subject.length < 4 || subject.length > 244) return false
+
       let cleanSubject
       if (subject.charAt(subject.length - 1) === String.fromCharCode(10)) {
         cleanSubject = subject.substring(0, subject.length - 1)
@@ -157,7 +176,20 @@ export default {
           completed: false
         })
       }
-      this.newItemSubject = ''
+      this.newItemSubject = null
+    },
+    tagIConv(v) {
+      if (!v.length || !this.userTags.length) return false
+      v.forEach((value, idx) => {
+        let userTag = this.userTags.find(
+          tag => tag.toUpperCase() === value.toUpperCase() && tag !== value
+        )
+        if (userTag) {
+          v[idx] = userTag
+          this.checklist.tags[idx] = userTag
+        }
+      })
+      return true
     },
     saveHandler() {
       this.openOptions = false
@@ -185,5 +217,8 @@ export default {
 }
 .v-select-list .v-list-item:hover {
   background-color: #eee;
+}
+.theme--dark.error--text {
+  color: #fce4ec !important;
 }
 </style>
