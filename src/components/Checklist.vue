@@ -1,5 +1,5 @@
 <template>
-  <div class="pl-3">
+  <v-form @submit.prevent="saveHandler" class="pl-3">
     <v-row>
       <v-col class="pb-0">
         <v-text-field
@@ -7,7 +7,14 @@
           dark
           class="mt-0 mr-auto"
           placeholder="Enter New Checklist Name"
-          v-model="checklist.name"
+          v-model.trim="checklist.name"
+          :class="{ inputError: $v.checklist.name.$error }"
+          :error-messages="
+            $v.checklist.name.$error
+              ? 'Name is Required, and must be at least 4 characters.'
+              : ''
+          "
+          @keydown="$v.checklist.name.$touch()"
         />
       </v-col>
       <v-col cols="2" class="pl-0 pt-5">
@@ -26,16 +33,16 @@
             <v-list-item @click="clearHandler">
               <v-list-item-title dark>Clear the Form</v-list-item-title>
             </v-list-item>
-            <v-list-item @click="openOptions = true" v-if="!openOptions">
+            <v-list-item @click="openOptions = true" v-show="!openOptions">
               <v-list-item-title dark>Open Options</v-list-item-title>
             </v-list-item>
-            <v-list-item @click="openOptions = false" v-if="openOptions">
+            <v-list-item @click="openOptions = false" v-show="openOptions">
               <v-list-item-title dark>Close Options</v-list-item-title>
             </v-list-item>
           </v-list>
         </v-menu>
         <v-btn
-          @click="saveHandler"
+          type="submit"
           text
           dark
           :disabled="!checklist.name"
@@ -46,7 +53,7 @@
         </v-btn>
       </v-col>
     </v-row>
-    <v-row v-if="checklist.name && !checklist.sourceMasterId && openOptions">
+    <v-row v-show="checklist.name && !checklist.sourceMasterId && openOptions">
       <v-col cols="12" md="6" class="pt-0 pb-0">
         <v-checkbox
           dark
@@ -65,11 +72,12 @@
         />
       </v-col>
     </v-row>
-    <v-row v-if="checklist.name && openOptions">
+    <v-row v-show="checklist.name && openOptions">
       <v-col cols="11" class="mt-2 py-0">
         <v-combobox
           placeholder="Enter/Select Tag(s)"
           v-model="checklist.tags"
+          @input="tagIConv"
           :items="userTags"
           chips
           multiple
@@ -78,19 +86,25 @@
         ></v-combobox>
       </v-col>
     </v-row>
-    <v-row v-if="checklist.name && !checklist.sourceMasterId">
+    <v-row v-show="checklist.name && !checklist.sourceMasterId">
       <v-col class="pb-0">
         <v-textarea
           rows="1"
           auto-grow
           dark
           class="pt-0"
-          v-model="newItemSubject"
+          v-model.trim="newItemSubject"
           label="Enter New Item"
-          @change="addItem"
           @keydown.enter="addItem"
           append-outer-icon="mdi-plus"
           @click:append-outer="addItem"
+          :class="{ inputError: $v.newItemSubject.$error }"
+          :error-messages="
+            $v.newItemSubject.$error
+              ? 'Subject must be between 4 and 244 characters.'
+              : ''
+          "
+          @keydown="$v.newItemSubject.$touch()"
         />
       </v-col>
     </v-row>
@@ -111,14 +125,14 @@
         </draggable>
       </v-col>
     </v-row>
-  </div>
+  </v-form>
 </template>
 
 <script>
-// const uuidv4 = require('uuid/v4');
 import uuidv4 from 'uuid/v4'
 import { mapActions, mapGetters } from 'vuex'
 import draggable from 'vuedraggable'
+import { maxLength, minLength, required } from 'vuelidate/lib/validators'
 import ChecklistItem from '@/components/ChecklistItem'
 
 export default {
@@ -140,9 +154,27 @@ export default {
       openOptions: false
     }
   },
+  validations: {
+    checklist: {
+      name: { required, minLength: minLength(4) },
+      items: {
+        $each: {
+          subject: {
+            required,
+            minLength: minLength(4),
+            maxLength: maxLength(244)
+          }
+        }
+      }
+    },
+    newItemSubject: { minLength: minLength(4), maxLength: maxLength(244) }
+  },
   methods: {
     addItem() {
+      if (!this.newItemSubject) return false
       let subject = this.newItemSubject.trim()
+      if (this.$v.newItemSubject.$error) return false
+
       let cleanSubject
       if (subject.charAt(subject.length - 1) === String.fromCharCode(10)) {
         cleanSubject = subject.substring(0, subject.length - 1)
@@ -157,14 +189,34 @@ export default {
           completed: false
         })
       }
-      this.newItemSubject = ''
+      this.newItemSubject = null
+    },
+    tagIConv(v) {
+      if (!v.length || !this.userTags.length) return false
+      v.forEach((value, idx) => {
+        let userTag = this.userTags.find(
+          tag => tag.toUpperCase() === value.toUpperCase() && tag !== value
+        )
+        if (userTag) {
+          v[idx] = userTag
+          this.checklist.tags[idx] = userTag
+        }
+      })
+      return true
     },
     saveHandler() {
       this.openOptions = false
-      if (this.checklist.name) {
+      if (!this.$v.$invalid) {
         const newChecklist = { ...this.checklist }
         if (!this.checklist.ownerId) newChecklist.ownerId = this.ownerId
         this.save(this.checklist)
+        this.$v.$reset()
+      } else {
+        const notification = {
+          type: 'error',
+          message: 'ERROR: The Form is invalid.'
+        }
+        this.notify(notification)
       }
     },
     clearHandler() {
@@ -173,7 +225,8 @@ export default {
     },
     ...mapActions({
       save: 'checklist/save',
-      clearForm: 'checklist/clearForm'
+      clearForm: 'checklist/clearForm',
+      notify: 'notification/add'
     })
   }
 }
@@ -185,5 +238,11 @@ export default {
 }
 .v-select-list .v-list-item:hover {
   background-color: #eee;
+}
+.theme--dark.error--text {
+  color: #fce4ec !important;
+}
+.inputError {
+  border: 1px solid red;
 }
 </style>
