@@ -8,6 +8,7 @@
           class="mt-0 mr-auto"
           placeholder="Enter New Checklist Name"
           v-model.trim="checklist.name"
+          :class="{ inputError: $v.checklist.name.$error }"
           :error-messages="
             $v.checklist.name.$error
               ? 'Name is Required, and must be at least 4 characters.'
@@ -97,6 +98,7 @@
           @keydown.enter="addItem"
           append-outer-icon="mdi-plus"
           @click:append-outer="addItem"
+          :class="{ inputError: $v.newItemSubject.$error }"
           :error-messages="
             $v.newItemSubject.$error
               ? 'Subject must be between 4 and 244 characters.'
@@ -195,12 +197,22 @@ export default {
     },
     saveHandler() {
       this.openOptions = false
+      let invalidForm = false
       if (!this.$v.$invalid) {
-        const newChecklist = { ...this.checklist }
-        if (!this.checklist.ownerId) newChecklist.ownerId = this.ownerId
-        this.save(this.checklist)
-        this.$v.$reset()
+        this.checklist.items.forEach(item => {
+          if (item.subject.length < 4 || item.subject.length > 244)
+            invalidForm = true
+        })
+        if (!invalidForm) {
+          const newChecklist = { ...this.checklist }
+          if (!this.checklist.ownerId) newChecklist.ownerId = this.ownerId
+          this.save(this.checklist)
+          this.$v.$reset()
+        }
       } else {
+        invalidForm = true
+      }
+      if (invalidForm) {
         const notification = {
           type: 'error',
           message: 'ERROR: The Form is invalid.'
@@ -230,5 +242,8 @@ export default {
 }
 .theme--dark.error--text {
   color: #fce4ec !important;
+}
+.inputError {
+  border: 1px solid red;
 }
 </style>

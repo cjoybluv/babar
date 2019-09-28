@@ -22,6 +22,7 @@
         append-outer-icon="mdi-cursor-move"
         class="pt-0"
         v-model="item.subject"
+        :class="{ inputError: $v.item.subject.$error }"
         :error-messages="
           $v.item.subject.$error
             ? 'Subject is Required, and must be between 4 and 244 characters.'
