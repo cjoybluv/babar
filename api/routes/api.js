@@ -441,7 +441,7 @@ router.get('/users', verifyToken, (req, res, next) => {
   })
 })
 
-router.post('/usersAll', verifyToken, (req, res, next) => {
+router.post('/usersall', verifyToken, (req, res, next) => {
   jwt.verify(req.token, AUTH_SECRET_KEY, (err, _authData) => {
     if (err) {
       res.sendStatus(403)
