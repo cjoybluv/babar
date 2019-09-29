@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-row no-gutters class="d-none d-md-flex">
+    <v-row no-gutters class="d-none d-sm-flex">
       <v-col cols="12" sm="5" md="3">
         <v-sheet
           tile
@@ -60,7 +60,7 @@
         ></v-sheet>
       </v-col>
     </v-row>
-    <v-row no-gutters class="d-flex d-md-none">
+    <v-row no-gutters class="d-flex d-sm-none">
       <v-carousel
         v-model="carousel.position"
         :show-arrows="false"
