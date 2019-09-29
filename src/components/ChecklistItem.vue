@@ -11,7 +11,7 @@
       "
       @mouseleave="hover = false"
     >
-      <v-row>
+      <v-row class="ml-2 ml-sm-0">
         <v-col cols="11" class="pa-0">
           <p
             v-show="locked || (!hover && !$v.item.subject.$error)"
@@ -35,10 +35,10 @@
             "
           />
         </v-col>
-        <v-col class="pa-0">
+        <v-col class="pa-0" v-show="hover && !locked">
           <v-menu class="primray lighten-2">
             <template v-slot:activator="{ on }">
-              <v-icon dense v-on="on" dark :disabled="locked" class="pt-2"
+              <v-icon dense v-on="on" dark class="pt-2"
                 >mdi-dots-vertical</v-icon
               >
             </template>
