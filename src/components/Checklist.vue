@@ -153,10 +153,33 @@
         items.
       </p>
     </div>
+    <v-dialog v-model="continueDialog.open" width="500" persistent>
+      <v-card>
+        <v-card-title class="headline grey lighten-2" primary-title
+          >Continue?</v-card-title
+        >
+
+        <v-card-text>
+          There are unsaved changes on the form. Do you wish to abandon changes
+          and continue with
+          <strong>{{ continueDialog.sourceDescription }}</strong
+          >, or return to the form?
+        </v-card-text>
+
+        <v-divider></v-divider>
+
+        <v-card-actions>
+          <v-btn color="danger" @click="dialogContinue">Continue</v-btn>
+          <v-spacer></v-spacer>
+          <v-btn color="primary" @click="dialogReturn">Return to Form</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
 <script>
+import isEqual from 'lodash/isEqual'
 import uuidv4 from 'uuid/v4'
 import { mapActions, mapGetters } from 'vuex'
 import draggable from 'vuedraggable'
@@ -173,6 +196,9 @@ export default {
     checklist() {
       return this.$store.state.checklist.selectedChecklist
     },
+    originalChecklist() {
+      return this.$store.state.checklist.originalChecklist
+    },
     locked() {
       return this.checklist.masterLocked && this.checklist.sourceMasterId
     },
@@ -186,7 +212,13 @@ export default {
     return {
       newItemSubject: '',
       dragging: false,
-      openOptions: false
+      openOptions: false,
+      continueDialog: {
+        open: false,
+        continue: false,
+        source: null,
+        sourceDescription: ''
+      }
     }
   },
   validations: {
@@ -262,12 +294,45 @@ export default {
       }
     },
     clearHandler() {
-      this.openOptions = false
-      this.$emit('move-carousel', 0)
-      this.clearForm()
+      if (
+        !this.continueDialog.continue &&
+        !isEqual(this.checklist, this.originalChecklist)
+      ) {
+        this.continueDialog.source = this.clearHandler
+        this.continueDialog.sourceDescription = 'Clear the Form'
+        this.continueDialog.open = true
+      } else {
+        this.openOptions = false
+        this.continueDialog.continue = false
+        this.continueDialog.source = null
+        this.$emit('move-carousel', 0)
+        this.clearForm()
+      }
     },
     editMaster() {
-      this.edit(this.getChecklistById(this.checklist.sourceMasterId))
+      if (
+        !this.continueDialog.continue &&
+        !isEqual(this.checklist, this.originalChecklist)
+      ) {
+        this.continueDialog.source = this.editMaster
+        this.continueDialog.sourceDescription = 'Edit Master Checklist'
+        this.continueDialog.open = true
+      } else {
+        this.openOptions = false
+        this.continueDialog.continue = false
+        this.continueDialog.source = null
+        this.edit(this.getChecklistById(this.checklist.sourceMasterId))
+      }
+    },
+    dialogContinue() {
+      this.continueDialog.continue = true
+      this.continueDialog.open = false
+      this.continueDialog.source()
+    },
+    dialogReturn() {
+      this.continueDialog.continue = false
+      this.continueDialog.source = null
+      this.continueDialog.open = false
     },
     ...mapActions({
       save: 'checklist/save',

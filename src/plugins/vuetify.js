@@ -10,10 +10,11 @@ Vue.use(Vuetify)
 export default new Vuetify({
   theme: {
     themes: {
-      dark: {
+      light: {
         primary: colors.blue.base,
         secondary: colors.lightBlue.lighten2,
-        accent: colors.blue.accent1
+        accent: colors.blue.accent1,
+        danger: colors.red
       }
     }
   }
