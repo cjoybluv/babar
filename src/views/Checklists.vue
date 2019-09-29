@@ -6,6 +6,7 @@
           tile
           :min-height="window.height - window.heightReduction"
           class="primary"
+          v-if="checklists.length"
         >
           <v-spacer></v-spacer>
           <v-select
@@ -24,7 +25,22 @@
             dense
             color="white"
           ></v-treeview>
-          <!-- <TreeViewDisplay itemType="checklist" :items="checklists" :openItem="openChecklist" /> -->
+        </v-sheet>
+        <v-sheet
+          tile
+          :min-height="window.height - window.heightReduction"
+          v-if="!checklists.length"
+          class="primary pa-2"
+        >
+          <h1 class="headline white--text">Welcome to Checklists</h1>
+          <v-spacer></v-spacer>
+          <p class="body-2 white--text">
+            After you have saved checklists, they will be displayed in this
+            panel.
+          </p>
+          <p class="body-2 white--text">
+            Use the panel to the right to create a checklist.
+          </p>
         </v-sheet>
       </v-col>
       <v-col cols="12" sm="7" md="5">
@@ -45,12 +61,18 @@
       </v-col>
     </v-row>
     <v-row no-gutters class="d-flex d-sm-none">
-      <v-carousel v-model="carousel.position" :show-arrows="false" dark>
+      <v-carousel
+        v-model="carousel.position"
+        :show-arrows="false"
+        dark
+        hide-delimiter-background
+      >
         <v-carousel-item>
           <v-sheet
             tile
             :min-height="window.height - window.heightReduction"
             class="primary"
+            v-if="checklists.length"
           >
             <v-spacer></v-spacer>
             <v-select
@@ -69,6 +91,22 @@
               dense
               color="white"
             ></v-treeview>
+          </v-sheet>
+          <v-sheet
+            tile
+            :min-height="window.height - window.heightReduction"
+            v-if="!checklists.length"
+            class="primary pa-2"
+          >
+            <h1 class="headline white--text">Welcome to Checklists</h1>
+            <v-spacer></v-spacer>
+            <p class="body-2 white--text">
+              After you have saved checklists, they will be displayed in this
+              panel.
+            </p>
+            <p class="body-2 white--text">
+              Use the panel to the right to create a checklist.
+            </p>
           </v-sheet>
         </v-carousel-item>
         <v-carousel-item>
@@ -208,6 +246,7 @@ export default {
   },
   mounted() {
     this.treeView.headerField = this.selectedHeaderField
+    if (!this.checklists.length) this.carousel.position = 1
   },
   destroyed() {
     window.removeEventListener('resize', this.handleResize)
