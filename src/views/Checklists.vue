@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-row no-gutters>
+    <v-row no-gutters class="d-none d-sm-flex">
       <v-col cols="12" sm="5" md="3">
         <v-sheet
           tile
@@ -44,6 +44,47 @@
         ></v-sheet>
       </v-col>
     </v-row>
+    <v-row no-gutters class="d-flex d-sm-none">
+      <v-carousel v-model="carousel.position" :show-arrows="false" dark>
+        <v-carousel-item>
+          <v-sheet
+            tile
+            :min-height="window.height - window.heightReduction"
+            class="primary"
+          >
+            <v-spacer></v-spacer>
+            <v-select
+              :items="treeView.selectOptions"
+              label="Select Header Field"
+              v-model="treeView.headerField"
+              @input="sortTreeView"
+              dark
+            />
+            <v-treeview
+              :items="treeViewItems"
+              item-key="key"
+              @update:active="clickHandler"
+              activatable
+              dark
+              dense
+              color="white"
+            ></v-treeview>
+          </v-sheet>
+        </v-carousel-item>
+        <v-carousel-item>
+          <v-sheet
+            tile
+            class="primary lighten-1"
+            :min-height="window.height - window.heightReduction"
+          >
+            <Checklist
+              :checklist="selectedChecklist"
+              @move-carousel="moveCarousel"
+            />
+          </v-sheet>
+        </v-carousel-item>
+      </v-carousel>
+    </v-row>
   </div>
 </template>
 
@@ -66,6 +107,9 @@ export default {
           { value: 'primaryTag', text: 'By Primary Tag' }
         ],
         headerField: ''
+      },
+      carousel: {
+        position: 0
       },
       lastItemOpened: {},
       window: {
@@ -105,14 +149,14 @@ export default {
             checklist => checklist._id === map.id
           )
           this.lastItemOpened = checklist
+          this.carousel.position = 1
           this.openChecklist(checklist)
         }
       } else {
-        this.openChecklist(this.lastItemOpened)
         const checklist = this.checklists.find(
           checklist => checklist._id === this.lastItemOpened._id
         )
-        this.lastItemOpened = checklist
+        this.carousel.position = 1
         this.openChecklist(checklist)
       }
     },
@@ -144,6 +188,9 @@ export default {
         selectedChecklist = cloneDeep(checklist)
       }
       this.editChecklist(selectedChecklist)
+    },
+    moveCarousel(position) {
+      this.carousel.position = position
     },
     handleResize() {
       this.window.width = window.innerWidth

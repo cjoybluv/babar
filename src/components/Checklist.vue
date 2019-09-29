@@ -234,6 +234,7 @@ export default {
       if (!this.$v.$invalid) {
         const newChecklist = { ...this.checklist }
         if (!this.checklist.ownerId) newChecklist.ownerId = this.ownerId
+        this.$emit('move-carousel', 0)
         this.save(this.checklist)
         this.$v.$reset()
       } else {
@@ -246,6 +247,7 @@ export default {
     },
     clearHandler() {
       this.openOptions = false
+      this.$emit('move-carousel', 0)
       this.clearForm()
     },
     editMaster() {
