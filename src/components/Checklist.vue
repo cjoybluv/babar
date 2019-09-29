@@ -179,13 +179,14 @@
 </template>
 
 <script>
-import isEqual from 'lodash/isEqual'
+// import isEqual from 'lodash/isEqual'
 import cloneDeep from 'lodash/cloneDeep'
 import uuidv4 from 'uuid/v4'
 import { mapActions, mapGetters } from 'vuex'
 import draggable from 'vuedraggable'
 import { maxLength, minLength, required } from 'vuelidate/lib/validators'
 import ChecklistItem from '@/components/ChecklistItem'
+import { continueDialogMixin } from '@/mixins/continueDialog'
 
 export default {
   name: 'Checklist',
@@ -193,6 +194,7 @@ export default {
     ChecklistItem,
     draggable
   },
+  mixins: [continueDialogMixin],
   computed: {
     checklist() {
       return this.$store.state.checklist.selectedChecklist
@@ -213,14 +215,7 @@ export default {
     return {
       newItemSubject: '',
       dragging: false,
-      openOptions: false,
-      continueDialog: {
-        open: false,
-        continue: false,
-        source: null,
-        sourceDescription: '',
-        payload: null
-      }
+      openOptions: false
     }
   },
   validations: {
@@ -310,37 +305,6 @@ export default {
           this.edit(cloneDeep(checklist))
         })
         .catch(() => {})
-    },
-    dialogContinue() {
-      this.continueDialog.continue = true
-      this.continueDialog.open = false
-      this.continueDialog.source(this.continueDialog.payload)
-    },
-    dialogReturn() {
-      this.continueDialog.continue = false
-      this.continueDialog.source = null
-      this.continueDialog.payload = null
-      this.continueDialog.open = false
-    },
-    dialogPromise(source, sourceDescription, payload) {
-      return new Promise((resolve, reject) => {
-        if (
-          !this.continueDialog.continue &&
-          !isEqual(this.checklist, this.originalChecklist)
-        ) {
-          this.continueDialog.source = source
-          this.continueDialog.sourceDescription = sourceDescription
-          this.continueDialog.payload = payload
-          this.continueDialog.open = true
-          reject()
-        } else {
-          this.openOptions = false
-          this.continueDialog.continue = false
-          this.continueDialog.source = null
-          this.continueDialog.payload = null
-          resolve()
-        }
-      })
     },
     ...mapActions({
       save: 'checklist/save',

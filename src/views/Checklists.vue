@@ -154,12 +154,14 @@ import isEqual from 'lodash/isEqual'
 import { mapGetters, mapActions } from 'vuex'
 
 import Checklist from '@/components/Checklist'
+import { continueDialogMixin } from '@/mixins/continueDialog'
 
 export default {
   name: 'checklists',
   components: {
     Checklist
   },
+  mixins: [continueDialogMixin],
   data() {
     return {
       treeView: {
@@ -177,13 +179,6 @@ export default {
         width: 0,
         height: 0,
         heightReduction: 0
-      },
-      continueDialog: {
-        open: false,
-        continue: false,
-        source: null,
-        sourceDescription: '',
-        payload: null
       }
     }
   },
@@ -280,37 +275,6 @@ export default {
     handleResize() {
       this.window.width = window.innerWidth
       this.window.height = window.innerHeight
-    },
-    dialogContinue() {
-      this.continueDialog.continue = true
-      this.continueDialog.open = false
-      this.continueDialog.source(this.continueDialog.payload)
-    },
-    dialogReturn() {
-      this.continueDialog.continue = false
-      this.continueDialog.source = null
-      this.continueDialog.payload = null
-      this.continueDialog.open = false
-    },
-    dialogPromise(source, sourceDescription, payload) {
-      return new Promise((resolve, reject) => {
-        if (
-          !this.continueDialog.continue &&
-          !isEqual(this.checklist, this.originalChecklist)
-        ) {
-          this.continueDialog.source = source
-          this.continueDialog.sourceDescription = sourceDescription
-          this.continueDialog.payload = payload
-          this.continueDialog.open = true
-          reject()
-        } else {
-          this.openOptions = false
-          this.continueDialog.continue = false
-          this.continueDialog.source = null
-          this.continueDialog.payload = null
-          resolve()
-        }
-      })
     },
     ...mapActions({
       updatedUser: 'auth/updateUser',
