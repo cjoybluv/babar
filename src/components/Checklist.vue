@@ -218,7 +218,8 @@ export default {
         open: false,
         continue: false,
         source: null,
-        sourceDescription: ''
+        sourceDescription: '',
+        payload: null
       }
     }
   },
@@ -295,7 +296,7 @@ export default {
       }
     },
     clearHandler() {
-      this.dialogPromise(this.clearHandler, 'Clear the Form')
+      this.dialogPromise(this.clearHandler, 'Clear the Form', null)
         .then(() => {
           this.$emit('move-carousel', 0)
           this.clearForm()
@@ -303,7 +304,7 @@ export default {
         .catch(() => {})
     },
     editMaster() {
-      this.dialogPromise(this.editMaster, 'Edit Master Checklist')
+      this.dialogPromise(this.editMaster, 'Edit Master Checklist', null)
         .then(() => {
           const checklist = this.getChecklistById(this.checklist.sourceMasterId)
           this.edit(cloneDeep(checklist))
@@ -313,14 +314,15 @@ export default {
     dialogContinue() {
       this.continueDialog.continue = true
       this.continueDialog.open = false
-      this.continueDialog.source()
+      this.continueDialog.source(this.continueDialog.payload)
     },
     dialogReturn() {
       this.continueDialog.continue = false
       this.continueDialog.source = null
+      this.continueDialog.payload = null
       this.continueDialog.open = false
     },
-    dialogPromise(source, sourceDescription) {
+    dialogPromise(source, sourceDescription, payload) {
       return new Promise((resolve, reject) => {
         if (
           !this.continueDialog.continue &&
@@ -328,12 +330,14 @@ export default {
         ) {
           this.continueDialog.source = source
           this.continueDialog.sourceDescription = sourceDescription
+          this.continueDialog.payload = payload
           this.continueDialog.open = true
           reject()
         } else {
           this.openOptions = false
           this.continueDialog.continue = false
           this.continueDialog.source = null
+          this.continueDialog.payload = null
           resolve()
         }
       })
