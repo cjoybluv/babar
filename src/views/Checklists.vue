@@ -232,96 +232,47 @@ export default {
       }
     },
     openChecklist(checklist) {
-      let selectedChecklist
       if (
         this.selectedChecklist.name &&
         !isEqual(this.selectedChecklist, this.originalChecklist)
       ) {
         this.dialogPromise(this.openChecklist, 'Open Checklist', checklist)
           .then(() => {
-            if (checklist.masterChecklist) {
-              let today = new Date(Date.now())
-              let nameDateTime =
-                today.getFullYear() +
-                '-' +
-                (today.getMonth() + 1) +
-                '-' +
-                today.getDate() +
-                ' ' +
-                today.getHours() +
-                ':' +
-                today.getMinutes() +
-                ':' +
-                today.getSeconds()
-              selectedChecklist = cloneDeep({
-                ...checklist,
-                masterChecklist: false,
-                tags: [...checklist.tags, 'Log'],
-                sourceMasterId: checklist._id,
-                name: nameDateTime + ' / ' + checklist.name
-              })
-              delete selectedChecklist._id
-            } else {
-              selectedChecklist = cloneDeep(checklist)
-            }
-            this.editChecklist(selectedChecklist)
+            this.editChecklist(this.constructSelected(checklist))
           })
           .catch(() => {})
       } else {
-        if (checklist.masterChecklist) {
-          let today = new Date(Date.now())
-          let nameDateTime =
-            today.getFullYear() +
-            '-' +
-            (today.getMonth() + 1) +
-            '-' +
-            today.getDate() +
-            ' ' +
-            today.getHours() +
-            ':' +
-            today.getMinutes() +
-            ':' +
-            today.getSeconds()
-          selectedChecklist = cloneDeep({
-            ...checklist,
-            masterChecklist: false,
-            tags: [...checklist.tags, 'Log'],
-            sourceMasterId: checklist._id,
-            name: nameDateTime + ' / ' + checklist.name
-          })
-          delete selectedChecklist._id
-        } else {
-          selectedChecklist = cloneDeep(checklist)
-        }
-        this.editChecklist(selectedChecklist)
+        this.editChecklist(this.constructSelected(checklist))
       }
-      // let selectedChecklist
-      // if (checklist.masterChecklist) {
-      //   let today = new Date(Date.now())
-      //   let nameDateTime =
-      //     today.getFullYear() +
-      //     '-' +
-      //     (today.getMonth() + 1) +
-      //     '-' +
-      //     today.getDate() +
-      //     ' ' +
-      //     today.getHours() +
-      //     ':' +
-      //     today.getMinutes() +
-      //     ':' +
-      //     today.getSeconds()
-      //   selectedChecklist = cloneDeep({
-      //     ...checklist,
-      //     masterChecklist: false,
-      //     tags: [...checklist.tags, 'Log'],
-      //     sourceMasterId: checklist._id,
-      //     name: nameDateTime + ' / ' + checklist.name
-      //   })
-      //   delete selectedChecklist._id
-      // } else {
-      //   selectedChecklist = cloneDeep(checklist)
-      // }
-      // this.editChecklist(selectedChecklist)
+    },
+    constructSelected(checklist) {
+      let selectedChecklist
+      if (checklist.masterChecklist) {
+        let today = new Date(Date.now())
+        let nameDateTime =
+          today.getFullYear() +
+          '-' +
+          (today.getMonth() + 1) +
+          '-' +
+          today.getDate() +
+          ' ' +
+          today.getHours() +
+          ':' +
+          today.getMinutes() +
+          ':' +
+          today.getSeconds()
+        selectedChecklist = cloneDeep({
+          ...checklist,
+          masterChecklist: false,
+          tags: [...checklist.tags, 'Log'],
+          sourceMasterId: checklist._id,
+          name: nameDateTime + ' / ' + checklist.name
+        })
+        delete selectedChecklist._id
+      } else {
+        selectedChecklist = cloneDeep(checklist)
+      }
+      return selectedChecklist
     },
     moveCarousel(position) {
       this.carousel.position = position
