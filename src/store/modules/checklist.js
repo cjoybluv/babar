@@ -1,4 +1,5 @@
 import Vue from 'vue'
+import cloneDeep from 'lodash/cloneDeep'
 import ChecklistService from '@/services/ChecklistService'
 import { createTreeViewArray } from '@/helpers/displayHelpers'
 
@@ -6,7 +7,8 @@ export const namespaced = true
 
 export const state = {
   checklists: [],
-  selectedChecklist: {}
+  selectedChecklist: {},
+  originalChecklist: {}
 }
 
 export const getters = {
@@ -48,6 +50,7 @@ export const mutations = {
   },
   SET_SELECTED_CHECKLIST(state, selectedChecklist) {
     state.selectedChecklist = selectedChecklist
+    state.originalChecklist = cloneDeep(selectedChecklist)
   },
   CLEAR_SELECTED_CHECKLIST(state) {
     state.selectedChecklist = {}
