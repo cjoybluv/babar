@@ -180,6 +180,7 @@
 
 <script>
 import isEqual from 'lodash/isEqual'
+import cloneDeep from 'lodash/cloneDeep'
 import uuidv4 from 'uuid/v4'
 import { mapActions, mapGetters } from 'vuex'
 import draggable from 'vuedraggable'
@@ -294,35 +295,20 @@ export default {
       }
     },
     clearHandler() {
-      if (
-        !this.continueDialog.continue &&
-        !isEqual(this.checklist, this.originalChecklist)
-      ) {
-        this.continueDialog.source = this.clearHandler
-        this.continueDialog.sourceDescription = 'Clear the Form'
-        this.continueDialog.open = true
-      } else {
-        this.openOptions = false
-        this.continueDialog.continue = false
-        this.continueDialog.source = null
-        this.$emit('move-carousel', 0)
-        this.clearForm()
-      }
+      this.dialogPromise(this.clearHandler, 'Clear the Form')
+        .then(() => {
+          this.$emit('move-carousel', 0)
+          this.clearForm()
+        })
+        .catch(() => {})
     },
     editMaster() {
-      if (
-        !this.continueDialog.continue &&
-        !isEqual(this.checklist, this.originalChecklist)
-      ) {
-        this.continueDialog.source = this.editMaster
-        this.continueDialog.sourceDescription = 'Edit Master Checklist'
-        this.continueDialog.open = true
-      } else {
-        this.openOptions = false
-        this.continueDialog.continue = false
-        this.continueDialog.source = null
-        this.edit(this.getChecklistById(this.checklist.sourceMasterId))
-      }
+      this.dialogPromise(this.editMaster, 'Edit Master Checklist')
+        .then(() => {
+          const checklist = this.getChecklistById(this.checklist.sourceMasterId)
+          this.edit(cloneDeep(checklist))
+        })
+        .catch(() => {})
     },
     dialogContinue() {
       this.continueDialog.continue = true
@@ -333,6 +319,24 @@ export default {
       this.continueDialog.continue = false
       this.continueDialog.source = null
       this.continueDialog.open = false
+    },
+    dialogPromise(source, sourceDescription) {
+      return new Promise((resolve, reject) => {
+        if (
+          !this.continueDialog.continue &&
+          !isEqual(this.checklist, this.originalChecklist)
+        ) {
+          this.continueDialog.source = source
+          this.continueDialog.sourceDescription = sourceDescription
+          this.continueDialog.open = true
+          reject()
+        } else {
+          this.openOptions = false
+          this.continueDialog.continue = false
+          this.continueDialog.source = null
+          resolve()
+        }
+      })
     },
     ...mapActions({
       save: 'checklist/save',

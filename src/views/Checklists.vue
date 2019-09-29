@@ -123,11 +123,34 @@
         </v-carousel-item>
       </v-carousel>
     </v-row>
+    <v-dialog v-model="continueDialog.open" width="500" persistent>
+      <v-card>
+        <v-card-title class="headline grey lighten-2" primary-title
+          >Continue?</v-card-title
+        >
+
+        <v-card-text>
+          There are unsaved changes on the form. Do you wish to abandon changes
+          and continue with
+          <strong>{{ continueDialog.sourceDescription }}</strong
+          >, or return to the form?
+        </v-card-text>
+
+        <v-divider></v-divider>
+
+        <v-card-actions>
+          <v-btn color="danger" @click="dialogContinue">Continue</v-btn>
+          <v-spacer></v-spacer>
+          <v-btn color="primary" @click="dialogReturn">Return to Form</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
 <script>
 import cloneDeep from 'lodash/cloneDeep'
+import isEqual from 'lodash/isEqual'
 import { mapGetters, mapActions } from 'vuex'
 
 import Checklist from '@/components/Checklist'
@@ -154,6 +177,13 @@ export default {
         width: 0,
         height: 0,
         heightReduction: 0
+      },
+      continueDialog: {
+        open: false,
+        continue: false,
+        source: null,
+        sourceDescription: '',
+        payload: null
       }
     }
   },
@@ -163,6 +193,9 @@ export default {
     },
     selectedChecklist() {
       return this.$store.state.checklist.selectedChecklist
+    },
+    originalChecklist() {
+      return this.$store.state.checklist.originalChecklist
     },
     selectedHeaderField() {
       return this.$store.state.treeView.selectedHeaderField
@@ -200,32 +233,95 @@ export default {
     },
     openChecklist(checklist) {
       let selectedChecklist
-      if (checklist.masterChecklist) {
-        let today = new Date(Date.now())
-        let nameDateTime =
-          today.getFullYear() +
-          '-' +
-          (today.getMonth() + 1) +
-          '-' +
-          today.getDate() +
-          ' ' +
-          today.getHours() +
-          ':' +
-          today.getMinutes() +
-          ':' +
-          today.getSeconds()
-        selectedChecklist = cloneDeep({
-          ...checklist,
-          masterChecklist: false,
-          tags: [...checklist.tags, 'Log'],
-          sourceMasterId: checklist._id,
-          name: nameDateTime + ' / ' + checklist.name
-        })
-        delete selectedChecklist._id
+      if (
+        this.selectedChecklist.name &&
+        !isEqual(this.selectedChecklist, this.originalChecklist)
+      ) {
+        this.dialogPromise(this.openChecklist, 'Open Checklist', checklist)
+          .then(() => {
+            if (checklist.masterChecklist) {
+              let today = new Date(Date.now())
+              let nameDateTime =
+                today.getFullYear() +
+                '-' +
+                (today.getMonth() + 1) +
+                '-' +
+                today.getDate() +
+                ' ' +
+                today.getHours() +
+                ':' +
+                today.getMinutes() +
+                ':' +
+                today.getSeconds()
+              selectedChecklist = cloneDeep({
+                ...checklist,
+                masterChecklist: false,
+                tags: [...checklist.tags, 'Log'],
+                sourceMasterId: checklist._id,
+                name: nameDateTime + ' / ' + checklist.name
+              })
+              delete selectedChecklist._id
+            } else {
+              selectedChecklist = cloneDeep(checklist)
+            }
+            this.editChecklist(selectedChecklist)
+          })
+          .catch(() => {})
       } else {
-        selectedChecklist = cloneDeep(checklist)
+        if (checklist.masterChecklist) {
+          let today = new Date(Date.now())
+          let nameDateTime =
+            today.getFullYear() +
+            '-' +
+            (today.getMonth() + 1) +
+            '-' +
+            today.getDate() +
+            ' ' +
+            today.getHours() +
+            ':' +
+            today.getMinutes() +
+            ':' +
+            today.getSeconds()
+          selectedChecklist = cloneDeep({
+            ...checklist,
+            masterChecklist: false,
+            tags: [...checklist.tags, 'Log'],
+            sourceMasterId: checklist._id,
+            name: nameDateTime + ' / ' + checklist.name
+          })
+          delete selectedChecklist._id
+        } else {
+          selectedChecklist = cloneDeep(checklist)
+        }
+        this.editChecklist(selectedChecklist)
       }
-      this.editChecklist(selectedChecklist)
+      // let selectedChecklist
+      // if (checklist.masterChecklist) {
+      //   let today = new Date(Date.now())
+      //   let nameDateTime =
+      //     today.getFullYear() +
+      //     '-' +
+      //     (today.getMonth() + 1) +
+      //     '-' +
+      //     today.getDate() +
+      //     ' ' +
+      //     today.getHours() +
+      //     ':' +
+      //     today.getMinutes() +
+      //     ':' +
+      //     today.getSeconds()
+      //   selectedChecklist = cloneDeep({
+      //     ...checklist,
+      //     masterChecklist: false,
+      //     tags: [...checklist.tags, 'Log'],
+      //     sourceMasterId: checklist._id,
+      //     name: nameDateTime + ' / ' + checklist.name
+      //   })
+      //   delete selectedChecklist._id
+      // } else {
+      //   selectedChecklist = cloneDeep(checklist)
+      // }
+      // this.editChecklist(selectedChecklist)
     },
     moveCarousel(position) {
       this.carousel.position = position
@@ -233,6 +329,37 @@ export default {
     handleResize() {
       this.window.width = window.innerWidth
       this.window.height = window.innerHeight
+    },
+    dialogContinue() {
+      this.continueDialog.continue = true
+      this.continueDialog.open = false
+      this.continueDialog.source(this.continueDialog.payload)
+    },
+    dialogReturn() {
+      this.continueDialog.continue = false
+      this.continueDialog.source = null
+      this.continueDialog.payload = null
+      this.continueDialog.open = false
+    },
+    dialogPromise(source, sourceDescription, payload) {
+      return new Promise((resolve, reject) => {
+        if (
+          !this.continueDialog.continue &&
+          !isEqual(this.checklist, this.originalChecklist)
+        ) {
+          this.continueDialog.source = source
+          this.continueDialog.sourceDescription = sourceDescription
+          this.continueDialog.payload = payload
+          this.continueDialog.open = true
+          reject()
+        } else {
+          this.openOptions = false
+          this.continueDialog.continue = false
+          this.continueDialog.source = null
+          this.continueDialog.payload = null
+          resolve()
+        }
+      })
     },
     ...mapActions({
       updatedUser: 'auth/updateUser',
