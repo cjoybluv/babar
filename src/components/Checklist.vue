@@ -179,12 +179,14 @@
 </template>
 
 <script>
-import isEqual from 'lodash/isEqual'
+// import isEqual from 'lodash/isEqual'
+import cloneDeep from 'lodash/cloneDeep'
 import uuidv4 from 'uuid/v4'
 import { mapActions, mapGetters } from 'vuex'
 import draggable from 'vuedraggable'
 import { maxLength, minLength, required } from 'vuelidate/lib/validators'
 import ChecklistItem from '@/components/ChecklistItem'
+import { continueDialogMixin } from '@/mixins/continueDialog'
 
 export default {
   name: 'Checklist',
@@ -192,6 +194,7 @@ export default {
     ChecklistItem,
     draggable
   },
+  mixins: [continueDialogMixin],
   computed: {
     checklist() {
       return this.$store.state.checklist.selectedChecklist
@@ -212,13 +215,7 @@ export default {
     return {
       newItemSubject: '',
       dragging: false,
-      openOptions: false,
-      continueDialog: {
-        open: false,
-        continue: false,
-        source: null,
-        sourceDescription: ''
-      }
+      openOptions: false
     }
   },
   validations: {
@@ -294,45 +291,20 @@ export default {
       }
     },
     clearHandler() {
-      if (
-        !this.continueDialog.continue &&
-        !isEqual(this.checklist, this.originalChecklist)
-      ) {
-        this.continueDialog.source = this.clearHandler
-        this.continueDialog.sourceDescription = 'Clear the Form'
-        this.continueDialog.open = true
-      } else {
-        this.openOptions = false
-        this.continueDialog.continue = false
-        this.continueDialog.source = null
-        this.$emit('move-carousel', 0)
-        this.clearForm()
-      }
+      this.dialogPromise(this.clearHandler, 'Clear the Form', null)
+        .then(() => {
+          this.$emit('move-carousel', 0)
+          this.clearForm()
+        })
+        .catch(() => {})
     },
     editMaster() {
-      if (
-        !this.continueDialog.continue &&
-        !isEqual(this.checklist, this.originalChecklist)
-      ) {
-        this.continueDialog.source = this.editMaster
-        this.continueDialog.sourceDescription = 'Edit Master Checklist'
-        this.continueDialog.open = true
-      } else {
-        this.openOptions = false
-        this.continueDialog.continue = false
-        this.continueDialog.source = null
-        this.edit(this.getChecklistById(this.checklist.sourceMasterId))
-      }
-    },
-    dialogContinue() {
-      this.continueDialog.continue = true
-      this.continueDialog.open = false
-      this.continueDialog.source()
-    },
-    dialogReturn() {
-      this.continueDialog.continue = false
-      this.continueDialog.source = null
-      this.continueDialog.open = false
+      this.dialogPromise(this.editMaster, 'Edit Master Checklist', null)
+        .then(() => {
+          const checklist = this.getChecklistById(this.checklist.sourceMasterId)
+          this.edit(cloneDeep(checklist))
+        })
+        .catch(() => {})
     },
     ...mapActions({
       save: 'checklist/save',

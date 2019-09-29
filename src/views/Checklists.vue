@@ -123,20 +123,45 @@
         </v-carousel-item>
       </v-carousel>
     </v-row>
+    <v-dialog v-model="continueDialog.open" width="500" persistent>
+      <v-card>
+        <v-card-title class="headline grey lighten-2" primary-title
+          >Continue?</v-card-title
+        >
+
+        <v-card-text>
+          There are unsaved changes on the form. Do you wish to abandon changes
+          and continue with
+          <strong>{{ continueDialog.sourceDescription }}</strong
+          >, or return to the form?
+        </v-card-text>
+
+        <v-divider></v-divider>
+
+        <v-card-actions>
+          <v-btn color="danger" @click="dialogContinue">Continue</v-btn>
+          <v-spacer></v-spacer>
+          <v-btn color="primary" @click="dialogReturn">Return to Form</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
 <script>
 import cloneDeep from 'lodash/cloneDeep'
+import isEqual from 'lodash/isEqual'
 import { mapGetters, mapActions } from 'vuex'
 
 import Checklist from '@/components/Checklist'
+import { continueDialogMixin } from '@/mixins/continueDialog'
 
 export default {
   name: 'checklists',
   components: {
     Checklist
   },
+  mixins: [continueDialogMixin],
   data() {
     return {
       treeView: {
@@ -163,6 +188,9 @@ export default {
     },
     selectedChecklist() {
       return this.$store.state.checklist.selectedChecklist
+    },
+    originalChecklist() {
+      return this.$store.state.checklist.originalChecklist
     },
     selectedHeaderField() {
       return this.$store.state.treeView.selectedHeaderField
@@ -199,6 +227,20 @@ export default {
       }
     },
     openChecklist(checklist) {
+      if (
+        this.selectedChecklist.name &&
+        !isEqual(this.selectedChecklist, this.originalChecklist)
+      ) {
+        this.dialogPromise(this.openChecklist, 'Open Checklist', checklist)
+          .then(() => {
+            this.editChecklist(this.constructSelected(checklist))
+          })
+          .catch(() => {})
+      } else {
+        this.editChecklist(this.constructSelected(checklist))
+      }
+    },
+    constructSelected(checklist) {
       let selectedChecklist
       if (checklist.masterChecklist) {
         let today = new Date(Date.now())
@@ -225,7 +267,7 @@ export default {
       } else {
         selectedChecklist = cloneDeep(checklist)
       }
-      this.editChecklist(selectedChecklist)
+      return selectedChecklist
     },
     moveCarousel(position) {
       this.carousel.position = position
