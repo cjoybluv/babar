@@ -18,11 +18,26 @@ const router = new Router({
       meta: { requiresAuth: false }
     },
     {
-      path: '/items',
+      path: '/items/:ownerId',
       name: 'items',
       meta: { requiresAuth: true },
       component: () =>
-        import(/* webpackChunkName: "items" */ '@/views/ItemsDisplay.vue')
+        import(/* webpackChunkName: "items" */ '@/views/ItemsDisplay.vue'),
+      beforeEnter(routeTo, routeFrom, next) {
+        store
+          .dispatch('checklist/fetchAll', routeTo.params.ownerId)
+          .then(checklists => {
+            routeTo.params.checklists = checklists
+            next()
+          })
+          .catch(error => {
+            if (error.response && error.response.status == 404) {
+              next({ name: '404', params: { resource: 'checklist' } })
+            } else {
+              next({ name: 'network-issue' })
+            }
+          })
+      }
     },
     {
       path: '/about',
