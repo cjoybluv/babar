@@ -1,9 +1,9 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import store from './store/store'
-import Home from './views/Home.vue'
-import NotFound from './views/NotFound.vue'
-import NetworkIssue from './views/NetworkIssue.vue'
+import store from '@/store/store'
+import Home from '@/views/Home.vue'
+import NotFound from '@/views/NotFound.vue'
+import NetworkIssue from '@/views/NetworkIssue.vue'
 
 Vue.use(Router)
 
@@ -18,6 +18,13 @@ const router = new Router({
       meta: { requiresAuth: false }
     },
     {
+      path: '/items',
+      name: 'items',
+      meta: { requiresAuth: true },
+      component: () =>
+        import(/* webpackChunkName: "items" */ '@/views/ItemsDisplay.vue')
+    },
+    {
       path: '/about',
       name: 'about',
       meta: { requiresAuth: false },
@@ -25,26 +32,29 @@ const router = new Router({
       // this generates a separate chunk (about.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
       component: () =>
-        import(/* webpackChunkName: "about" */ './views/About.vue')
+        import(/* webpackChunkName: "about" */ '@/views/About.vue')
     },
     {
       path: '/login',
       name: 'login',
       meta: { requiresAuth: false },
-      component: () => import('./views/Login.vue')
+      component: () =>
+        import(/* webpackChunkName: "login" */ '@/views/Login.vue')
     },
     {
       path: '/register',
       name: 'register',
       props: true,
       meta: { requiresAuth: false },
-      component: () => import('./views/Register.vue')
+      component: () =>
+        import(/* webpackChunkName: "regiister" */ '@/views/Register.vue')
     },
     {
       path: '/dashboard',
       name: 'dashboard',
       meta: { requiresAuth: true },
-      component: () => import('./views/Dashboard.vue')
+      component: () =>
+        import(/* webpackChunkName: "dashboard" */ '@/views/Dashboard.vue')
     },
     {
       path: '/checklists',
@@ -64,7 +74,8 @@ const router = new Router({
       path: '/checklists/:ownerId',
       name: 'checklists',
       meta: { requiresAuth: true },
-      component: () => import('./views/Checklists.vue'),
+      component: () =>
+        import(/* webpackChunkName: "checklists" */ '@/views/Checklists.vue'),
       beforeEnter(routeTo, routeFrom, next) {
         store
           .dispatch('checklist/fetchAll', routeTo.params.ownerId)
