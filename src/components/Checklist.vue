@@ -138,6 +138,7 @@
               :key="item.key"
               :item="item"
               :locked="locked"
+              :class="colorClass(item)"
               @embed-checklist="embedChecklist(item, index)"
               @open-connection="openConnection"
               @delete-item="deleteItem(index)"
@@ -181,7 +182,7 @@
 </template>
 
 <script>
-// import isEqual from 'lodash/isEqual'
+import isEqual from 'lodash/isEqual'
 import cloneDeep from 'lodash/cloneDeep'
 import uuidv4 from 'uuid/v4'
 import { mapActions, mapGetters } from 'vuex'
@@ -221,7 +222,17 @@ export default {
     return {
       newItemSubject: '',
       dragging: false,
-      openOptions: false
+      openOptions: false,
+      panelClasses: [
+        '',
+        'primary lighten-1',
+        'primary lighten-2',
+        'primary darken-1',
+        'primary darken-2',
+        'primary darken-3',
+        'primary darken-4'
+      ],
+      openItem: {}
     }
   },
   validations: {
@@ -286,11 +297,17 @@ export default {
         this.saveHandler(false)
       })
     },
-    openConnection(connection) {
+    openConnection(payload) {
+      this.openItem = payload.item
       this.$emit('open-connection', {
-        connection,
+        connection: payload.connection,
         index: this.displayIndex + 1
       })
+    },
+    colorClass(item) {
+      return isEqual(item, this.openItem)
+        ? this.panelClasses[this.displayIndex + 1]
+        : ''
     },
     deleteItem(index) {
       this.checklist.items.splice(index, 1)

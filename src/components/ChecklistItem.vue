@@ -89,7 +89,8 @@ export default {
   props: ['item', 'locked'],
   data() {
     return {
-      hover: true
+      hover: true,
+      connectionOpened: false
     }
   },
   validations: {
@@ -105,7 +106,8 @@ export default {
       this.$emit('delete-item', this.item)
     },
     openConnection(connection) {
-      this.$emit('open-connection', connection)
+      this.connectionOpened = true
+      this.$emit('open-connection', { item: this.item, connection })
     }
   }
 }

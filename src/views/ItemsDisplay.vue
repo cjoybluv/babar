@@ -1,7 +1,13 @@
 <template>
   <div>
-    <v-row no-gutters class="d-none d-sm-flex">
-      <v-col cols="12" md="4" v-for="(panel, index) in panels" :key="index">
+    <v-row no-gutters class="d-none d-sm-flex mr-2">
+      <v-col
+        cols="12"
+        md="4"
+        v-for="(panel, index) in panels"
+        :key="index"
+        v-show="panels.length - index < 4"
+      >
         <v-sheet
           tile
           :min-height="window.height - window.heightReduction"
