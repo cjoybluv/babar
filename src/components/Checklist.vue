@@ -27,19 +27,29 @@
                 dark
                 :disabled="!checklist.name"
                 class="pt-2 float-right"
-              >mdi-dots-vertical</v-icon>
+                >mdi-dots-vertical</v-icon
+              >
             </template>
             <v-list dark color="#1565C0">
               <v-list-item @click="clearHandler">
                 <v-list-item-title dark>Clear the Form</v-list-item-title>
               </v-list-item>
-              <v-list-item @click="openOptions = true" v-show="!openOptions && !locked">
+              <v-list-item
+                @click="openOptions = true"
+                v-show="!openOptions && !locked"
+              >
                 <v-list-item-title dark>Open Options</v-list-item-title>
               </v-list-item>
-              <v-list-item @click="openOptions = false" v-show="openOptions && !locked">
+              <v-list-item
+                @click="openOptions = false"
+                v-show="openOptions && !locked"
+              >
                 <v-list-item-title dark>Close Options</v-list-item-title>
               </v-list-item>
-              <v-list-item @click="editMaster" v-show="checklist.sourceMasterId">
+              <v-list-item
+                @click="editMaster"
+                v-show="checklist.sourceMasterId"
+              >
                 <v-list-item-title>Edit Master Checklist</v-list-item-title>
               </v-list-item>
             </v-list>
@@ -56,7 +66,9 @@
           </v-btn>
         </v-col>
       </v-row>
-      <v-row v-show="checklist.name && !checklist.sourceMasterId && openOptions">
+      <v-row
+        v-show="checklist.name && !checklist.sourceMasterId && openOptions"
+      >
         <v-col cols="12" md="6" class="pt-0 pb-0">
           <v-checkbox
             dark
@@ -144,12 +156,15 @@
     </div>
     <v-dialog v-model="continueDialog.open" width="500" persistent>
       <v-card>
-        <v-card-title class="headline grey lighten-2" primary-title>Continue?</v-card-title>
+        <v-card-title class="headline grey lighten-2" primary-title
+          >Continue?</v-card-title
+        >
 
         <v-card-text>
           There are unsaved changes on the form. Do you wish to abandon changes
           and continue with
-          <strong>{{ continueDialog.sourceDescription }}</strong>, or return to the form?
+          <strong>{{ continueDialog.sourceDescription }}</strong
+          >, or return to the form?
         </v-card-text>
 
         <v-divider></v-divider>
@@ -284,7 +299,6 @@ export default {
       return true
     },
     saveHandler(clear) {
-      console.log('saveHandler', clear, this.checklist, this.displayIndex)
       this.openOptions = false
       if (!this.$v.$invalid) {
         const newChecklist = { ...this.checklist }
