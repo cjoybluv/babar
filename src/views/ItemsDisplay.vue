@@ -19,6 +19,7 @@
             @open-checklist="openChecklist"
             @clear-form="clearForm(index)"
             @edit-master="editMaster"
+            @open-connection="openConnection"
           />
         </v-sheet>
       </v-col>
@@ -266,6 +267,18 @@ export default {
         payload: {
           checklist: payload.checklist,
           originalChecklist: cloneDeep(payload.checklist),
+          index: payload.index
+        }
+      })
+    },
+    openConnection(payload) {
+      const checklist = this.getChecklistById(payload.connection.resourceId)
+      Vue.set(this.panels, payload.index, {
+        label: 'Checklist Form',
+        activeComponent: 'Checklist',
+        payload: {
+          checklist,
+          originalChecklist: cloneDeep(checklist),
           index: payload.index
         }
       })

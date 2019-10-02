@@ -139,6 +139,7 @@
               :item="item"
               :locked="locked"
               @embed-checklist="embedChecklist(item, index)"
+              @open-connection="openConnection"
               @delete-item="deleteItem(index)"
             />
           </draggable>
@@ -261,15 +262,17 @@ export default {
       this.newItemSubject = null
     },
     embedChecklist(item, index) {
+      // create & save embed checklist
       this.save({
         name: this.checklist.name + '-embed-' + index,
         ownerId: this.checklist.ownerId,
         tags: this.checklist.tags
           ? !this.checklist.tags.find(tag => tag === 'embed')
             ? this.checklist.tags.push('embed')
-            : null
+            : []
           : ['embed']
       }).then(embedChecklist => {
+        // connect it to item
         !item.connections ? (item.connections = []) : true
         item.connections.push({
           resource: 'checklist',
@@ -277,9 +280,16 @@ export default {
         })
         this.$emit('open-checklist', {
           checklist: embedChecklist,
-          index: this.displayIndex
+          index: this.displayIndex + 1
         })
+        // save this.checklist without exit
         this.saveHandler(false)
+      })
+    },
+    openConnection(connection) {
+      this.$emit('open-connection', {
+        connection,
+        index: this.displayIndex + 1
       })
     },
     deleteItem(index) {

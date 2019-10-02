@@ -9,7 +9,7 @@
         hover = true
         $v.item.subject.$touch()
       "
-      @mouseleave="hover = false"
+      @mouseleave="hover = true"
     >
       <v-row class="ml-2 ml-sm-0">
         <v-col cols="11" class="pa-0">
@@ -36,21 +36,45 @@
           />
         </v-col>
         <v-col class="pa-0" v-show="hover && !locked">
-          <v-menu class="primray lighten-2">
-            <template v-slot:activator="{ on }">
-              <v-icon dense v-on="on" dark class="pt-2"
-                >mdi-dots-vertical</v-icon
-              >
-            </template>
-            <v-list dark color="#1565C0">
-              <v-list-item @click="embedChecklist">
-                <v-list-item-title dark>Embed New Checklist</v-list-item-title>
-              </v-list-item>
-              <v-list-item @click="deleteItem">
-                <v-list-item-title dark>Delete Item</v-list-item-title>
-              </v-list-item>
-            </v-list>
-          </v-menu>
+          <v-row>
+            <v-menu class="primray lighten-2">
+              <template v-slot:activator="{ on }">
+                <v-icon dense v-on="on" dark class="pt-3 pl-2"
+                  >mdi-dots-vertical</v-icon
+                >
+              </template>
+              <v-list dark color="#1565C0">
+                <v-list-item @click="embedChecklist">
+                  <v-list-item-title dark
+                    >Embed New Checklist</v-list-item-title
+                  >
+                </v-list-item>
+                <v-list-item @click="deleteItem">
+                  <v-list-item-title dark>Delete Item</v-list-item-title>
+                </v-list-item>
+              </v-list>
+            </v-menu>
+          </v-row>
+          <v-row v-if="item.connections && item.connections.length">
+            <v-menu class="primray lighten-2">
+              <template v-slot:activator="{ on }">
+                <v-icon dense v-on="on" dark class="pt-3 pl-2"
+                  >mdi-vector-link</v-icon
+                >
+              </template>
+              <v-list dark color="#1565C0">
+                <v-list-item
+                  v-for="connection in item.connections"
+                  :key="connection.resourceId"
+                >
+                  <v-list-item-title dark @click="openConnection(connection)">
+                    {{ connection.resource }}:
+                    {{ connection.resourceId }}
+                  </v-list-item-title>
+                </v-list-item>
+              </v-list>
+            </v-menu>
+          </v-row>
         </v-col>
       </v-row>
     </v-col>
@@ -79,6 +103,9 @@ export default {
     },
     deleteItem() {
       this.$emit('delete-item', this.item)
+    },
+    openConnection(connection) {
+      this.$emit('open-connection', connection)
     }
   }
 }
@@ -98,6 +125,7 @@ export default {
     background-color: #1e88e5;
   }
   & .mdi-cursor-move,
+  .mdi-vector-link,
   .mdi-dots-vertical {
     font-size: 1rem !important;
   }
