@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-form @submit.prevent="saveHandler" class="pl-3">
+    <v-form @submit.prevent="saveHandler(true)" class="pl-3">
       <v-row>
         <v-col class="pb-0">
           <v-text-field
@@ -27,29 +27,19 @@
                 dark
                 :disabled="!checklist.name"
                 class="pt-2 float-right"
-                >mdi-dots-vertical</v-icon
-              >
+              >mdi-dots-vertical</v-icon>
             </template>
             <v-list dark color="#1565C0">
               <v-list-item @click="clearHandler">
                 <v-list-item-title dark>Clear the Form</v-list-item-title>
               </v-list-item>
-              <v-list-item
-                @click="openOptions = true"
-                v-show="!openOptions && !locked"
-              >
+              <v-list-item @click="openOptions = true" v-show="!openOptions && !locked">
                 <v-list-item-title dark>Open Options</v-list-item-title>
               </v-list-item>
-              <v-list-item
-                @click="openOptions = false"
-                v-show="openOptions && !locked"
-              >
+              <v-list-item @click="openOptions = false" v-show="openOptions && !locked">
                 <v-list-item-title dark>Close Options</v-list-item-title>
               </v-list-item>
-              <v-list-item
-                @click="editMaster"
-                v-show="checklist.sourceMasterId"
-              >
+              <v-list-item @click="editMaster" v-show="checklist.sourceMasterId">
                 <v-list-item-title>Edit Master Checklist</v-list-item-title>
               </v-list-item>
             </v-list>
@@ -66,9 +56,7 @@
           </v-btn>
         </v-col>
       </v-row>
-      <v-row
-        v-show="checklist.name && !checklist.sourceMasterId && openOptions"
-      >
+      <v-row v-show="checklist.name && !checklist.sourceMasterId && openOptions">
         <v-col cols="12" md="6" class="pt-0 pb-0">
           <v-checkbox
             dark
@@ -116,7 +104,7 @@
             :class="{ inputError: $v.newItemSubject.$error }"
             :error-messages="
               $v.newItemSubject.$error
-                ? 'Subject must be between 4 and 244 characters.'
+                ? 'Subject must be between 3 and 244 characters.'
                 : ''
             "
             @keydown="$v.newItemSubject.$touch()"
@@ -134,11 +122,12 @@
             @end="dragging = false"
           >
             <ChecklistItem
-              v-for="item in checklist.items"
+              v-for="(item, index) in checklist.items"
               :key="item.key"
               :item="item"
               :locked="locked"
-              @delete-item="deleteItem"
+              @embed-checklist="embedChecklist(item, index)"
+              @delete-item="deleteItem(index)"
             />
           </draggable>
         </v-col>
@@ -155,15 +144,12 @@
     </div>
     <v-dialog v-model="continueDialog.open" width="500" persistent>
       <v-card>
-        <v-card-title class="headline grey lighten-2" primary-title
-          >Continue?</v-card-title
-        >
+        <v-card-title class="headline grey lighten-2" primary-title>Continue?</v-card-title>
 
         <v-card-text>
           There are unsaved changes on the form. Do you wish to abandon changes
           and continue with
-          <strong>{{ continueDialog.sourceDescription }}</strong
-          >, or return to the form?
+          <strong>{{ continueDialog.sourceDescription }}</strong>, or return to the form?
         </v-card-text>
 
         <v-divider></v-divider>
@@ -190,6 +176,7 @@ import { continueDialogMixin } from '@/mixins/continueDialog'
 
 export default {
   name: 'Checklist',
+  props: ['payload'],
   components: {
     ChecklistItem,
     draggable
@@ -197,10 +184,13 @@ export default {
   mixins: [continueDialogMixin],
   computed: {
     checklist() {
-      return this.$store.state.checklist.selectedChecklist
+      return this.payload.checklist
     },
     originalChecklist() {
-      return this.$store.state.checklist.originalChecklist
+      return this.payload.originalChecklist
+    },
+    displayIndex() {
+      return this.payload.index
     },
     locked() {
       return this.checklist.masterLocked && this.checklist.sourceMasterId
@@ -225,13 +215,13 @@ export default {
         $each: {
           subject: {
             required,
-            minLength: minLength(4),
+            minLength: minLength(3),
             maxLength: maxLength(244)
           }
         }
       }
     },
-    newItemSubject: { minLength: minLength(4), maxLength: maxLength(244) }
+    newItemSubject: { minLength: minLength(3), maxLength: maxLength(244) }
   },
   methods: {
     addItem() {
@@ -255,11 +245,30 @@ export default {
       }
       this.newItemSubject = null
     },
-    deleteItem(itemToDelete) {
-      const idx = this.checklist.items.findIndex(
-        item => item.key === itemToDelete.key
-      )
-      this.checklist.items.splice(idx, 1)
+    embedChecklist(item, index) {
+      this.save({
+        name: this.checklist.name + '-embed-' + index,
+        ownerId: this.checklist.ownerId,
+        tags: this.checklist.tags
+          ? !this.checklist.tags.find(tag => tag === 'embed')
+            ? this.checklist.tags.push('embed')
+            : null
+          : ['embed']
+      }).then(embedChecklist => {
+        !item.connections ? (item.connections = []) : true
+        item.connections.push({
+          resource: 'checklist',
+          resourceId: embedChecklist._id
+        })
+        this.$emit('open-checklist', {
+          checklist: embedChecklist,
+          index: this.displayIndex
+        })
+        this.saveHandler(false)
+      })
+    },
+    deleteItem(index) {
+      this.checklist.items.splice(index, 1)
     },
     tagIConv(v) {
       if (!v.length || !this.userTags.length) return false
@@ -274,13 +283,15 @@ export default {
       })
       return true
     },
-    saveHandler() {
+    saveHandler(clear) {
+      console.log('saveHandler', clear, this.checklist, this.displayIndex)
       this.openOptions = false
       if (!this.$v.$invalid) {
         const newChecklist = { ...this.checklist }
         if (!this.checklist.ownerId) newChecklist.ownerId = this.ownerId
         this.$emit('move-carousel', 0)
         this.save(this.checklist)
+        if (clear) this.clearForm(this.displayIndex)
         this.$v.$reset()
       } else {
         const notification = {
@@ -294,7 +305,7 @@ export default {
       this.dialogPromise(this.clearHandler, 'Clear the Form', null)
         .then(() => {
           this.$emit('move-carousel', 0)
-          this.clearForm()
+          this.clearForm(this.displayIndex)
         })
         .catch(() => {})
     },
@@ -302,14 +313,20 @@ export default {
       this.dialogPromise(this.editMaster, 'Edit Master Checklist', null)
         .then(() => {
           const checklist = this.getChecklistById(this.checklist.sourceMasterId)
-          this.edit(cloneDeep(checklist))
+          this.setSelected({
+            checklist: cloneDeep(checklist),
+            index: this.displayIndex
+          })
+          this.$emit('edit-master', { checklist, index: this.displayIndex })
         })
         .catch(() => {})
     },
+    clearForm() {
+      this.$emit('clear-form')
+    },
     ...mapActions({
       save: 'checklist/save',
-      clearForm: 'checklist/clearForm',
-      edit: 'checklist/edit',
+      setSelected: 'checklist/setSelected',
       notify: 'notification/add'
     })
   }

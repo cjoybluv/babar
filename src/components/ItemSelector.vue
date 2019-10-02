@@ -1,5 +1,6 @@
 <template>
   <div>
+    <v-spacer></v-spacer>
     <v-select
       :items="treeView.selectOptions"
       label="Select Header Field"
@@ -74,5 +75,12 @@ export default {
   &:hover {
     background-color: #0d47a1;
   }
+}
+.v-sheet > .spacer {
+  height: 0.75rem;
+}
+.v-sheet .v-select {
+  margin-top: 0;
+  padding: 1rem 0 0 1rem;
 }
 </style>

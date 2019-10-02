@@ -1,57 +1,25 @@
 <template>
   <div>
     <v-row no-gutters class="d-none d-sm-flex">
-      <v-col cols="12" sm="5" md="4" v-show="panels.length < 4">
-        <v-sheet
-          tile
-          :min-height="window.height - window.heightReduction"
-          class="primary"
-          v-if="checklists.length"
-        >
-          <v-spacer></v-spacer>
-
-          <ItemSelector :payload="panels[0].payload" />
-        </v-sheet>
-        <v-sheet
-          tile
-          :min-height="window.height - window.heightReduction"
-          class="primary"
-          v-if="!checklists.length"
-        >
-          <h1 class="headline white--text">Welcome to Checklists</h1>
-          <v-spacer></v-spacer>
-          <p class="body-2 white--text">
-            After you have saved checklists, they will be displayed in this
-            panel.
-          </p>
-          <p class="body-2 white--text">
-            Use the panel to the right to create a checklist.
-          </p>
-        </v-sheet>
-      </v-col>
-      <v-col cols="12" sm="7" md="4" v-show="panels.length < 5">
-        <v-sheet
-          tile
-          class="primary lighten-1"
-          :min-height="window.height - window.heightReduction"
-        >
-          <Checklist />
-        </v-sheet>
-      </v-col>
-      <v-col
-        cols="12"
-        md="4"
-        v-for="(panel, index) in panels"
-        :key="index"
-        v-show="panels.length - 2 > index"
-      >
+      <v-col cols="12" md="4" v-for="(panel, index) in panels" :key="index">
         <v-sheet
           tile
           :min-height="window.height - window.heightReduction"
           class="primary"
           :class="panelClasses[index]"
         >
-          <h1>panel index {{ index }}</h1>
+          <ItemSelector
+            :payload="panels[index].payload"
+            v-if="showMe('ItemSelector', index)"
+          />
+
+          <Checklist
+            :payload="panels[index].payload"
+            v-if="showMe('Checklist', index)"
+            @open-checklist="openChecklist"
+            @clear-form="clearForm(index)"
+            @edit-master="editMaster"
+          />
         </v-sheet>
       </v-col>
     </v-row>
@@ -85,7 +53,7 @@
             class="primary lighten-1 pa-2"
             :min-height="window.height - window.heightReduction"
           >
-            <Checklist />
+            <!-- <Checklist /> -->
           </v-sheet>
         </v-carousel-item>
         <v-carousel-item v-for="(panel, index) in panels" :key="index">
@@ -124,9 +92,10 @@
 </template>
 
 <script>
+import Vue from 'vue'
 import cloneDeep from 'lodash/cloneDeep'
 import isEqual from 'lodash/isEqual'
-import { mapActions } from 'vuex'
+import { mapActions, mapGetters } from 'vuex'
 
 import ItemSelector from '@/components/ItemSelector'
 import Checklist from '@/components/Checklist'
@@ -146,14 +115,11 @@ export default {
           label: 'Item Selector',
           activeComponent: 'ItemSelector',
           payload: { items: this.checklists, clickHandler: this.clickHandler }
-        },
-        {
-          label: '',
-          activeComponent: '',
-          payload: {}
         }
       ],
       panelClasses: [
+        '',
+        'lighten-1',
         'lighten-2',
         'darken-1',
         'darken-2',
@@ -174,18 +140,18 @@ export default {
     checklists() {
       return this.$store.state.checklist.checklists
     },
-    selectedChecklist() {
-      return this.$store.state.checklist.selectedChecklist
-    },
-    originalChecklist() {
-      return this.$store.state.checklist.originalChecklist
+    inEdit() {
+      return this.$store.state.checklist.inEdit
     },
     selectedHeaderField() {
       return this.$store.state.treeView.selectedHeaderField
     },
     treeViewItemMap() {
       return this.$store.state.treeView.itemMap
-    }
+    },
+    ...mapGetters({
+      getChecklistById: 'checklist/getChecklistById'
+    })
   },
   methods: {
     showMe(component, index) {
@@ -200,28 +166,35 @@ export default {
           )
           this.lastItemOpened = checklist
           this.carousel.position = 1
-          this.openChecklist(checklist)
+          this.openChecklist({ checklist, index: 0 })
         }
       } else {
         const checklist = this.checklists.find(
           checklist => checklist._id === this.lastItemOpened._id
         )
         this.carousel.position = 1
-        this.openChecklist(checklist)
+        this.openChecklist({ checklist, index: 0 })
       }
     },
-    openChecklist(checklist) {
+    openChecklist(payload) {
+      const checklist = payload.checklist
+      const index = payload.index
       if (
-        this.selectedChecklist.name &&
-        !isEqual(this.selectedChecklist, this.originalChecklist)
+        this.inEdit.length > index + 1 &&
+        this.inEdit[index + 1].selectedChecklist &&
+        this.inEdit[index + 1].selectedChecklist.name &&
+        !isEqual(
+          this.inEdit[index + 1].selectedChecklist,
+          this.inEdit[index + 1].originalChecklist
+        )
       ) {
         this.dialogPromise(this.openChecklist, 'Open Checklist', checklist)
           .then(() => {
-            this.editChecklist(this.constructSelected(checklist))
+            this.editChecklist(this.constructSelected(checklist), index + 1)
           })
           .catch(() => {})
       } else {
-        this.editChecklist(this.constructSelected(checklist))
+        this.editChecklist(this.constructSelected(checklist), index + 1)
       }
     },
     constructSelected(checklist) {
@@ -253,32 +226,50 @@ export default {
       }
       return selectedChecklist
     },
-    addPanel() {
-      this.panels.push({
-        label: 'expPanel: ' + this.panels.length,
-        activeComponent: this.panels.length % 2 ? 'NotFound' : 'About',
-        payload:
-          this.panels.length % 2 ? 'pane[' + this.panels.length + ']' : ''
-      })
-      this.carousel.position++
-    },
-    removePanel() {
-      this.panels.splice(this.panels.length - 1, 1)
-      this.carousel.position--
-    },
     handleResize() {
       this.window.width = window.innerWidth
       this.window.height = window.innerHeight
     },
+    editChecklist(checklist, index) {
+      if (this.panels.length > index) {
+        Vue.set(this.panels, index, {
+          label: 'Checklist Form',
+          activeComponent: 'Checklist',
+          payload: { checklist, originalChecklist: cloneDeep(checklist), index }
+        })
+      } else {
+        this.panels.push({
+          label: 'Checklist Form',
+          activeComponent: 'Checklist',
+          payload: { checklist, originalChecklist: cloneDeep(checklist), index }
+        })
+      }
+      this.setSelected({ checklist, index })
+    },
+    clearForm(index) {
+      this.panels.splice(index, 1)
+      this.clearSelected(index)
+    },
+    editMaster(payload) {
+      Vue.set(this.panels, payload.index, {
+        label: 'Checklist Form',
+        activeComponent: 'Checklist',
+        payload: {
+          checklist: payload.checklist,
+          originalChecklist: cloneDeep(payload.checklist),
+          index: payload.index
+        }
+      })
+    },
     ...mapActions({
-      editChecklist: 'checklist/edit'
+      setSelected: 'checklist/setSelected',
+      clearSelected: 'checklist/clearSelected'
     })
   },
   created() {
     window.addEventListener('resize', this.handleResize)
     this.handleResize()
   },
-
   destroyed() {
     window.removeEventListener('resize', this.handleResize)
   }
@@ -286,9 +277,6 @@ export default {
 </script>
 
 <style lang="scss">
-.v-sheet > .spacer {
-  height: 0.75rem;
-}
 .v-sheet > .v-select {
   margin-top: 2px;
   padding-left: 3px;

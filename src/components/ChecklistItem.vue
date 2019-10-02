@@ -30,7 +30,7 @@
             :class="{ inputError: $v.item.subject.$error }"
             :error-messages="
               $v.item.subject.$error
-                ? 'Subject is Required, and must be between 4 and 244 characters.'
+                ? 'Subject is Required, and must be between 3 and 244 characters.'
                 : ''
             "
           />
@@ -43,6 +43,9 @@
               >
             </template>
             <v-list dark color="#1565C0">
+              <v-list-item @click="embedChecklist">
+                <v-list-item-title dark>Embed New Checklist</v-list-item-title>
+              </v-list-item>
               <v-list-item @click="deleteItem">
                 <v-list-item-title dark>Delete Item</v-list-item-title>
               </v-list-item>
@@ -67,10 +70,13 @@ export default {
   },
   validations: {
     item: {
-      subject: { maxLength: maxLength(244), minLength: minLength(4), required }
+      subject: { minLength: minLength(3), maxLength: maxLength(244), required }
     }
   },
   methods: {
+    embedChecklist() {
+      this.$emit('embed-checklist')
+    },
     deleteItem() {
       this.$emit('delete-item', this.item)
     }
