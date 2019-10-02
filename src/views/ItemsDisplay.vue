@@ -95,6 +95,7 @@
 import Vue from 'vue'
 import cloneDeep from 'lodash/cloneDeep'
 import isEqual from 'lodash/isEqual'
+import has from 'lodash/has'
 import { mapActions, mapGetters } from 'vuex'
 
 import ItemSelector from '@/components/ItemSelector'
@@ -110,6 +111,8 @@ export default {
   mixins: [continueDialogMixin],
   data() {
     return {
+      checklist: {},
+      originalChecklist: {},
       panels: [
         {
           label: 'Item Selector',
@@ -166,35 +169,41 @@ export default {
           )
           this.lastItemOpened = checklist
           this.carousel.position = 1
-          this.openChecklist({ checklist, index: 0 })
+          this.openChecklist({ checklist, index: 1 })
         }
       } else {
         const checklist = this.checklists.find(
           checklist => checklist._id === this.lastItemOpened._id
         )
         this.carousel.position = 1
-        this.openChecklist({ checklist, index: 0 })
+        this.openChecklist({ checklist, index: 1 })
       }
     },
     openChecklist(payload) {
       const checklist = payload.checklist
-      const index = payload.index
+      const targetIndex = payload.index
+      // CHECK FOR UNSAVED CHANGES ON TARGET
       if (
-        this.inEdit.length > index + 1 &&
-        this.inEdit[index + 1].selectedChecklist &&
-        this.inEdit[index + 1].selectedChecklist.name &&
+        this.inEdit.length > targetIndex &&
+        has(this.inEdit[targetIndex], 'selectedChecklist.name') &&
         !isEqual(
-          this.inEdit[index + 1].selectedChecklist,
-          this.inEdit[index + 1].originalChecklist
+          this.inEdit[targetIndex].selectedChecklist,
+          this.inEdit[targetIndex].originalChecklist
         )
       ) {
-        this.dialogPromise(this.openChecklist, 'Open Checklist', checklist)
+        this.checklist = this.inEdit[targetIndex].selectedChecklist
+        this.originalChecklist = this.inEdit[targetIndex].originalChecklist
+        this.dialogPromise(
+          this.openChecklist,
+          'Open different Checklist',
+          payload
+        )
           .then(() => {
-            this.editChecklist(this.constructSelected(checklist), index + 1)
+            this.editChecklist(this.constructSelected(checklist), targetIndex)
           })
           .catch(() => {})
       } else {
-        this.editChecklist(this.constructSelected(checklist), index + 1)
+        this.editChecklist(this.constructSelected(checklist), targetIndex)
       }
     },
     constructSelected(checklist) {
