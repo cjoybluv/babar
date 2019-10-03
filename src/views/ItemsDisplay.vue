@@ -262,6 +262,13 @@ export default {
       this.window.width = window.innerWidth
       this.window.height = window.innerHeight
     },
+    checklistSaved(payload) {
+      //update this.panels so original = selected
+      Vue.set(this.panels, payload.index, {
+        checklist: payload.checklist,
+        originalChecklist: cloneDeep(payload.checklist)
+      })
+    },
     clearForm(index) {
       // panels to right of index?
       if (this.panels.length > index + 1) {

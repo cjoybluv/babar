@@ -298,14 +298,14 @@ export default {
       })
     },
     openConnection(payload) {
-      this.openItem = payload.item
+      this.openItem = payload
       this.$emit('open-connection', {
         connection: payload.connection,
         index: this.displayIndex + 1
       })
     },
     colorClass(item) {
-      return isEqual(item, this.openItem)
+      return isEqual(item, this.openItem.item)
         ? this.panelClasses[this.displayIndex + 1]
         : ''
     },
@@ -330,9 +330,9 @@ export default {
       if (!this.$v.$invalid) {
         const newChecklist = { ...this.checklist }
         if (!this.checklist.ownerId) newChecklist.ownerId = this.ownerId
-        this.$emit('move-carousel', 0)
-        this.save(this.checklist)
-        if (clear) this.clearForm(this.displayIndex)
+        this.save(newChecklist)
+        this.setSelected({ checklist: newChecklist, index: this.displayIndex })
+        if (clear) this.clearForm()
         this.$v.$reset()
       } else {
         const notification = {
