@@ -1,7 +1,15 @@
 <template>
   <v-app>
     <v-app-bar app color="primary" dark>
-      <v-toolbar-title class="display-3" dark>ljunda</v-toolbar-title>
+      <v-toolbar-title class="d-flex">
+        <v-img
+          :src="require('@/assets/ljundaLogo.png')"
+          width="35"
+          height="36"
+          class="ma-4"
+        ></v-img>
+        <h1>ljunda</h1>
+      </v-toolbar-title>
       <v-spacer></v-spacer>
       <v-btn
         v-for="link in links"
