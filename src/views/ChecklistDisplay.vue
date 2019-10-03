@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div id="checklistDisplay" class="primary lighten-2">
     <v-row no-gutters class="d-none d-sm-flex mr-2">
       <v-col
         cols="12"
