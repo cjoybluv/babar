@@ -56,16 +56,8 @@ export default {
     return {
       links: [
         {
-          label: 'Home',
-          url: '/'
-        },
-        {
           label: 'Login',
           url: '/login'
-        },
-        {
-          label: 'Dashboard',
-          url: '/dashboard'
         },
         {
           label: 'Checklists',
