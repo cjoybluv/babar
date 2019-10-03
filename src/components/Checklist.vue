@@ -15,7 +15,7 @@
                 ? 'Name is Required, and must be at least 4 characters.'
                 : ''
             "
-            @keydown="$v.checklist.name.$touch()"
+            @keydown.enter.prevent="$v.checklist.name.$touch()"
           />
         </v-col>
         <v-col cols="2" class="pl-0 pt-5">
