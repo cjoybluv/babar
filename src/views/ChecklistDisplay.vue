@@ -225,8 +225,8 @@ export default {
           activeComponent: 'Checklist',
           payload: { checklist, originalChecklist: cloneDeep(checklist), index }
         })
-        this.carousel.position++
       }
+      this.carousel.position++
       this.setSelected({ checklist, index })
     },
     constructSelected(checklist) {
