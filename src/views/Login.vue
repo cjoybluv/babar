@@ -54,7 +54,7 @@ export default {
         .then(authData => {
           NProgress.done()
           this.$router.push({
-            name: 'items',
+            name: 'checklists',
             params: { ownerId: authData.user._id }
           })
         })

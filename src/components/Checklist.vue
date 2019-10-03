@@ -139,7 +139,7 @@
               :item="item"
               :locked="locked"
               :class="colorClass(item)"
-              @embed-checklist="embedChecklist(item, index)"
+              @embed-checklist="embedChecklist(item)"
               @open-connection="openConnection"
               @delete-item="deleteItem(index)"
             />
@@ -272,10 +272,10 @@ export default {
       }
       this.newItemSubject = null
     },
-    embedChecklist(item, index) {
+    embedChecklist(item) {
       // create & save embed checklist
       this.save({
-        name: this.checklist.name + '-embed-' + index,
+        name: this.checklist.name + ' / ' + item.subject,
         ownerId: this.checklist.ownerId,
         tags: this.checklist.tags
           ? !this.checklist.tags.find(tag => tag === 'embed')

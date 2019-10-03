@@ -102,7 +102,7 @@ import Checklist from '@/components/Checklist'
 import { continueDialogMixin } from '@/mixins/continueDialog'
 
 export default {
-  name: 'ItemDisplay',
+  name: 'ChecklistDisplay',
   components: {
     ItemSelector,
     Checklist
