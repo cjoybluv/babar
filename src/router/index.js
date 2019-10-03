@@ -1,7 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import store from '@/store/store'
-import Home from '@/views/Home.vue'
 import NotFound from '@/views/NotFound.vue'
 import NetworkIssue from '@/views/NetworkIssue.vue'
 
@@ -14,8 +13,7 @@ const router = new Router({
     {
       path: '/',
       name: 'home',
-      component: Home,
-      meta: { requiresAuth: false }
+      redirect: { name: 'login' }
     },
     {
       path: '/about',
