@@ -277,9 +277,9 @@ export default {
       this.save({
         name: this.checklist.name + ' / ' + item.subject,
         ownerId: this.checklist.ownerId,
-        tags: this.checklist.tags
+        tags: this.checklist.tags.length
           ? !this.checklist.tags.find(tag => tag === 'embed')
-            ? this.checklist.tags.push('embed')
+            ? [...this.checklist.tags, 'embed']
             : []
           : ['embed'],
         parent: {
