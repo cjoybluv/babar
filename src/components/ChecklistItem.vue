@@ -9,7 +9,7 @@
         hover = true
         $v.item.subject.$touch()
       "
-      @mouseleave="hover = true"
+      @mouseleave="hover = false"
     >
       <v-row class="ml-2 ml-sm-0">
         <v-col cols="11" class="pa-0">
@@ -89,7 +89,7 @@ export default {
   props: ['item', 'locked'],
   data() {
     return {
-      hover: true,
+      hover: false,
       connectionOpened: false
     }
   },
