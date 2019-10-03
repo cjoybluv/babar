@@ -263,9 +263,85 @@ export default {
       this.window.height = window.innerHeight
     },
     clearForm(index) {
-      this.panels.splice(index, 1)
-      this.clearSelected(index)
-      this.carousel.position--
+      // panels to right of index?
+      if (this.panels.length > index + 1) {
+        let unsavedChanges = false
+        for (
+          let targetIndex = this.panels.length - 1;
+          targetIndex >= index;
+          targetIndex--
+        ) {
+          // console.log('clearForm:for', targetIndex, JSON.stringify(this.inEdit))
+          if (
+            this.inEdit.length > targetIndex &&
+            has(this.inEdit[targetIndex], 'selectedChecklist.name') &&
+            !isEqual(
+              this.inEdit[targetIndex].selectedChecklist,
+              this.inEdit[targetIndex].originalChecklist
+            )
+          ) {
+            unsavedChanges = true
+            this.checklist = this.inEdit[targetIndex].selectedChecklist
+            this.originalChecklist = this.inEdit[targetIndex].originalChecklist
+          }
+        }
+        if (unsavedChanges) {
+          this.dialogPromise(this.clearForm, 'Clear Embedded Checklist', index)
+            .then(() => {
+              for (let idx = this.panels.length - 1; idx >= index; idx--) {
+                this.panels.splice(idx, 1)
+                this.clearSelected(idx)
+                if (idx === 1) {
+                  Vue.set(this.panels, idx, {
+                    label: 'Checklist Form',
+                    activeComponent: 'Checklist',
+                    payload: {
+                      checklist: {},
+                      originalChecklist: {},
+                      index: idx
+                    }
+                  })
+                }
+              }
+            })
+            .catch(() => {
+              this.carousel.position = index
+            })
+        } else {
+          for (let idx = this.panels.length - 1; idx >= index; idx--) {
+            this.panels.splice(idx, 1)
+            this.clearSelected(idx)
+
+            if (idx === 1) {
+              Vue.set(this.panels, idx, {
+                label: 'Checklist Form',
+                activeComponent: 'Checklist',
+                payload: {
+                  checklist: {},
+                  originalChecklist: {},
+                  index: idx
+                }
+              })
+            }
+          }
+        }
+      } else {
+        this.panels.splice(index, 1)
+        this.clearSelected(index)
+        if (index === 1) {
+          Vue.set(this.panels, index, {
+            label: 'Checklist Form',
+            activeComponent: 'Checklist',
+            payload: {
+              checklist: {},
+              originalChecklist: {},
+              index: index
+            }
+          })
+        } else {
+          this.carousel.position--
+        }
+      }
     },
     editMaster(payload) {
       Vue.set(this.panels, payload.index, {
@@ -279,7 +355,13 @@ export default {
       })
     },
     openConnection(payload) {
-      const checklist = this.getChecklistById(payload.connection.resourceId)
+      const checklist = cloneDeep(
+        this.getChecklistById(payload.connection.resourceId)
+      )
+      this.setSelected({
+        checklist,
+        index: payload.index
+      })
       Vue.set(this.panels, payload.index, {
         label: 'Checklist Form',
         activeComponent: 'Checklist',

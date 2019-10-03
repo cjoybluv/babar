@@ -345,7 +345,6 @@ export default {
     clearHandler() {
       this.dialogPromise(this.clearHandler, 'Clear the Form', null)
         .then(() => {
-          this.$emit('move-carousel', 0)
           this.clearForm(this.displayIndex)
         })
         .catch(() => {})
