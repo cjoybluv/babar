@@ -111,6 +111,7 @@
             v-model.trim="newItemSubject"
             label="Enter New Item"
             @keydown.enter="addItem"
+            @keydown.tab="addItem"
             append-outer-icon="mdi-plus"
             @click:append-outer="addItem"
             :class="{ inputError: $v.newItemSubject.$error }"
