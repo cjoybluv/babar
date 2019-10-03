@@ -224,7 +224,7 @@ export default {
       dragging: false,
       openOptions: false,
       panelClasses: [
-        '',
+        'primary',
         'primary lighten-1',
         'primary lighten-2',
         'primary darken-1',
@@ -309,9 +309,9 @@ export default {
       })
     },
     colorClass(item) {
-      return isEqual(item, this.openItem.item)
-        ? this.panelClasses[this.displayIndex + 1]
-        : ''
+      let idx =
+        this.displayIndex > 5 ? this.displayIndex - 7 : this.displayIndex
+      return isEqual(item, this.openItem.item) ? this.panelClasses[idx + 1] : ''
     },
     deleteItem(index) {
       this.checklist.items.splice(index, 1)

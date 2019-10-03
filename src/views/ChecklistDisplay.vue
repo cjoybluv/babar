@@ -1,18 +1,20 @@
 <template>
-  <div id="checklist-display" class="primary lighten-2">
+  <div id="checklist-display" class="primary lighten-2" resize="onResize">
     <v-row no-gutters class="d-none d-sm-flex mr-2">
       <v-col
         cols="12"
+        sm="6"
         md="4"
+        xl="3"
         v-for="(panel, index) in panels"
         :key="index"
-        v-show="panels.length - index < 4"
+        v-show="panels.length - index < window.panelsToDisplay + 1"
       >
         <v-sheet
           tile
           :min-height="window.height - window.heightReduction"
           class="primary sheet-scroll"
-          :class="panelClasses[index]"
+          :class="panelClasses[index > 6 ? index - 7 : index]"
         >
           <ItemSelector
             :payload="panels[index].payload"
@@ -32,11 +34,7 @@
     </v-row>
     <v-row no-gutters class="d-flex d-sm-none">
       <v-carousel v-model="carousel.position" :show-arrows="false" dark>
-        <v-carousel-item
-          v-for="(panel, index) in panels"
-          :key="index"
-          v-show="panels.length - index < 4"
-        >
+        <v-carousel-item v-for="(panel, index) in panels" :key="index">
           <v-sheet
             tile
             class="primary pa-2 carousel-scroll"
@@ -134,7 +132,8 @@ export default {
       window: {
         width: 0,
         height: 0,
-        heightReduction: 0
+        heightReduction: 0,
+        panelsToDisplay: 3
       }
     }
   },
@@ -375,17 +374,26 @@ export default {
       })
       this.carousel.position++
     },
+    onResize() {
+      this.window.width = window.innerWidth
+      this.window.height = window.innerHeight
+      if (this.window.width < 600) {
+        this.window.panelsToDisplay = 1
+      } else if (this.window.width < 960) {
+        this.window.panelsToDisplay = 2
+      } else if (this.window.width < 1904) {
+        this.window.panelsToDisplay = 3
+      } else {
+        this.window.panelsToDisplay = 4
+      }
+    },
     ...mapActions({
       setSelected: 'checklist/setSelected',
       clearSelected: 'checklist/clearSelected'
     })
   },
-  created() {
-    window.addEventListener('resize', this.handleResize)
-    this.handleResize()
-  },
-  destroyed() {
-    window.removeEventListener('resize', this.handleResize)
+  mounted() {
+    this.onResize()
   }
 }
 </script>
