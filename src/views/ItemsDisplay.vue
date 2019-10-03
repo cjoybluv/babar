@@ -37,39 +37,31 @@
         dark
         hide-delimiter-background
       >
-        <v-carousel-item>
-          <v-sheet
-            tile
-            :min-height="window.height - window.heightReduction"
-            class="primary pa-2"
-          >
-            <h1 class="headline white--text">Welcome to Checklists</h1>
-            <v-spacer></v-spacer>
-            <p class="body-2 white--text">
-              After you have saved checklists, they will be displayed in this
-              panel.
-            </p>
-            <p class="body-2 white--text">
-              Use the panel to the right to create a checklist.
-            </p>
-          </v-sheet>
-        </v-carousel-item>
-        <v-carousel-item>
-          <v-sheet
-            tile
-            class="primary lighten-1 pa-2"
-            :min-height="window.height - window.heightReduction"
-          >
-            <!-- <Checklist /> -->
-          </v-sheet>
-        </v-carousel-item>
-        <v-carousel-item v-for="(panel, index) in panels" :key="index">
+        <v-carousel-item
+          v-for="(panel, index) in panels"
+          :key="index"
+          v-show="panels.length - index < 4"
+        >
           <v-sheet
             tile
             class="primary pa-2"
             :class="panelClasses[index]"
             :min-height="window.height - window.heightReduction"
-          ></v-sheet>
+          >
+            <ItemSelector
+              :payload="panels[index].payload"
+              v-if="showMe('ItemSelector', index)"
+            />
+
+            <Checklist
+              :payload="panels[index].payload"
+              v-if="showMe('Checklist', index)"
+              @open-checklist="openChecklist"
+              @clear-form="clearForm(index)"
+              @edit-master="editMaster"
+              @open-connection="openConnection"
+            />
+          </v-sheet>
         </v-carousel-item>
       </v-carousel>
     </v-row>
@@ -175,14 +167,14 @@ export default {
             checklist => checklist._id === map.id
           )
           this.lastItemOpened = checklist
-          this.carousel.position = 1
+          // this.carousel.position = 1
           this.openChecklist({ checklist, index: 1 })
         }
       } else {
         const checklist = this.checklists.find(
           checklist => checklist._id === this.lastItemOpened._id
         )
-        this.carousel.position = 1
+        // this.carousel.position = 1
         this.openChecklist({ checklist, index: 1 })
       }
     },
@@ -208,10 +200,29 @@ export default {
           .then(() => {
             this.editChecklist(this.constructSelected(checklist), targetIndex)
           })
-          .catch(() => {})
+          .catch(() => {
+            this.carousel.position = targetIndex
+          })
       } else {
         this.editChecklist(this.constructSelected(checklist), targetIndex)
       }
+    },
+    editChecklist(checklist, index) {
+      if (this.panels.length > index) {
+        Vue.set(this.panels, index, {
+          label: 'Checklist Form',
+          activeComponent: 'Checklist',
+          payload: { checklist, originalChecklist: cloneDeep(checklist), index }
+        })
+      } else {
+        this.panels.push({
+          label: 'Checklist Form',
+          activeComponent: 'Checklist',
+          payload: { checklist, originalChecklist: cloneDeep(checklist), index }
+        })
+        this.carousel.position++
+      }
+      this.setSelected({ checklist, index })
     },
     constructSelected(checklist) {
       let selectedChecklist
@@ -246,25 +257,10 @@ export default {
       this.window.width = window.innerWidth
       this.window.height = window.innerHeight
     },
-    editChecklist(checklist, index) {
-      if (this.panels.length > index) {
-        Vue.set(this.panels, index, {
-          label: 'Checklist Form',
-          activeComponent: 'Checklist',
-          payload: { checklist, originalChecklist: cloneDeep(checklist), index }
-        })
-      } else {
-        this.panels.push({
-          label: 'Checklist Form',
-          activeComponent: 'Checklist',
-          payload: { checklist, originalChecklist: cloneDeep(checklist), index }
-        })
-      }
-      this.setSelected({ checklist, index })
-    },
     clearForm(index) {
       this.panels.splice(index, 1)
       this.clearSelected(index)
+      this.carousel.position--
     },
     editMaster(payload) {
       Vue.set(this.panels, payload.index, {
@@ -288,6 +284,7 @@ export default {
           index: payload.index
         }
       })
+      this.carousel.position++
     },
     ...mapActions({
       setSelected: 'checklist/setSelected',
