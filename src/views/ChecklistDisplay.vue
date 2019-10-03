@@ -1,5 +1,5 @@
 <template>
-  <div id="checklistDisplay" class="primary lighten-2">
+  <div id="checklist-display" class="primary lighten-2">
     <v-row no-gutters class="d-none d-sm-flex mr-2">
       <v-col
         cols="12"
@@ -11,7 +11,7 @@
         <v-sheet
           tile
           :min-height="window.height - window.heightReduction"
-          class="primary"
+          class="primary sheet-scroll"
           :class="panelClasses[index]"
         >
           <ItemSelector
@@ -31,12 +31,7 @@
       </v-col>
     </v-row>
     <v-row no-gutters class="d-flex d-sm-none">
-      <v-carousel
-        v-model="carousel.position"
-        :show-arrows="false"
-        dark
-        hide-delimiter-background
-      >
+      <v-carousel v-model="carousel.position" :show-arrows="false" dark>
         <v-carousel-item
           v-for="(panel, index) in panels"
           :key="index"
@@ -44,7 +39,7 @@
         >
           <v-sheet
             tile
-            class="primary pa-2"
+            class="primary pa-2 carousel-scroll"
             :class="panelClasses[index]"
             :min-height="window.height - window.heightReduction"
           >
@@ -396,6 +391,16 @@ export default {
 </script>
 
 <style lang="scss">
+.v-sheet {
+  max-height: 450px;
+  overflow: scroll;
+}
+.sheet-scroll {
+  min-height: 515px !important;
+}
+.carousel-scroll {
+  min-height: 450px !important;
+}
 .v-sheet > .v-select {
   margin-top: 2px;
   padding-left: 3px;
