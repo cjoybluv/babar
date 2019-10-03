@@ -392,14 +392,19 @@ export default {
 
 <style lang="scss">
 .v-sheet {
-  max-height: 450px;
+  max-height: 515px;
   overflow: scroll;
 }
 .sheet-scroll {
   min-height: 515px !important;
 }
+.v-carousel,
+.v-carousel__item {
+  height: 575px !important;
+}
 .carousel-scroll {
-  min-height: 450px !important;
+  min-height: 525px !important;
+  max-height: 525px !important;
 }
 .v-sheet > .v-select {
   margin-top: 2px;
