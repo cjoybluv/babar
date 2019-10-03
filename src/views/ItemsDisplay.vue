@@ -117,6 +117,11 @@ export default {
           label: 'Item Selector',
           activeComponent: 'ItemSelector',
           payload: { items: this.checklists, clickHandler: this.clickHandler }
+        },
+        {
+          label: 'Checklist Form',
+          activeComponent: 'Checklist',
+          payload: { checklist: {}, originalChecklist: {}, index: 1 }
         }
       ],
       panelClasses: [
