@@ -7,8 +7,7 @@ export const namespaced = true
 
 export const state = {
   checklists: [],
-  selectedChecklist: {},
-  originalChecklist: {}
+  inEdit: []
 }
 
 export const getters = {
@@ -42,18 +41,19 @@ export const mutations = {
     const idx = state.checklists.findIndex(
       checklist => checklist._id === updatedChecklist._id
     )
-    // state.checklists[idx] = updatedChecklist
     Vue.set(state.checklists, idx, updatedChecklist)
   },
   SAVE_CHECKLIST(state, checklist) {
     state.checklists.push(checklist)
   },
-  SET_SELECTED_CHECKLIST(state, selectedChecklist) {
-    state.selectedChecklist = selectedChecklist
-    state.originalChecklist = cloneDeep(selectedChecklist)
+  SET_SELECTED_CHECKLIST(state, payload) {
+    Vue.set(state.inEdit, payload.index, {
+      selectedChecklist: payload.checklist,
+      originalChecklist: cloneDeep(payload.checklist)
+    })
   },
-  CLEAR_SELECTED_CHECKLIST(state) {
-    state.selectedChecklist = {}
+  CLEAR_SELECTED_CHECKLIST(state, index) {
+    state.inEdit.splice(index, 1)
   }
 }
 
@@ -87,15 +87,15 @@ export const actions = {
         })
     })
   },
-  edit({ commit }, checklist) {
+  setSelected({ commit }, payload) {
     return new Promise(resolve => {
-      commit('SET_SELECTED_CHECKLIST', checklist)
+      commit('SET_SELECTED_CHECKLIST', payload)
       resolve()
     })
   },
-  clearForm({ commit }) {
+  clearSelected({ commit }, index) {
     return new Promise(resolve => {
-      commit('CLEAR_SELECTED_CHECKLIST')
+      commit('CLEAR_SELECTED_CHECKLIST', index)
       resolve()
     })
   },
@@ -106,7 +106,7 @@ export const actions = {
         ChecklistService.putChecklist(checklist)
           .then(response => {
             commit('UPDATE_CHECKLIST', response.data)
-            commit('CLEAR_SELECTED_CHECKLIST')
+            // commit('CLEAR_SELECTED_CHECKLIST')
             let updateUser = false
             let userTags = rootState.auth.user.tags
             checklist.tags.forEach(tag => {
@@ -148,7 +148,7 @@ export const actions = {
         ChecklistService.postChecklist(checklist)
           .then(response => {
             commit('SAVE_CHECKLIST', response.data)
-            commit('CLEAR_SELECTED_CHECKLIST')
+            // commit('CLEAR_SELECTED_CHECKLIST')
             dispatch(
               'updateTreeViewDisplay',
               rootState.treeView.selectedHeaderField

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-form @submit.prevent="saveHandler" class="pl-3">
+    <v-form @submit.prevent="saveHandler(true)" class="pl-3">
       <v-row>
         <v-col class="pb-0">
           <v-text-field
@@ -116,7 +116,7 @@
             :class="{ inputError: $v.newItemSubject.$error }"
             :error-messages="
               $v.newItemSubject.$error
-                ? 'Subject must be between 4 and 244 characters.'
+                ? 'Subject must be between 3 and 244 characters.'
                 : ''
             "
             @keydown="$v.newItemSubject.$touch()"
@@ -134,11 +134,14 @@
             @end="dragging = false"
           >
             <ChecklistItem
-              v-for="item in checklist.items"
+              v-for="(item, index) in checklist.items"
               :key="item.key"
               :item="item"
               :locked="locked"
-              @delete-item="deleteItem"
+              :class="colorClass(item)"
+              @embed-checklist="embedChecklist(item)"
+              @open-connection="openConnection"
+              @delete-item="deleteItem(index)"
             />
           </draggable>
         </v-col>
@@ -179,7 +182,7 @@
 </template>
 
 <script>
-// import isEqual from 'lodash/isEqual'
+import isEqual from 'lodash/isEqual'
 import cloneDeep from 'lodash/cloneDeep'
 import uuidv4 from 'uuid/v4'
 import { mapActions, mapGetters } from 'vuex'
@@ -190,6 +193,7 @@ import { continueDialogMixin } from '@/mixins/continueDialog'
 
 export default {
   name: 'Checklist',
+  props: ['payload'],
   components: {
     ChecklistItem,
     draggable
@@ -197,10 +201,13 @@ export default {
   mixins: [continueDialogMixin],
   computed: {
     checklist() {
-      return this.$store.state.checklist.selectedChecklist
+      return this.payload.checklist
     },
     originalChecklist() {
-      return this.$store.state.checklist.originalChecklist
+      return this.payload.originalChecklist
+    },
+    displayIndex() {
+      return this.payload.index
     },
     locked() {
       return this.checklist.masterLocked && this.checklist.sourceMasterId
@@ -215,7 +222,17 @@ export default {
     return {
       newItemSubject: '',
       dragging: false,
-      openOptions: false
+      openOptions: false,
+      panelClasses: [
+        '',
+        'primary lighten-1',
+        'primary lighten-2',
+        'primary darken-1',
+        'primary darken-2',
+        'primary darken-3',
+        'primary darken-4'
+      ],
+      openItem: {}
     }
   },
   validations: {
@@ -225,13 +242,13 @@ export default {
         $each: {
           subject: {
             required,
-            minLength: minLength(4),
+            minLength: minLength(3),
             maxLength: maxLength(244)
           }
         }
       }
     },
-    newItemSubject: { minLength: minLength(4), maxLength: maxLength(244) }
+    newItemSubject: { minLength: minLength(3), maxLength: maxLength(244) }
   },
   methods: {
     addItem() {
@@ -255,11 +272,49 @@ export default {
       }
       this.newItemSubject = null
     },
-    deleteItem(itemToDelete) {
-      const idx = this.checklist.items.findIndex(
-        item => item.key === itemToDelete.key
-      )
-      this.checklist.items.splice(idx, 1)
+    embedChecklist(item) {
+      // create & save embed checklist
+      this.save({
+        name: this.checklist.name + ' / ' + item.subject,
+        ownerId: this.checklist.ownerId,
+        tags: this.checklist.tags
+          ? !this.checklist.tags.find(tag => tag === 'embed')
+            ? this.checklist.tags.push('embed')
+            : []
+          : ['embed'],
+        parent: {
+          resource: 'checklist',
+          resourceId: this.checklist._id
+        }
+      }).then(embedChecklist => {
+        // connect it to item
+        !item.connections ? (item.connections = []) : true
+        item.connections.push({
+          resource: 'checklist',
+          resourceId: embedChecklist._id
+        })
+        this.$emit('open-checklist', {
+          checklist: embedChecklist,
+          index: this.displayIndex + 1
+        })
+        // save this.checklist without exit
+        this.saveHandler(false)
+      })
+    },
+    openConnection(payload) {
+      this.openItem = payload
+      this.$emit('open-connection', {
+        connection: payload.connection,
+        index: this.displayIndex + 1
+      })
+    },
+    colorClass(item) {
+      return isEqual(item, this.openItem.item)
+        ? this.panelClasses[this.displayIndex + 1]
+        : ''
+    },
+    deleteItem(index) {
+      this.checklist.items.splice(index, 1)
     },
     tagIConv(v) {
       if (!v.length || !this.userTags.length) return false
@@ -274,13 +329,14 @@ export default {
       })
       return true
     },
-    saveHandler() {
+    saveHandler(clear) {
       this.openOptions = false
       if (!this.$v.$invalid) {
         const newChecklist = { ...this.checklist }
         if (!this.checklist.ownerId) newChecklist.ownerId = this.ownerId
-        this.$emit('move-carousel', 0)
-        this.save(this.checklist)
+        this.save(newChecklist)
+        this.setSelected({ checklist: newChecklist, index: this.displayIndex })
+        if (clear) this.clearForm()
         this.$v.$reset()
       } else {
         const notification = {
@@ -293,8 +349,7 @@ export default {
     clearHandler() {
       this.dialogPromise(this.clearHandler, 'Clear the Form', null)
         .then(() => {
-          this.$emit('move-carousel', 0)
-          this.clearForm()
+          this.clearForm(this.displayIndex)
         })
         .catch(() => {})
     },
@@ -302,14 +357,20 @@ export default {
       this.dialogPromise(this.editMaster, 'Edit Master Checklist', null)
         .then(() => {
           const checklist = this.getChecklistById(this.checklist.sourceMasterId)
-          this.edit(cloneDeep(checklist))
+          this.setSelected({
+            checklist: cloneDeep(checklist),
+            index: this.displayIndex
+          })
+          this.$emit('edit-master', { checklist, index: this.displayIndex })
         })
         .catch(() => {})
     },
+    clearForm() {
+      this.$emit('clear-form')
+    },
     ...mapActions({
       save: 'checklist/save',
-      clearForm: 'checklist/clearForm',
-      edit: 'checklist/edit',
+      setSelected: 'checklist/setSelected',
       notify: 'notification/add'
     })
   }

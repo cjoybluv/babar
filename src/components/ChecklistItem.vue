@@ -30,24 +30,51 @@
             :class="{ inputError: $v.item.subject.$error }"
             :error-messages="
               $v.item.subject.$error
-                ? 'Subject is Required, and must be between 4 and 244 characters.'
+                ? 'Subject is Required, and must be between 3 and 244 characters.'
                 : ''
             "
           />
         </v-col>
         <v-col class="pa-0" v-show="hover && !locked">
-          <v-menu class="primray lighten-2">
-            <template v-slot:activator="{ on }">
-              <v-icon dense v-on="on" dark class="pt-2"
-                >mdi-dots-vertical</v-icon
-              >
-            </template>
-            <v-list dark color="#1565C0">
-              <v-list-item @click="deleteItem">
-                <v-list-item-title dark>Delete Item</v-list-item-title>
-              </v-list-item>
-            </v-list>
-          </v-menu>
+          <v-row>
+            <v-menu class="primray lighten-2">
+              <template v-slot:activator="{ on }">
+                <v-icon dense v-on="on" dark class="pt-3 pl-2"
+                  >mdi-dots-vertical</v-icon
+                >
+              </template>
+              <v-list dark color="#1565C0">
+                <v-list-item @click="embedChecklist">
+                  <v-list-item-title dark
+                    >Embed New Checklist</v-list-item-title
+                  >
+                </v-list-item>
+                <v-list-item @click="deleteItem">
+                  <v-list-item-title dark>Delete Item</v-list-item-title>
+                </v-list-item>
+              </v-list>
+            </v-menu>
+          </v-row>
+          <v-row v-if="item.connections && item.connections.length">
+            <v-menu class="primray lighten-2">
+              <template v-slot:activator="{ on }">
+                <v-icon dense v-on="on" dark class="pt-3 pl-2"
+                  >mdi-vector-link</v-icon
+                >
+              </template>
+              <v-list dark color="#1565C0">
+                <v-list-item
+                  v-for="connection in item.connections"
+                  :key="connection.resourceId"
+                >
+                  <v-list-item-title dark @click="openConnection(connection)">
+                    {{ connection.resource }}:
+                    {{ connection.resourceId }}
+                  </v-list-item-title>
+                </v-list-item>
+              </v-list>
+            </v-menu>
+          </v-row>
         </v-col>
       </v-row>
     </v-col>
@@ -62,17 +89,25 @@ export default {
   props: ['item', 'locked'],
   data() {
     return {
-      hover: true
+      hover: false,
+      connectionOpened: false
     }
   },
   validations: {
     item: {
-      subject: { maxLength: maxLength(244), minLength: minLength(4), required }
+      subject: { minLength: minLength(3), maxLength: maxLength(244), required }
     }
   },
   methods: {
+    embedChecklist() {
+      this.$emit('embed-checklist')
+    },
     deleteItem() {
       this.$emit('delete-item', this.item)
+    },
+    openConnection(connection) {
+      this.connectionOpened = true
+      this.$emit('open-connection', { item: this.item, connection })
     }
   }
 }
@@ -92,6 +127,7 @@ export default {
     background-color: #1e88e5;
   }
   & .mdi-cursor-move,
+  .mdi-vector-link,
   .mdi-dots-vertical {
     font-size: 1rem !important;
   }
