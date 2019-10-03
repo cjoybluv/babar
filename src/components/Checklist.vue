@@ -281,7 +281,11 @@ export default {
           ? !this.checklist.tags.find(tag => tag === 'embed')
             ? this.checklist.tags.push('embed')
             : []
-          : ['embed']
+          : ['embed'],
+        parent: {
+          resource: 'checklist',
+          resourceId: this.checklist._id
+        }
       }).then(embedChecklist => {
         // connect it to item
         !item.connections ? (item.connections = []) : true

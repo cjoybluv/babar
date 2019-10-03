@@ -39,7 +39,8 @@ const ChecklistSchema = new Schema({
       completed: Boolean,
       connections: [ConnectionSchema]
     }
-  ]
+  ],
+  parent: ConnectionSchema
 })
 
 const Checklist = mongoose.model('Checklist', ChecklistSchema)
