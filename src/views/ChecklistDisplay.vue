@@ -405,8 +405,8 @@ export default {
   max-height: calc(var(--height) - 112px) !important;
 }
 .carousel-scroll {
-  min-height: calc(var(--height) - 112px) !important;
-  max-height: calc(var(--height) - 112px) !important;
+  min-height: calc(var(--height) - 162px) !important;
+  max-height: calc(var(--height) - 162px) !important;
   overflow: scroll;
 }
 .v-sheet > .v-select {
