@@ -16,6 +16,18 @@
     </v-app-bar>
     <v-navigation-drawer v-model="drawer" app>
       <v-list dense>
+        <v-list-item>
+          <v-list-item-avatar>
+            <v-icon>mdi-account</v-icon>
+          </v-list-item-avatar>
+
+          <v-list-item-content>
+            <v-list-item-title>{{ user.fullName }}</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+
+        <v-divider></v-divider>
+
         <v-list-item
           v-for="link in links"
           :key="link.label"
@@ -62,7 +74,7 @@ export default {
   },
   data() {
     return {
-      drawer: false,
+      drawer: true,
       links: [
         {
           label: 'Login',
@@ -73,6 +85,11 @@ export default {
           url: '/checklists'
         }
       ]
+    }
+  },
+  computed: {
+    user() {
+      return this.$store.state.auth.user
     }
   }
 }
