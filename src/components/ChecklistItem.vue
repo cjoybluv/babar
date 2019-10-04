@@ -4,7 +4,7 @@
       <v-checkbox dark class="mt-0 pt-0" v-model="item.completed"></v-checkbox>
     </v-col>
     <v-col
-      class="pa-0 pr-5"
+      class="py-0 px-2"
       @mouseover="
         hover = true
         $v.item.subject.$touch()

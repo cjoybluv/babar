@@ -1,44 +1,54 @@
 <template>
   <v-app>
     <v-app-bar app color="primary" dark>
-      <v-toolbar-title class="d-flex">
-        <v-img
-          :src="require('@/assets/ljundaLogo.png')"
-          width="35"
-          height="36"
-          class="ma-4"
-        ></v-img>
-        <h1>ljunda</h1>
+      <v-toolbar-title class="d-flex flex-grow-1 justify-space-between">
+        <v-icon @click="drawer = !drawer">mdi-menu</v-icon>
+        <div class="d-flex">
+          <h1>ljunda</h1>
+          <v-img
+            :src="require('@/assets/ljundaLogo.png')"
+            width="35"
+            height="36"
+            class="ma-4"
+          ></v-img>
+        </div>
       </v-toolbar-title>
-      <v-spacer></v-spacer>
-      <v-btn
-        v-for="link in links"
-        :key="`${link.label}-header-link`"
-        text
-        rounded
-        :to="link.url"
-        >{{ link.label }}</v-btn
-      >
     </v-app-bar>
+    <v-navigation-drawer v-model="drawer" app>
+      <v-list dense>
+        <v-list-item>
+          <v-list-item-avatar>
+            <v-icon>mdi-account</v-icon>
+          </v-list-item-avatar>
+
+          <v-list-item-content>
+            <v-list-item-title>{{ user.fullName }}</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+
+        <v-divider></v-divider>
+
+        <v-list-item
+          v-for="link in links"
+          :key="link.label"
+          link
+          :to="link.url"
+        >
+          <v-list-item-content>
+            <v-list-item-title>{{ link.label }}</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+      </v-list>
+    </v-navigation-drawer>
     <v-content>
       <NotificationContainer />
       <router-view></router-view>
     </v-content>
     <v-footer color="primary lighten-1" padless>
       <v-layout justify-center wrap>
-        <v-btn
-          v-for="link in links"
-          :key="`${link.label}-footer-link`"
-          color="white"
-          text
-          rounded
-          class="my-2"
-          :to="link.url"
-          >{{ link.label }}</v-btn
-        >
         <v-flex primary lighten-2 py-4 text-center white--text xs12>
           {{ new Date().getFullYear() }} —
-          <strong>Babar</strong>
+          <strong>ljunda</strong>
         </v-flex>
       </v-layout>
     </v-footer>
@@ -54,6 +64,7 @@ export default {
   },
   data() {
     return {
+      drawer: true,
       links: [
         {
           label: 'Login',
@@ -64,6 +75,11 @@ export default {
           url: '/checklists'
         }
       ]
+    }
+  },
+  computed: {
+    user() {
+      return this.$store.state.auth.user
     }
   }
 }
