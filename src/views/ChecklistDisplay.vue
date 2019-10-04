@@ -21,10 +21,7 @@
           class="fill-height primary sheet-scroll"
           :class="panelClasses[index > 6 ? index - 7 : index]"
         >
-          <ItemSelector
-            :payload="panels[index].payload"
-            v-if="showMe('ItemSelector', index)"
-          />
+          <ItemSelector :payload="panels[index].payload" v-if="showMe('ItemSelector', index)" />
 
           <Checklist
             :payload="panels[index].payload"
@@ -40,15 +37,8 @@
     <v-row no-gutters class="d-flex d-sm-none">
       <v-carousel v-model="carousel.position" :show-arrows="false" dark>
         <v-carousel-item v-for="(panel, index) in panels" :key="index">
-          <v-sheet
-            tile
-            class="primary pa-2 carousel-scroll"
-            :class="panelClasses[index]"
-          >
-            <ItemSelector
-              :payload="panels[index].payload"
-              v-if="showMe('ItemSelector', index)"
-            />
+          <v-sheet tile class="primary pa-2 carousel-scroll" :class="panelClasses[index]">
+            <ItemSelector :payload="panels[index].payload" v-if="showMe('ItemSelector', index)" />
 
             <Checklist
               :payload="panels[index].payload"
@@ -64,15 +54,12 @@
     </v-row>
     <v-dialog v-model="continueDialog.open" width="500" persistent>
       <v-card>
-        <v-card-title class="headline grey lighten-2" primary-title
-          >Continue?</v-card-title
-        >
+        <v-card-title class="headline grey lighten-2" primary-title>Continue?</v-card-title>
 
         <v-card-text>
           There are unsaved changes on the form. Do you wish to abandon changes
           and continue with
-          <strong>{{ continueDialog.sourceDescription }}</strong
-          >, or return to the form?
+          <strong>{{ continueDialog.sourceDescription }}</strong>, or return to the form?
         </v-card-text>
 
         <v-divider></v-divider>
@@ -418,8 +405,8 @@ export default {
   max-height: calc(var(--height) - 112px) !important;
 }
 .carousel-scroll {
-  min-height: calc(var(--height) - 162px) !important;
-  max-height: calc(var(--height) - 162px) !important;
+  min-height: calc(var(--height) - 112px) !important;
+  max-height: calc(var(--height) - 112px) !important;
   overflow: scroll;
 }
 .v-sheet > .v-select {
