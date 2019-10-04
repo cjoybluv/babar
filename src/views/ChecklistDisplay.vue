@@ -19,7 +19,6 @@
         <v-sheet
           tile
           class="fill-height primary sheet-scroll"
-          :style="cssVars"
           :class="panelClasses[index > 6 ? index - 7 : index]"
         >
           <ItemSelector
