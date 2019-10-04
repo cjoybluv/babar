@@ -1,25 +1,33 @@
 <template>
   <v-app>
     <v-app-bar app color="primary" dark>
-      <v-toolbar-title class="d-flex">
-        <v-img
-          :src="require('@/assets/ljundaLogo.png')"
-          width="35"
-          height="36"
-          class="ma-4"
-        ></v-img>
-        <h1>ljunda</h1>
+      <v-toolbar-title class="d-flex flex-grow-1 justify-space-between">
+        <v-icon @click="drawer = !drawer">mdi-menu</v-icon>
+        <div class="d-flex">
+          <h1>ljunda</h1>
+          <v-img
+            :src="require('@/assets/ljundaLogo.png')"
+            width="35"
+            height="36"
+            class="ma-4"
+          ></v-img>
+        </div>
       </v-toolbar-title>
-      <v-spacer></v-spacer>
-      <v-btn
-        v-for="link in links"
-        :key="`${link.label}-header-link`"
-        text
-        rounded
-        :to="link.url"
-        >{{ link.label }}</v-btn
-      >
     </v-app-bar>
+    <v-navigation-drawer v-model="drawer" app>
+      <v-list dense>
+        <v-list-item
+          v-for="link in links"
+          :key="link.label"
+          link
+          :to="link.url"
+        >
+          <v-list-item-content>
+            <v-list-item-title>{{ link.label }}</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+      </v-list>
+    </v-navigation-drawer>
     <v-content>
       <NotificationContainer />
       <router-view></router-view>
@@ -54,6 +62,7 @@ export default {
   },
   data() {
     return {
+      drawer: false,
       links: [
         {
           label: 'Login',
