@@ -136,7 +136,6 @@ export default {
       window: {
         width: 0,
         height: 0,
-        heightReduction: 0,
         panelsToDisplay: 3
       }
     }
