@@ -1,19 +1,25 @@
 <template>
-  <div id="checklist-display" class="primary lighten-2" resize="onResize">
-    <v-row no-gutters class="d-none d-sm-flex mr-2">
+  <div
+    id="checklist-display"
+    class="fill-height primary lighten-2"
+    resize="onResize"
+    :style="cssVars"
+  >
+    <v-row no-gutters class="d-none d-sm-flex fill-height mr-2">
       <v-col
         cols="12"
         sm="6"
         md="4"
         xl="3"
+        class="fill-height"
         v-for="(panel, index) in panels"
         :key="index"
         v-show="panels.length - index < window.panelsToDisplay + 1"
       >
         <v-sheet
           tile
-          :min-height="window.height - window.heightReduction"
-          class="primary sheet-scroll"
+          class="fill-height primary sheet-scroll"
+          :style="cssVars"
           :class="panelClasses[index > 6 ? index - 7 : index]"
         >
           <ItemSelector
@@ -39,7 +45,6 @@
             tile
             class="primary pa-2 carousel-scroll"
             :class="panelClasses[index]"
-            :min-height="window.height - window.heightReduction"
           >
             <ItemSelector
               :payload="panels[index].payload"
@@ -149,6 +154,11 @@ export default {
     },
     treeViewItemMap() {
       return this.$store.state.treeView.itemMap
+    },
+    cssVars() {
+      return {
+        '--height': this.window.height + 'px'
+      }
     },
     ...mapGetters({
       getChecklistById: 'checklist/getChecklistById'
@@ -399,20 +409,20 @@ export default {
 </script>
 
 <style lang="scss">
-.v-sheet {
-  max-height: 515px;
-  overflow: scroll;
-}
 .sheet-scroll {
-  min-height: 515px !important;
+  max-height: calc(var(--height) - 112px) !important;
+  min-height: calc(var(--height) - 112px) !important;
+  overflow: scroll;
 }
 .v-carousel,
 .v-carousel__item {
-  height: 575px !important;
+  min-height: calc(var(--height) - 112px) !important;
+  max-height: calc(var(--height) - 112px) !important;
 }
 .carousel-scroll {
-  min-height: 525px !important;
-  max-height: 525px !important;
+  min-height: calc(var(--height) - 162px) !important;
+  max-height: calc(var(--height) - 162px) !important;
+  overflow: scroll;
 }
 .v-sheet > .v-select {
   margin-top: 2px;
