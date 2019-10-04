@@ -1,5 +1,5 @@
 <template>
-  <v-app>
+  <v-app resize="onResize">
     <v-app-bar app color="primary" dark>
       <v-toolbar-title class="d-flex flex-grow-1 justify-space-between">
         <v-icon @click="drawer = !drawer">mdi-menu</v-icon>
@@ -64,7 +64,11 @@ export default {
   },
   data() {
     return {
-      drawer: true,
+      window: {
+        width: 0,
+        height: 0
+      },
+      drawer: false,
       links: [
         {
           label: 'Login',
@@ -81,6 +85,15 @@ export default {
     user() {
       return this.$store.state.auth.user
     }
+  },
+  methods: {
+    onResize() {
+      this.window.width = window.innerWidth
+      this.window.height = window.innerHeight
+    }
+  },
+  mounted() {
+    this.onResize()
   }
 }
 </script>
